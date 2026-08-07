@@ -61,12 +61,73 @@ export default async function HakkindaSayfasi() {
           </dd>
         </div>
         <div>
+          <dt className="font-medium text-metin">
+            Hastane, itfaiye ve sağlık merkezleri
+          </dt>
+          <dd className="text-metin-2">
+            <a
+              href="https://www.openstreetmap.org/copyright"
+              className="text-vurgu underline"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              OpenStreetMap
+            </a>{" "}
+            katkıcıları, ODbL lisansı. Bu kurumların halka açık ve serbest
+            lisanslı bir konum servisi bulunamadığı için topluluk verisi
+            kullanılıyor.{" "}
+            <strong className="text-metin">Liste eksik olabilir</strong> —
+            haritada görünmemesi orada tesis olmadığı anlamına gelmez. Eczaneler
+            bilerek dışarıda: afet anında nöbetçi olmayan eczane kapalıdır ve
+            veri bütçesinin büyük kısmını tek başına harcıyordu.
+          </dd>
+        </div>
+        <div>
+          <dt className="font-medium text-metin">
+            Afet davranışı, hazırlık ve mit içerikleri
+          </dt>
+          <dd className="text-metin-2">
+            AFAD, MGM, OGM, DSİ ile USGS, FEMA, WHO, INSARAG ve Sphere
+            standartları. Kritik davranış iddiaları en az bir Türkiye-resmî ve
+            bir uluslararası otorite kaynağıyla teyit edilir; kaynak künyesi her{" "}
+            <Link href="/afet-ani" className="text-vurgu underline">
+              afet sayfasının
+            </Link>{" "}
+            altında yazılıdır.
+          </dd>
+        </div>
+        <div>
           <dt className="font-medium text-metin">Harita altlığı</dt>
           <dd className="text-metin-2">
             © OpenStreetMap katkıcıları · © CARTO
           </dd>
         </div>
       </dl>
+
+      <h2 className="mt-8 text-lg font-semibold">Ölçüldü ama yayınlanmadı</h2>
+      <p className="mt-3 text-sm text-metin-2">
+        Bazı kaynakları denedik ve yayınlamamaya karar verdik. Bunu saklamak
+        yerine yazıyoruz ki neyin neden eksik olduğu belli olsun:
+      </p>
+      <ul className="mt-3 space-y-2 text-sm text-metin-2">
+        <li>
+          <strong className="text-metin">Diri fay hattı katmanı yok.</strong>{" "}
+          MTA&apos;nın harita servislerine beş ayrı adresten ulaşılamadı. Uydurma
+          bir fay çizgisi çizmek, hiç çizmemekten çok daha tehlikelidir.
+        </li>
+        <li>
+          <strong className="text-metin">Deprem tehlike (TDTH) katmanı yok.</strong>{" "}
+          Kurumun servisi harita görüntüsü veriyor ama lejant isteğini ve nokta
+          sorgusunu reddediyor. Bu hâliyle ekrana koyduğumuz şey, kullanıcının
+          ne anlama geldiğini okuyamayacağı renkli bir örtü olurdu.
+        </li>
+        <li>
+          <strong className="text-metin">Meteorolojik uyarı katmanı henüz yok.</strong>{" "}
+          MGM&apos;nin uyarı ucu çalışıyor fakat ölçüm anlarında aktif uyarı
+          bulunmadığı için veri biçimi doğrulanamadı. Tahmin edilen alan
+          adlarıyla kod yazmıyoruz; ilk gerçek uyarıda eklenecek.
+        </li>
+      </ul>
 
       <h2 className="mt-8 text-lg font-semibold">Konum bilgin ne oluyor?</h2>
       <p className="mt-3 text-sm text-metin-2">
@@ -137,6 +198,23 @@ export default async function HakkindaSayfasi() {
 
       <h2 className="mt-8 text-lg font-semibold">Güncelleme notları</h2>
       <ul className="mt-3 space-y-3 text-sm text-metin-2">
+        <li>
+          <strong className="text-metin">7 Ağustos 2026 — afet bilgisi eklendi.</strong>{" "}
+          Dokuz afet türü için{" "}
+          <Link href="/afet-ani" className="text-vurgu underline">
+            afet anı ekranı
+          </Link>{" "}
+          (JavaScript gerektirmez, çevrimdışı açılır), öncesi–sırası–sonrası
+          sayfaları,{" "}
+          <Link href="/hazirlik" className="text-vurgu underline">
+            işaretlenebilir afet çantası ve yazdırılabilir aile buluşma planı
+          </Link>
+          , &ldquo;hayat üçgeni&rdquo; dahil{" "}
+          <Link href="/mitler" className="text-vurgu underline">
+            doğru bilinen yanlışlar
+          </Link>{" "}
+          sayfası. Haritaya hastane, itfaiye ve sağlık merkezi katmanı geldi.
+        </li>
         <li>
           <strong className="text-metin">6 Ağustos 2026 — ilk yayın.</strong>{" "}
           Toplanma alanı haritası, en yakın alan araması, metin sürümü, veri

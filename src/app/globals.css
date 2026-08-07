@@ -95,6 +95,110 @@ body {
   border-width: 0;
 }
 
+/* ─────────────────────────────  YAZDIRMA  ─────────────────────────────
+ * Aile buluşma planı ve afet çantası listesi BASILMAK için var: afet anında
+ * telefon şarjı biter, kâğıt bitmez. Marka anayasası §5 basılı iş için beyaz
+ * zemin, siyah başlık ve marka koyusu (#009db4) vurgu şartı koyar — ekrandaki
+ * koyu tema baskıda hem okunmaz hem mürekkep yakar.
+ */
+.yazdirma-goster {
+  display: none;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+
+  /* Ekrana ait gezinme, düğme ve yapışkan başlıklar kâğıda basılmaz. */
+  .yazdirma-gizle {
+    display: none !important;
+  }
+  .yazdirma-goster {
+    display: block !important;
+  }
+
+  /* Koyu tema yüzeylerini kâğıda çevir. */
+  [class*="bg-zemin"],
+  [class*="bg-uyari"],
+  [class*="bg-kritik"],
+  [class*="bg-guvenli"] {
+    background: #fff !important;
+  }
+  [class*="text-metin"],
+  h1,
+  h2,
+  h3,
+  strong {
+    color: #000 !important;
+  }
+  [class*="text-vurgu"],
+  a {
+    color: #009db4 !important;
+    text-decoration: none !important;
+  }
+  [class*="border-"] {
+    border-color: #b9c0c8 !important;
+  }
+
+  /* Doldurulan plan alanları kâğıtta okunmalı; boş alan da çizgi olarak
+     görünmeli ki elle doldurulabilsin. */
+  input[type="text"],
+  textarea {
+    border: 0 !important;
+    border-bottom: 1px solid #333 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #000 !important;
+    padding-left: 0 !important;
+    min-height: 0 !important;
+  }
+  textarea {
+    border: 1px solid #333 !important;
+    resize: none;
+  }
+  input[type="checkbox"] {
+    /* Baskıda kutu görünsün: işaretli/işaretsiz ayrımı kâğıtta da lazım. */
+    -webkit-appearance: none;
+    appearance: none;
+    width: 11pt;
+    height: 11pt;
+    border: 1px solid #333 !important;
+    border-radius: 2px;
+  }
+  input[type="checkbox"]:checked::after {
+    content: "✓";
+    display: block;
+    margin-top: -3pt;
+    text-align: center;
+    font-size: 11pt;
+    color: #000;
+  }
+
+  /* Bir madde ya da kart sayfa sonunda ikiye bölünmesin. */
+  li,
+  article,
+  section,
+  details {
+    break-inside: avoid;
+  }
+  /* Katlanmış eklenti bölümleri kâğıda TAM basılır: kullanıcı ekranda
+     kapatmış olabilir ama yazdırırken listenin tamamını ister.
+     ⚠️ `details > *:not(summary){display:block}` BU İŞİ YAPMAZ — kapalı
+     details içeriğini tarayıcı `display` ile değil kendi UA kuralıyla
+     (`::details-content` / content-visibility) gizler, o yüzden dıştan
+     display vermek etkisizdir. Standart yol aşağıdaki pseudo-element;
+     desteklemeyen tarayıcılar için Hazirlik.tsx'teki `beforeprint`
+     dinleyicisi bölümleri gerçekten açar. */
+  details::details-content {
+    content-visibility: visible !important;
+    block-size: auto !important;
+  }
+}
+
 /* MapLibre kontrollerini koyu temaya uydur */
 .maplibregl-ctrl-group {
   background: var(--color-zemin-2) !important;

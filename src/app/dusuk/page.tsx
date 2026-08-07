@@ -62,7 +62,15 @@ export default async function MetinAnasayfa() {
         Acil durumda <strong className="text-metin-2">112</strong> ·{" "}
         <strong className="text-metin-2">AFAD 122</strong>.
       </p>
-      <p className="mt-4 text-sm">
+      {/* Afet anı ekranı da tamamen JavaScript'sizdir — metin sürümünü
+          kullanabilen her cihazda açılır, o yüzden buradan da erişilebilir. */}
+      <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+        <Link href="/afet-ani" className="text-vurgu underline">
+          Şu an ne yapmalıyım?
+        </Link>
+        <Link href="/hazirlik" className="text-vurgu underline">
+          Hazırlık
+        </Link>
         <Link href="/" className="text-vurgu underline">
           Haritalı sürüme geç
         </Link>

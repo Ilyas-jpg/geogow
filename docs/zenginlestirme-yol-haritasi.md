@@ -159,3 +159,92 @@ hata vermezdi. Tam olarak ürünün var olma sebebindeki senaryo.
 **Çözüm:** pencere 3 saatlik dilimlere bölünüp her dilim ayrı sorulur; bir
 dilim limite dayanırsa ikiye bölünüp yeniden denenir (en fazla 3 kademe).
 Sonuçlar kimliğe göre birleştirilir. `dilimler()` + `birlestir()`, 2 test.
+
+---
+
+## 6. İkinci tur — 2026-08-07 akşamı
+
+### ✅ Yapıldı: afet davranış içeriği (P1 #4'ün genişletilmiş hâli)
+
+`src/lib/afet.ts` dokuz afet türünün TEK kaynağı (an adımları, varyantlar,
+öncesi, sonrası, mitler, kaynaklar). Bundan beslenen yüzeyler:
+`/afet-ani` · `/afet/<tür>` (9 SSG sayfa) · `/mitler` · `/hazirlik`.
+
+**`/afet-ani` sıfır JavaScript:** açılır kartlar `<details>` ile yapıldı,
+React state kullanılmadı. Gerekçe: afet anında JS paketi inmemiş ya da çökmüş
+olabilir; bu ekranın çalışmama hakkı yok. Ölçüldü — 9 details, hepsi kapalı
+açılıyor, `checkVisibility()` false, `group-open` varyantı doğru çalışıyor.
+
+**Servis çalışanı v2:** kabuk önbelleği 4 → 16 yol (afet-ani + 9 afet sayfası
++ hazirlik + mitler). Aynı sırada gerçek bir kırılganlık düzeltildi:
+`cache.addAll` ATOMİKTİR, 16 yoldan biri düşse kabuk tamamen boş kalırdı;
+yollar artık `Promise.allSettled` ile tek tek ekleniyor.
+
+### ✅ Yapıldı: OSM acil altyapı katmanı (P2 #7)
+
+`npm run altyapi -- [plaka…]` · `public/data/altyapi/<plaka>.min.json`.
+8 il · **2.313 nokta** · toplam **34 KB brotli** (İstanbul tek başına 16,4 KB;
+toplanma verisinin üstüne binince 77,8 KB, 80 KB bütçesinin altında ve yalnız
+katman açılınca iniyor).
+
+| İl | Nokta | | İl | Nokta |
+|---|---:|---|---|---:|
+| İstanbul | 1.187 | | Konya | 177 |
+| Ankara | 376 | | Bursa | 120 |
+| İzmir | 242 | | Kırıkkale | 19 |
+| Antalya | 186 | | Kilis | 6 |
+
+⛔ **Eczane bilerek dışarıda:** ülke genelinde ~28.000 kayıt veri bütçesini tek
+başına yiyor ve afet anında nöbetçi olmayan eczane kapalı.
+
+🔴 **Hasatta iki gerçek hata yakalandı:**
+- **ISO 3166-2 kodu sıfır dolgulu** (`TR-06`), dolgusuz `TR-6` sorulunca
+  Overpass hata VERMİYOR, boş liste dönüyor. Ankara ve Antalya "0 nokta"
+  olarak kaydedilmişti — tek haneli plakalı 8 ilin tamamını sessizce boşaltan
+  bir hata.
+- Betik **boş çıktıyı yine de yazıyordu**. Artık sıfır nokta arıza sayılıyor
+  ve dosya yazılmıyor: boş dosya kullanıcıya "burada hastane yok" yalanını
+  söyletir.
+- Ayrıca: HTTP başlığı ByteString'dir, user-agent'taki Türkçe `ı` fetch'i
+  daha istek kurulmadan düşürüyordu; ve deterministik hatalar artık yeniden
+  denenmiyor (60 sn boşa bekleniyordu).
+
+### 🔴 Yakalanan ürün hatası: YANLIŞ İL SEÇİLİYORDU
+
+`ilAdaylari()` içinde **konumu kapsayan iller hiç sıralanmıyordu** ve
+`ozet.json`'daki plaka sırasıyla dönüyordu. İl kutuları dikdörtgen olduğu için
+fazlasıyla çakışıyor — ölçüldü: **Kırıkkale merkezi (39,8468 / 33,5153) hem
+Kırıkkale'nin hem Ankara'nın kutusunda.** Plaka sırası Ankara'yı (6) öne
+koyduğundan Kırıkkale'deki kullanıcıya **Ankara dosyası** iniyor ve "en yakın
+toplanma alanı" **24,1 km** çıkıyordu; oysa Kırıkkale'nin kendi 264 alanı
+%100 kapsamla yayında.
+
+Düzeltme: kapsayan grup da il merkezine uzaklığa göre sıralanıyor
+(Kırıkkale 20 km, Ankara 82 km). Ölçülen sonuç: **24,1 km → 330 m** (4 dk
+yürüme), doğru tabela kodlarıyla (7101-…). 4 test eklendi (`ilSecimi.test.ts`).
+
+### ⛔ TDTH tehlike katmanı — ÖLÇÜLDÜ, YAYINLANMAYACAK
+
+| İstek | Sonuç (2026-08-07) |
+|---|---|
+| GetCapabilities | **200** · 97 katman, `queryable="1"` · PGA katmanları: 54=`PGA_72` · 58=`PGA_475` · 62=`PGA_43` · 66=`PGA_2475` |
+| GetMap (katman 58) | **200** · image/png · 4.655 bayt — görüntüleme çalışıyor |
+| GetLegendGraphic | **400** |
+| GetFeatureInfo | **hepsi başarısız** |
+
+GetFeatureInfo'da sebep bulundu ama çözülmedi: sunucu `info_format`'ı hiç
+okumuyor (`The requested format: null`), **`format`** parametresini okuyor —
+ama GetCapabilities'in kendi ilan ettiği üç formatın (`text/xml`,
+`text/plain`, `application/json`) **üçünü de reddediyor**. Yani servisin
+GetFeatureInfo'su yapılandırma olarak bozuk.
+
+**Karar:** lejantsız ve sorgulanamaz bir raster örtü, kullanıcının ne anlama
+geldiğini okuyamayacağı renkli bir blob demektir — marka anayasası §2 "renk
+tek başına bilgi taşımaz" kuralının doğrudan ihlali. Katman eklenmedi.
+Servisin GetFeatureInfo'su düzelirse "zeminimin ivmesi" özelliği açılabilir.
+
+### ⏸ MGM uyarı katmanı — hâlâ şema bekliyor
+
+`servis.mgm.gov.tr/web/alarmlar` yeniden ölçüldü (2026-08-07): **200**, gövde
+`[]` (2 bayt), aktif uyarı yok. Şema yakalanamadı, uydurma alan adıyla kod
+yazılmadı. İlk gerçek uyarıda fixture'a alınacak.

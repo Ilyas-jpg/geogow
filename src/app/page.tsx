@@ -53,10 +53,33 @@ export default async function Anasayfa() {
           </Link>{" "}
           harita ve JavaScript olmadan da çalışır.
         </p>
+        <p className="mt-2">
+          Nereye gideceğin kadar{" "}
+          <strong className="text-metin">o an ne yapacağın</strong> da önemli:{" "}
+          <Link href="/afet-ani" className="text-vurgu underline">
+            afet anı ekranı
+          </Link>{" "}
+          deprem, yangın, sel ve diğer afetlerde ilk hareketleri sırayla
+          gösterir — JavaScript gerektirmez, çevrimdışı açılır. Sakinken
+          hazırlanmak için{" "}
+          <Link href="/hazirlik" className="text-vurgu underline">
+            afet çantası ve aile buluşma planı
+          </Link>
+          .
+        </p>
         <p className="mt-2 text-metin-3">
           Resmî uyarı değildir. Acil durumda 112, AFAD 122.
         </p>
         <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+          <Link href="/afet-ani" className="text-vurgu underline">
+            Afet anı
+          </Link>
+          <Link href="/hazirlik" className="text-vurgu underline">
+            Hazırlık
+          </Link>
+          <Link href="/mitler" className="text-vurgu underline">
+            Doğru bilinen yanlışlar
+          </Link>
           <Link href="/hakkinda" className="text-vurgu underline">
             Hakkında ve kaynaklar
           </Link>

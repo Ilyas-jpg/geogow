@@ -9,6 +9,7 @@
   "homepage": "https://geogow.net",
   "scripts": {
     "hasat": "node scripts/toplanma-hasat.mjs",
+    "altyapi": "node scripts/altyapi-hasat.mjs",
     "denetim": "node scripts/toplanma-denetim.mjs",
     "test": "node --test \"src/lib/*.test.ts\" \"scripts/lib/*.test.mjs\"",
     "dev": "next dev -p 3070",

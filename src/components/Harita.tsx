@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { Map as MapGL, type Map as HaritaTipi } from "maplibre-gl";
+import { Map as MapGL, Popup, type Map as HaritaTipi } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { Alan } from "@/lib/alan";
 import { depremRengi, depremYaricapi, type Deprem } from "@/lib/deprem";
+import { TUR_BILGISI, type Nokta } from "@/lib/altyapi";
 
 /**
  * ⚠️ maplibre-gl v6 KIRIK (vault dersi): harita tamamen boş kalıyor, hata da
@@ -22,15 +23,20 @@ import { depremRengi, depremYaricapi, type Deprem } from "@/lib/deprem";
  */
 const ALTLIK = "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png";
 
+/** Nokta üstünde gösterilen tek harf — renk TEK BAŞINA bilgi taşımasın diye. */
+const TUR_HARFI: Record<Nokta["tur"], string> = { h: "H", i: "İ", s: "S" };
+
 export default function Harita({
   alanlar,
   depremler = [],
+  altyapi = [],
   konum,
   secili,
   onSec,
 }: {
   alanlar: Alan[];
   depremler?: Deprem[];
+  altyapi?: Nokta[];
   konum: { enlem: number; boylam: number } | null;
   secili: number | null;
   onSec: (id: number) => void;
@@ -151,6 +157,94 @@ export default function Harita({
         "alan-nokta"
       );
 
+      /* ── Acil altyapı (hastane · itfaiye · sağlık merkezi) ──
+       * Toplanma alanlarının ALTINDA: bu ürünün birincil cevabı hâlâ
+       * "nereye gideceğim". Altyapı destekleyici bağlamdır. */
+      harita.addSource("altyapi", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+      harita.addLayer(
+        {
+          id: "altyapi-nokta",
+          type: "circle",
+          source: "altyapi",
+          paint: {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 8, 5, 12, 8, 16, 12],
+            "circle-color": ["get", "renk"],
+            "circle-stroke-width": 1.5,
+            "circle-stroke-color": "#0b0d10",
+            "circle-opacity": 0.92,
+          },
+        },
+        "alan-nokta"
+      );
+      harita.addLayer(
+        {
+          id: "altyapi-harf",
+          type: "symbol",
+          source: "altyapi",
+          minzoom: 10,
+          layout: {
+            // Marka anayasası §2: renk tek başına bilgi taşımaz. Her nokta
+            // türünü harfle de söyler (H hastane · İ itfaiye · S sağlık).
+            "text-field": ["get", "harf"],
+            "text-size": ["interpolate", ["linear"], ["zoom"], 10, 9, 16, 13],
+            "text-allow-overlap": true,
+            "text-ignore-placement": true,
+          },
+          paint: {
+            // Üç tür rengi de açık tonda; koyu yazı hepsinde okunur
+            // (beyaz yazı #009db4 üzerinde 3,4:1 ile eşiğin altında kalıyor).
+            "text-color": "#0b0d10",
+          },
+        },
+        "alan-nokta"
+      );
+      harita.addLayer(
+        {
+          id: "altyapi-etiket",
+          type: "symbol",
+          source: "altyapi",
+          minzoom: 14,
+          layout: {
+            "text-field": ["get", "ad"],
+            "text-size": 11,
+            "text-offset": [0, 1.2],
+            "text-anchor": "top",
+            "text-max-width": 11,
+          },
+          paint: {
+            "text-color": "#b8c0cc",
+            "text-halo-color": "#0b0d10",
+            "text-halo-width": 1.4,
+          },
+        },
+        "alan-nokta"
+      );
+
+      /* Dokunmatikte etiket okunmuyor: noktaya basınca ad ve tür yazılır. */
+      const balon = new Popup({ closeButton: true, closeOnClick: true, maxWidth: "260px" });
+      harita.on("click", "altyapi-nokta", (olay) => {
+        const o = olay.features?.[0]?.properties;
+        if (!o) return;
+        balon
+          .setLngLat(olay.lngLat)
+          .setHTML(
+            `<div style="font:14px/1.35 system-ui;color:#0b0d10">
+               <strong>${String(o.ad ?? "").replace(/[<>&]/g, "")}</strong><br>
+               <span style="color:#4a5260">${String(o.turAdi ?? "")} · OpenStreetMap</span>
+             </div>`
+          )
+          .addTo(harita);
+      });
+      harita.on("mouseenter", "altyapi-nokta", () => {
+        harita.getCanvas().style.cursor = "pointer";
+      });
+      harita.on("mouseleave", "altyapi-nokta", () => {
+        harita.getCanvas().style.cursor = "";
+      });
+
       harita.addSource("konum", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
@@ -236,6 +330,32 @@ export default function Harita({
     if (hazirRef.current) uygula();
     else harita.once("load", uygula);
   }, [depremler]);
+
+  // Acil altyapı değişince kaynağı güncelle
+  useEffect(() => {
+    const harita = haritaRef.current;
+    if (!harita) return;
+    const uygula = () => {
+      const kaynak = harita.getSource("altyapi");
+      if (!kaynak || !("setData" in kaynak)) return;
+      (kaynak as { setData: (v: unknown) => void }).setData({
+        type: "FeatureCollection",
+        features: altyapi.map((n, sira) => ({
+          type: "Feature",
+          id: sira,
+          geometry: { type: "Point", coordinates: [n.boylam, n.enlem] },
+          properties: {
+            ad: n.ad,
+            harf: TUR_HARFI[n.tur],
+            renk: TUR_BILGISI[n.tur].renk,
+            turAdi: TUR_BILGISI[n.tur].ad,
+          },
+        })),
+      });
+    };
+    if (hazirRef.current) uygula();
+    else harita.once("load", uygula);
+  }, [altyapi]);
 
   // Konum değişince noktayı taşı ve ilk seferde oraya uç
   const ucusYapildi = useRef(false);

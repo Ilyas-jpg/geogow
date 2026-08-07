@@ -55,6 +55,10 @@ export default function CevrimdisiKayit({
         `/data/toplanma/${plaka}.metin.json`,
         `/data/toplanma/${plaka}.geo.json`,
         `/data/toplanma/ozet.json`,
+        // Acil altyapı: hasadı yapılmamış iller için 404 döner ve SW o
+        // dosyayı atlar (tek dosyanın düşmesi diğerlerini götürmez).
+        // Ölçülen boyut kullanıcıya zaten gerçek rakamla bildiriliyor.
+        `/data/altyapi/${plaka}.min.json`,
         `/dusuk/${ilSlug}`,
       ],
     });

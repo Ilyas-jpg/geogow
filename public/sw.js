@@ -12,7 +12,7 @@
  *   KARO  — harita karoları: önce önbellek (değişmezler), sınırlı sayıda
  */
 
-const SURUM = "geogow-v1";
+const SURUM = "geogow-v2";
 const KABUK = `${SURUM}-kabuk`;
 const VERI = `${SURUM}-veri`;
 const KARO = `${SURUM}-karo`;
@@ -21,17 +21,47 @@ const KARO = `${SURUM}-karo`;
 const KARO_SINIRI = 700;
 const VERI_SINIRI = 120;
 
-const KABUK_YOLLARI = ["/", "/dusuk", "/kapsam", "/hakkinda"];
+/**
+ * Kurulumda peşin indirilen sayfalar.
+ *
+ * Davranış içeriği (`/afet-ani` ve 9 afet sayfası) bilerek buradadır: bu
+ * sayfaların var olma sebebi tam olarak şebekenin çöktüğü andır. Ziyaretçi
+ * onlara hiç uğramamış olsa bile deprem gecesi açabilmeli. Toplam maliyet
+ * birkaç yüz KB statik HTML — bu ürün için doğru takas.
+ */
+const KABUK_YOLLARI = [
+  "/",
+  "/dusuk",
+  "/kapsam",
+  "/hakkinda",
+  "/afet-ani",
+  "/hazirlik",
+  "/mitler",
+  "/afet/deprem",
+  "/afet/bina-yangini",
+  "/afet/orman-yangini",
+  "/afet/sel",
+  "/afet/kbrn",
+  "/afet/heyelan",
+  "/afet/cig",
+  "/afet/firtina",
+  "/afet/asiri-sicak",
+];
 
 self.addEventListener("install", (olay) => {
   olay.waitUntil(
-    caches
-      .open(KABUK)
-      .then((onbellek) => onbellek.addAll(KABUK_YOLLARI))
-      .catch(() => {
-        /* Kurulumda bir yol düşerse SW yine de kurulsun. */
-      })
-      .then(() => self.skipWaiting())
+    (async () => {
+      const onbellek = await caches.open(KABUK);
+      // ⚠️ `addAll` ATOMİKTİR: 16 yoldan biri düşerse hiçbiri yazılmaz ve
+      // çevrimdışı çekirdek tamamen boş kalırdı. Yollar tek tek eklenir ki
+      // bir sayfanın düşmesi diğer 15'ini götürmesin.
+      const sonuclar = await Promise.allSettled(
+        KABUK_YOLLARI.map((yol) => onbellek.add(yol))
+      );
+      const dusen = KABUK_YOLLARI.filter((_, i) => sonuclar[i].status === "rejected");
+      if (dusen.length) console.warn("[sw] kabuk önbelleğine alınamadı:", dusen);
+      await self.skipWaiting();
+    })()
   );
 });
 

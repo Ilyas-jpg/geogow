@@ -16,6 +16,7 @@ import { ilAdaylari, type IlAdayi } from "@/lib/ilSecimi";
 import CevrimdisiKayit from "./CevrimdisiKayit";
 import ServisCalisani from "./ServisCalisani";
 import { zamanYazisi, type Deprem } from "@/lib/deprem";
+import { kompakttanNokta, TUR_BILGISI, type Nokta } from "@/lib/altyapi";
 import type { Ozet } from "@/lib/veri";
 
 // Harita motoru ayrı parça: alan listesi MapLibre'yi BEKLEMEZ.
@@ -43,6 +44,11 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
   const [depremDurumu, setDepremDurumu] = useState<"bos" | "yukleniyor" | "hata" | "tamam">(
     "bos"
   );
+  const [altyapiAcik, setAltyapiAcik] = useState(false);
+  const [altyapi, setAltyapi] = useState<Nokta[]>([]);
+  const [altyapiDurumu, setAltyapiDurumu] = useState<
+    "bos" | "yukleniyor" | "hata" | "yok" | "tamam"
+  >("bos");
   const izlemeRef = useRef<number | null>(null);
 
   /**
@@ -70,6 +76,49 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
         setDepremDurumu("hata");
       });
   }, [depremAcik]);
+
+  /**
+   * Acil altyapı katmanı: yalnız AÇIKKEN ve il belliyken indirilir.
+   * (İstanbul için ölçüldü: 16,4 KB brotli — kapalı katman için bunu
+   *  harcamak kötü bağlantı bütçesini boşa yer.)
+   *
+   * Her il için ayrı istek gerektiğinden "hangi il indirildi" ref'te tutulur;
+   * deprem katmanındaki tek seferlik bayrak burada yetmez.
+   */
+  const altyapiIlRef = useRef<number | null>(null);
+  useEffect(() => {
+    const plaka = secIl?.plaka ?? null;
+    if (!altyapiAcik || plaka == null || altyapiIlRef.current === plaka) return;
+    altyapiIlRef.current = plaka;
+    setAltyapiDurumu("yukleniyor");
+    fetch(`/data/altyapi/${plaka}.min.json`)
+      .then((y) => {
+        // 404 = o il için henüz hasat yapılmadı. Bu "orada hastane yok"
+        // DEĞİLDİR ve kullanıcıya öyle gösterilmez.
+        if (y.status === 404) return null;
+        if (!y.ok) throw new Error(String(y.status));
+        return y.json();
+      })
+      .then((v) => {
+        if (!v) {
+          setAltyapi([]);
+          setAltyapiDurumu("yok");
+          return;
+        }
+        setAltyapi((v.n ?? []).map(kompakttanNokta));
+        setAltyapiDurumu("tamam");
+      })
+      .catch(() => {
+        altyapiIlRef.current = null; // tekrar denenebilsin
+        setAltyapiDurumu("hata");
+      });
+  }, [altyapiAcik, secIl]);
+
+  const altyapiSayim = useMemo(() => {
+    const s: Record<string, number> = {};
+    for (const n of altyapi) s[n.tur] = (s[n.tur] ?? 0) + 1;
+    return s;
+  }, [altyapi]);
 
   const iller = useMemo<IlAdayi[]>(
     () =>
@@ -193,7 +242,11 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
   return (
     <div className="flex h-dvh flex-col">
       <ServisCalisani />
-      <header className="flex items-center justify-between gap-3 border-b border-cizgi bg-zemin px-4 py-3">
+      {/* Başlık SARMALI: dar ekranda eylemler ikinci satıra iner.
+          Tek satırda tutmak için bir eylemi gizlemek (örn. deprem katmanını
+          mobilde kaldırmak) telefonu birincil cihaz olan bir afet
+          uygulamasında özellik kaybıdır — satır eklemek daha ucuz. */}
+      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-cizgi bg-zemin px-4 py-3">
         <div className="flex items-center gap-3">
           {/* Marka anayasası §5: wordmark bir GÖRSELDİR, tipografi değil —
               metinle dizilmez, gerçek asset kullanılır. */}
@@ -204,19 +257,28 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
             height={36}
             className="h-[30px] w-auto"
           />
-          <p className="text-xs text-metin-3">Toplanma alanları ve acil durum haritası</p>
+          {/* Slogan yalnız geniş ekranda: mobilde başlık çubuğundaki yeri
+              "Afet anı" bağlantısına bırakıyor. Bilgi değil süs olan tek
+              öğe bu, o yüzden düşen de bu oldu. */}
+          <p className="hidden text-xs text-metin-3 sm:block">
+            Toplanma alanları ve acil durum haritası
+          </p>
         </div>
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setDepremAcik((a) => !a)}
-            aria-pressed={depremAcik}
-            className={`min-h-[44px] rounded-lg border px-3 text-sm ${
-              depremAcik ? "border-vurgu bg-zemin-3 text-metin" : "border-cizgi text-metin-2"
-            }`}
+          {/* Afet anı ekranı: sıfır JS, çevrimdışı çalışır. Haritadan bile
+              önce gelen soru "şu an ne yapmalıyım" olduğu için başlıkta. */}
+          <Link
+            href="/afet-ani"
+            className="flex min-h-[44px] items-center rounded-lg border border-uyari/50 px-3 text-sm font-medium text-uyari"
           >
-            Son depremler
-          </button>
+            Afet anı
+          </Link>
+          {/* Katman anahtarları başlıkta DEĞİL, haritanın üstünde: ikinci
+              katman gelince başlık dar ekranda taşıyordu ve katman kontrolü
+              zaten haritaya ait bir araçtır. */}
+          <Link href="/hazirlik" className="text-sm text-vurgu underline">
+            Hazırlık
+          </Link>
           <Link href="/dusuk" className="text-sm text-vurgu underline">
             Metin
           </Link>
@@ -276,10 +338,92 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
         <Harita
           alanlar={alanlar}
           depremler={depremAcik ? depremler : []}
+          altyapi={altyapiAcik ? altyapi : []}
           konum={konum}
           secili={secili}
           onSec={setSecili}
         />
+
+        {/* ── Katman kontrolü ── */}
+        <div className="pointer-events-none absolute right-3 top-3 flex flex-col items-end gap-2">
+          <button
+            type="button"
+            onClick={() => setDepremAcik((a) => !a)}
+            aria-pressed={depremAcik}
+            className={`pointer-events-auto min-h-[44px] rounded-lg border px-3 text-sm backdrop-blur ${
+              depremAcik
+                ? "border-vurgu bg-zemin-3/95 text-metin"
+                : "border-cizgi bg-zemin-2/90 text-metin-2"
+            }`}
+          >
+            {/* Açık/kapalı yalnız renkle değil işaretle de belli. */}
+            <span aria-hidden className="mr-1.5">
+              {depremAcik ? "✓" : "+"}
+            </span>
+            Depremler
+          </button>
+          <button
+            type="button"
+            onClick={() => setAltyapiAcik((a) => !a)}
+            aria-pressed={altyapiAcik}
+            className={`pointer-events-auto min-h-[44px] rounded-lg border px-3 text-sm backdrop-blur ${
+              altyapiAcik
+                ? "border-vurgu bg-zemin-3/95 text-metin"
+                : "border-cizgi bg-zemin-2/90 text-metin-2"
+            }`}
+          >
+            <span aria-hidden className="mr-1.5">
+              {altyapiAcik ? "✓" : "+"}
+            </span>
+            Hastane · itfaiye
+          </button>
+
+          {altyapiAcik && (
+            <div
+              role="status"
+              className="pointer-events-auto max-w-[13rem] rounded-lg border border-cizgi bg-zemin-2/95 p-2.5 text-xs text-metin-2 backdrop-blur"
+            >
+              {altyapiDurumu === "bos" && "Önce ilini bul, katman o ile göre yüklenir."}
+              {altyapiDurumu === "yukleniyor" && "Altyapı noktaları indiriliyor…"}
+              {altyapiDurumu === "hata" && "Altyapı verisi indirilemedi."}
+              {altyapiDurumu === "yok" && (
+                <>
+                  Bu il için altyapı verisi henüz toplanmadı —{" "}
+                  <strong className="text-metin">&ldquo;burada hastane yok&rdquo;
+                  demek değil</strong>.
+                </>
+              )}
+              {altyapiDurumu === "tamam" && (
+                <>
+                  <ul className="space-y-1">
+                    {(["h", "i", "s"] as const).map((tur) => (
+                      <li key={tur} className="flex items-center gap-2">
+                        <span
+                          aria-hidden
+                          className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-zemin"
+                          style={{ background: TUR_BILGISI[tur].renk }}
+                        >
+                          {tur === "h" ? "H" : tur === "i" ? "İ" : "S"}
+                        </span>
+                        {/* ⚠️ `.toLowerCase()` KULLANILMAZ: "İtfaiye" →
+                            "i̇tfaiye" (noktalı i + birleşen nokta) çıkıyor.
+                            Etiket olduğu gibi, büyük harfle yazılıyor. */}
+                        <span className="tabular-nums">
+                          {altyapiSayim[tur] ?? 0} {TUR_BILGISI[tur].ad}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mt-2 text-metin-3">
+                    Kaynak OpenStreetMap (ODbL). Liste{" "}
+                    <strong className="text-metin-2">eksik olabilir</strong>; resmî
+                    kayıt değildir.
+                  </p>
+                </>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* ── Tek birincil eylem ── */}
         {durum.tip !== "bulundu" && (

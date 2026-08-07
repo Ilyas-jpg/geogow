@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { metinVerisiOku, yayindakiIller } from "@/lib/veri";
+import { AFETLER } from "@/lib/afet";
 
 const TABAN = "https://geogow.net";
 
@@ -11,10 +12,23 @@ const TABAN = "https://geogow.net";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const girdiler: MetadataRoute.Sitemap = [
     { url: `${TABAN}/`, changeFrequency: "daily", priority: 1 },
+    { url: `${TABAN}/afet-ani`, changeFrequency: "monthly", priority: 0.9 },
     { url: `${TABAN}/dusuk`, changeFrequency: "weekly", priority: 0.9 },
+    { url: `${TABAN}/hazirlik`, changeFrequency: "monthly", priority: 0.8 },
+    // "hayat üçgeni" yüksek arama hacimli bir sorgu ve yanlış cevabı
+    // tehlikeli — bu sayfanın bulunabilir olması ürünün amacının parçası.
+    { url: `${TABAN}/mitler`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${TABAN}/kapsam`, changeFrequency: "weekly", priority: 0.5 },
     { url: `${TABAN}/hakkinda`, changeFrequency: "monthly", priority: 0.5 },
   ];
+
+  for (const afet of AFETLER) {
+    girdiler.push({
+      url: `${TABAN}/afet/${afet.slug}`,
+      changeFrequency: "monthly",
+      priority: 0.7,
+    });
+  }
 
   for (const il of await yayindakiIller()) {
     const guncelleme = new Date(il.toplandi);
