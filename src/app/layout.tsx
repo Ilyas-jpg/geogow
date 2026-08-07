@@ -11,18 +11,18 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://geogow.net"),
   title: {
-    default: "Geogow — Toplanma alanları ve acil durum haritası",
-    template: "%s · Geogow",
+    default: "GeoGow — Toplanma alanları ve acil durum haritası",
+    template: "%s · GeoGow",
   },
   description:
     "Deprem, yangın, sel gibi afetlerde en yakın toplanma alanını gösteren " +
     "ücretsiz harita. AFAD kayıtlı toplanma alanları, çevrimdışı da çalışır.",
-  applicationName: "Geogow",
+  applicationName: "GeoGow",
   authors: [{ name: "Algow" }],
   openGraph: {
     type: "website",
     locale: "tr_TR",
-    siteName: "Geogow",
+    siteName: "GeoGow",
   },
 };
 

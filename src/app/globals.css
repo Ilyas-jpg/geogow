@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /**
- * Geogow tasarım temeli.
+ * GeoGow tasarım temeli.
  *
  * İlkeler (plan §5): tek birincil eylem · anlam taşıyan renk sayısı ≤4 ·
  * renk TEK BAŞINA bilgi taşımaz · dokunma hedefi ≥44 px (afet anında titreyen
@@ -9,7 +9,7 @@
  */
 
 @theme {
-  /* Geogow: obsidyen zemin + marka turkuazı */
+  /* GeoGow: obsidyen zemin + marka turkuazı */
   --color-zemin: #0b0d10;
   --color-zemin-2: #12151a;
   --color-zemin-3: #1a1f26;

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Geogow — Türkiye acil durum haritası: toplanma alanları, afet katmanları, çevrimdışı çalışan kamu yararı platformu",
+  "description": "GeoGow — Türkiye acil durum haritası: toplanma alanları, afet katmanları, çevrimdışı çalışan kamu yararı platformu",
   "license": "AGPL-3.0-or-later",
   "author": "İlyas Saltay / Algow",
   "homepage": "https://geogow.net",

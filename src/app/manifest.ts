@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Geogow — Toplanma alanları ve acil durum haritası",
-    short_name: "Geogow",
+    name: "GeoGow — Toplanma alanları ve acil durum haritası",
+    short_name: "GeoGow",
     description:
       "Afette en yakın toplanma alanını gösteren, çevrimdışı da çalışan ücretsiz harita.",
     start_url: "/",

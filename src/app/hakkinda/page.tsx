@@ -5,7 +5,7 @@ import { ozetOku } from "@/lib/veri";
 export const metadata: Metadata = {
   title: "Hakkında — veri kaynakları, sınırlar ve lisans",
   description:
-    "Geogow verisini nereden alır, neyi göstermez, konum bilgisine ne yapar, " +
+    "GeoGow verisini nereden alır, neyi göstermez, konum bilgisine ne yapar, " +
     "hangi lisansla yayınlanır. Güncelleme notları.",
 };
 
@@ -21,9 +21,9 @@ export default async function HakkindaSayfasi() {
 
   return (
     <main id="icerik" className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-semibold">Geogow hakkında</h1>
+      <h1 className="text-2xl font-semibold">GeoGow hakkında</h1>
       <p className="mt-3 text-metin-2">
-        Geogow, deprem · yangın · sel gibi afetlerde{" "}
+        GeoGow, deprem · yangın · sel gibi afetlerde{" "}
         <strong className="text-metin">
           &ldquo;ben nereye gideceğim&rdquo;
         </strong>{" "}
@@ -103,7 +103,7 @@ export default async function HakkindaSayfasi() {
 
       <h2 className="mt-8 text-lg font-semibold">Çevrimdışı çalışır</h2>
       <p className="mt-3 text-sm text-metin-2">
-        Şebeke afet anında ilk çöken şeydir. Geogow bir kez açıldıktan sonra
+        Şebeke afet anında ilk çöken şeydir. GeoGow bir kez açıldıktan sonra
         uygulama kabuğunu, gezdiğin harita karolarını ve indirdiğin ilin
         alanlarını cihazında saklar; ağ olmadan da açılır. Sonuç panelindeki
         &ldquo;ilini çevrimdışı kaydet&rdquo; düğmesi bunu kalıcı yapar ve
@@ -119,7 +119,7 @@ export default async function HakkindaSayfasi() {
 
       <h2 className="mt-8 text-lg font-semibold">Sınırlar ve sorumluluk</h2>
       <p className="mt-3 text-sm text-metin-2">
-        Geogow <strong className="text-metin">resmî bir uyarı kanalı
+        GeoGow <strong className="text-metin">resmî bir uyarı kanalı
         değildir</strong>. Bilgiler değişebilir; sahadaki tabela ve resmî
         duyuru esastır. Acil durumda{" "}
         <strong className="text-metin">112</strong> ve{" "}
@@ -128,10 +128,10 @@ export default async function HakkindaSayfasi() {
 
       <h2 className="mt-8 text-lg font-semibold">Kaynak kodu ve lisans</h2>
       <p className="mt-3 text-sm text-metin-2">
-        Geogow açık kaynaktır ve <strong className="text-metin">AGPL-3.0</strong>{" "}
+        GeoGow açık kaynaktır ve <strong className="text-metin">AGPL-3.0</strong>{" "}
         ile yayınlanır: kodu alıp geliştirebilir, kendi sunucunda
         çalıştırabilirsin — değiştirip ağ üzerinden hizmet verirsen kaynağını da
-        açmak zorundasın. Algow ve Geogow adları ile logolar bu lisansın
+        açmak zorundasın. Algow ve GeoGow adları ile logolar bu lisansın
         kapsamı dışındadır.
       </p>
 

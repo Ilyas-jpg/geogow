@@ -16,7 +16,7 @@ export default async function Anasayfa() {
   return (
     <>
       <h1 className="sr-only">
-        Geogow — en yakın toplanma alanını gösteren acil durum haritası
+        GeoGow — en yakın toplanma alanını gösteren acil durum haritası
       </h1>
 
       {/* JS yoksa görünen, JS varsa haritanın altında kalan özet */}
@@ -38,7 +38,7 @@ export default async function Anasayfa() {
       {/* Arama motoru ve JS'siz okuyucu için gerçek metin. Gizli değil —
           harita üstünde durduğu için görsel olarak örtülüyor. */}
       <section className="mx-auto max-w-2xl px-4 py-8 text-sm text-metin-2">
-        <h2 className="text-base font-semibold text-metin">Geogow nedir?</h2>
+        <h2 className="text-base font-semibold text-metin">GeoGow nedir?</h2>
         <p className="mt-2">
           Deprem, yangın, sel gibi afetlerde &ldquo;nereye gideceğim&rdquo;
           sorusunun cevabı olan toplanma alanlarını tek ekranda gösterir. Veri

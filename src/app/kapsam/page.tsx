@@ -6,7 +6,7 @@ import { ILLER } from "@/lib/iller";
 export const metadata: Metadata = {
   title: "Veri kapsamı — hangi il yayında, ne kadar eksik",
   description:
-    "Geogow'nun toplanma alanı verisinin il il kapsamı, toplama tarihi ve " +
+    "GeoGow'nun toplanma alanı verisinin il il kapsamı, toplama tarihi ve " +
     "bilinen boşlukları. Zayıflığı gizlemiyoruz, ölçüp yayınlıyoruz.",
 };
 

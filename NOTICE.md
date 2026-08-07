@@ -1,8 +1,8 @@
-# NOTICE — Geogow
+# NOTICE — GeoGow
 
 ## Yazılım lisansı
 
-Geogow **AGPL-3.0-or-later** ile lisanslanmıştır. Tam metin: [LICENSE](LICENSE).
+GeoGow **AGPL-3.0-or-later** ile lisanslanmıştır. Tam metin: [LICENSE](LICENSE).
 
 Özetle: kodu alabilir, inceleyebilir, değiştirebilir ve kendi sunucunuzda
 çalıştırabilirsiniz. Değiştirilmiş bir sürümü **ağ üzerinden hizmet olarak**
@@ -17,10 +17,10 @@ kapatır — bu proje kamu yararına açık kalsın diye.
 Şu adlar ve görsel kimlik öğeleri **lisans kapsamı dışındadır** ve izinsiz
 kullanılamaz:
 
-- **Geogow** adı ve logosu
+- **GeoGow** adı ve logosu
 - **Algow** adı, wordmark'ı ve sparkle simgesi
 
-Kodu fork edip yayınlayabilirsiniz; ancak ürününüzü Geogow veya Algow adıyla
+Kodu fork edip yayınlayabilirsiniz; ancak ürününüzü GeoGow veya Algow adıyla
 sunamaz, bu markaların logolarını kullanamazsınız. Farklı bir ad ve kimlikle
 yayınlayın.
 
@@ -45,7 +45,7 @@ gösterim ile toplu veri yeniden yayını farklı şeylerdir.
 
 ## Sorumluluk reddi
 
-Geogow **resmî bir uyarı kanalı değildir**. Gösterilen bilgiler değişebilir;
+GeoGow **resmî bir uyarı kanalı değildir**. Gösterilen bilgiler değişebilir;
 sahadaki tabela ve resmî duyurular esastır. Acil durumda **112** ve
 **AFAD 122** aranmalıdır.
 

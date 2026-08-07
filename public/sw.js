@@ -1,5 +1,5 @@
 /**
- * Geogow servis çalışanı — çevrimdışı çekirdek.
+ * GeoGow servis çalışanı — çevrimdışı çekirdek.
  *
  * İLKE: afet anında şebeke ilk çöken şeydir. Toplanma alanı verisi ve
  * uygulama kabuğu bir kez indikten sonra AĞSIZ çalışmak zorundadır.

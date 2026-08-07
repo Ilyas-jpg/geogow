@@ -1,4 +1,4 @@
-# Geogow — zenginleştirme yol haritası
+# GeoGow — zenginleştirme yol haritası
 
 **Araştırma turu: 2026-08-07.** Aşağıdaki her satır *ölçülmüştür*; "olabilir"
 diye yazılan hiçbir kaynak listeye alınmamıştır. Ölçüm tarihleri ve dönen

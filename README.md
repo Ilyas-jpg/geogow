@@ -1,11 +1,11 @@
-# Geogow
+# GeoGow
 
 **Afette en yakın toplanma alanını gösteren, çevrimdışı da çalışan açık kaynak harita.**
 🌐 [geogow.net](https://geogow.net)
 
 Türkiye'de eksik olan veri değil, **erişim**. AFAD'ın toplanma alanı verisi
 e-Devlet'te var ama il/ilçe/mahalle seçtirerek tek tek sorgulatıyor: harita yok,
-"bana en yakın" yok ve şebeke çökünce hiç yok. Geogow bunu tek ekranda,
+"bana en yakın" yok ve şebeke çökünce hiç yok. GeoGow bunu tek ekranda,
 telefonda, ağ olmadan da çalışacak şekilde birleştirir.
 
 ## Ne yapar
@@ -92,7 +92,7 @@ Hata bildirimi ve düzeltme memnuniyetle. İki şart:
 ## Lisans
 
 **AGPL-3.0-or-later** — [LICENSE](LICENSE).
-Geogow/Algow adları ve logoları lisans kapsamı dışındadır: [NOTICE.md](NOTICE.md).
+GeoGow/Algow adları ve logoları lisans kapsamı dışındadır: [NOTICE.md](NOTICE.md).
 
 Kaynaklar: AFAD (toplanma alanları, depremler) · © OpenStreetMap katkıcıları ·
 © CARTO. **Resmî uyarı kanalı değildir — acil durumda 112 · AFAD 122.**
