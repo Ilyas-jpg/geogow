@@ -103,7 +103,9 @@ kalan 73 il tek seferde toplansın.
     "zeminimin tehlikesi" eklenir.
 
 ### P3 — büyük işler
-11. **AR + KU dil** (RTL dahil) — deprem bölgesindeki gerçek nüfus.
+11. **İngilizce sürüm.** ⛔ Arapça ve Kürtçe listeden ÇIKARILDI (İlyas,
+    2026-08-08): dil kapsamı **Türkçe + İngilizce**, başka dil yok. RTL
+    desteği de bu yüzden gerekmiyor.
 12. **Haber + resmî Telegram kanalı sinyalleri** — yangın projesinin olgun
     mantığı taşınır (5 bilinen tuzak testli).
 13. **Web Push** (kendi VAPID'imizle) — M≥4,5 deprem uyarısı; abonelik

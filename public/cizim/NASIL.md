@@ -19,8 +19,8 @@ ChatGPT'de üretilen görseller **bu klasöre** şu adlarla konur:
 - **Dosya boyutu 200 KB altı.** Bu ürünün iddiası kötü bağlantıda açılmak;
   gelen görsel `pngquant` veya `squoosh` ile sıkıştırılır.
 - Görselin **içinde yazı olmasın.** Etiketler (ÇÖK / KAPAN / TUTUN, "15 cm")
-  HTML ile yazılıyor: hem seçilebilir ve aranabilir olsun hem de ileride
-  Arapça/Kürtçe çeviride görseli yeniden üretmek gerekmesin.
+  HTML ile yazılıyor: hem seçilebilir ve aranabilir olsun hem de İngilizce
+  sürümde görseli yeniden üretmek gerekmesin.
 
 ## Renk sözlüğü (görselde bunlara sadık kalınmalı)
 
