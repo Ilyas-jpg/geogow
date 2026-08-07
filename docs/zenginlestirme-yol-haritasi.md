@@ -120,3 +120,42 @@ kalan 73 il tek seferde toplansın.
 - **Kitlesel push (İKAS/Cell Broadcast)** — devlet tekelinde.
 - **Elektrik/su kesintisi** — dağıtım şirketlerinde tek tip açık uç yok;
   81 ilde 21 ayrı şirket demek, bakımı sürdürülemez.
+
+---
+
+## 5. Uygulanan P0 işleri (2026-08-07)
+
+### ✅ Mahalle merkezi kaydı — sıfır ek istek
+
+Hasat sırasında çekilen mahalle poligonundan merkez ve kaba alan artık
+kontrol noktasına yazılıyor (`mahalleler: [{id, ad, enlem, boylam, alanM2}]`).
+Doğrulandı: Kilis/POLATELİ 33/33 mahalle, koordinat + alan tam.
+
+Derleme adımı bundan **yerleşim tabanlı erişim ölçüsü** üretiyor: mahalle
+merkezinden en yakın toplanma alanına mesafenin medyanı, %90'lık dilimi ve
+500 m / 1 km içindeki mahalle sayısı. Kaba ızgara analizinin (dağ-tarla da
+sayıyordu) yerine geçen dürüst metrik budur.
+
+⚠️ Hasadı bu değişiklikten önce biten 8 il için merkez verisi yok; o iller
+`--force` ile yeniden toplanana kadar erişim ölçüsü boş kalır.
+
+### 🔴 AFAD deprem ucunda SESSİZ VERİ KAYBI bulundu ve düzeltildi
+
+**Bulgu:** AFAD `limit` parametresini **sıralamadan ÖNCE** uyguluyor.
+`orderby=timedesc` yalnız sunum sırasını etkiliyor. Ölçüm (2026-08-07):
+24 saatlik pencere + `limit=8` → dönen 8 kayıt günün **en ESKİ** depremleri
+(00:01–01:51), oysa o an en yenisi 09:24'tü.
+
+**Bedeli, artçı serisinde ölçüldü — 6 Şubat 2023, 24 saatlik pencere, M2+:**
+
+| Yöntem | Kayıt | Görülen en yeni deprem |
+|---|---:|---|
+| Tek istek (`limit=400`) | 400 | **17:11** — günün son 7 saati görünmüyor |
+| Dilimli (3 saatlik parçalar) | **561** | 00:01 (pencerenin sonu) |
+
+Yani uygulama, artçı serisi sürerken **7 saat geriden** gösterirdi ve hiçbir
+hata vermezdi. Tam olarak ürünün var olma sebebindeki senaryo.
+
+**Çözüm:** pencere 3 saatlik dilimlere bölünüp her dilim ayrı sorulur; bir
+dilim limite dayanırsa ikiye bölünüp yeniden denenir (en fazla 3 kademe).
+Sonuçlar kimliğe göre birleştirilir. `dilimler()` + `birlestir()`, 2 test.

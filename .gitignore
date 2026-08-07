@@ -24,3 +24,6 @@ Thumbs.db
 .vercel
 .backups/
 data/gunluk/
+
+.vercel
+.env*

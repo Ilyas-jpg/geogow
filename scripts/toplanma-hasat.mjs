@@ -114,6 +114,7 @@ async function ilHasadi(istemci, plaka, ayar) {
   const baslangic = Date.now();
   const alanlar = new Map(); // id → alan kaydı
   const mahalleAlan = new Map(); // mahalleId → Set(alanId)
+  const mahalleMerkezleri = new Map(); // mahalleId → {id, ad, enlem, boylam, alanM2}
   const alansizMahalleler = [];
   const sinirsizMahalleler = [];
   /** Ağ hatası yüzünden alınamayan mahalleler — sonraki turda yeniden denenir. */
@@ -166,6 +167,7 @@ async function ilHasadi(istemci, plaka, ayar) {
       for (const alan of onceki.alanlar) alanlar.set(alan.id, alan);
       for (const [mid, idler] of Object.entries(onceki.mahalleAlan))
         mahalleAlan.set(Number(mid), idler);
+      for (const m of onceki.mahalleler ?? []) mahalleMerkezleri.set(m.id, m);
       birikenOlcum.istek += onceki.olcum?.istek ?? 0;
       birikenOlcum.hata += onceki.olcum?.hata ?? 0;
       birikenOlcum.gecenMs += onceki.olcum?.gecenMs ?? 0;
@@ -209,6 +211,7 @@ async function ilHasadi(istemci, plaka, ayar) {
     const ilceMahalleAlan = new Map(
       Object.entries(onceki?.mahalleAlan ?? {}).map(([k, v]) => [Number(k), v])
     );
+    const ilceMahalleler = [...(onceki?.mahalleler ?? [])];
     const ilceAlansiz = [...(onceki?.alansizMahalleler ?? [])];
     const ilceSinirsiz = [...(onceki?.sinirsizMahalleler ?? [])];
     // Ağ hatası yüzünden alınamayanlar — "kayıtta yok" ile KARIŞTIRILMAZ.
@@ -243,6 +246,8 @@ async function ilHasadi(istemci, plaka, ayar) {
           mahalleSayisi: mahalleler.length,
           tarananMahalle: islenmis.size,
           islenmisMahalleler: [...islenmis],
+          // Mahalle merkezleri: yerleşim tabanlı erişim ölçüsünün girdisi
+          mahalleler: ilceMahalleler,
           alanlar: [...ilceAlanlari.values()],
           mahalleAlan: Object.fromEntries(ilceMahalleAlan),
           alansizMahalleler: ilceAlansiz,
@@ -288,8 +293,32 @@ async function ilHasadi(istemci, plaka, ayar) {
         continue;
       }
 
+      /**
+       * 🔑 Mahallenin MERKEZİ ve kaba alanı burada kaydedilir.
+       *
+       * Poligon zaten `Sorgula` ile geldi ve şimdiye kadar yalnız örnek nokta
+       * üretmek için kullanılıp ATILIYORDU. Kaydetmek SIFIR ek istek maliyeti
+       * getiriyor ama karşılığında ürünün en ayırt edici ölçüsünü mümkün
+       * kılıyor: "mahallenin merkezinden en yakın toplanma alanına mesafe".
+       *
+       * Bu, il kutusunu ızgaralayan kaba analizin (dağ-tarla da sayılıyordu,
+       * yanıltıcıydı) yerine geçen YERLEŞİM TABANLI ölçüdür.
+       */
+      const mahalleGeometri = sinir[0]?.geometry ?? sinir[0];
+      const mahalleMerkezi = mahalleGeometri ? merkez(mahalleGeometri) : null;
+      if (mahalleMerkezi) {
+        mahalleMerkezleri.set(mahalle.id, {
+          id: mahalle.id,
+          ad: mahalle.name,
+          enlem: Number(mahalleMerkezi[1].toFixed(5)),
+          boylam: Number(mahalleMerkezi[0].toFixed(5)),
+          alanM2: alanM2(mahalleGeometri),
+        });
+        ilceMahalleler.push(mahalleMerkezleri.get(mahalle.id));
+      }
+
       const bulunanlar = new Set();
-      const kuyruk = ornekNoktalar(sinir[0]?.geometry ?? sinir[0]);
+      const kuyruk = ornekNoktalar(mahalleGeometri);
       let genislemeHakki = ayar.genislemeButce;
 
       while (kuyruk.length) {
@@ -431,6 +460,7 @@ async function ilHasadi(istemci, plaka, ayar) {
     for (const alan of onceki.alanlar) alanlar.set(alan.id, alan);
     for (const [mid, idler] of Object.entries(onceki.mahalleAlan))
       mahalleAlan.set(Number(mid), idler);
+    for (const m of onceki.mahalleler ?? []) mahalleMerkezleri.set(m.id, m);
     alansizMahalleler.push(...onceki.alansizMahalleler);
     sinirsizMahalleler.push(...onceki.sinirsizMahalleler);
     mahalleSayaci += onceki.tarananMahalle;
@@ -474,6 +504,7 @@ async function ilHasadi(istemci, plaka, ayar) {
     ilceler: ilceKayitlari,
     alanlar: [...alanlar.values()],
     mahalleAlan: Object.fromEntries(mahalleAlan),
+    mahalleler: [...mahalleMerkezleri.values()],
     alansizMahalleler,
     sinirsizMahalleler,
     hataliMahalleler,

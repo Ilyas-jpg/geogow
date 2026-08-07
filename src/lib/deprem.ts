@@ -113,3 +113,53 @@ export function pencere(saat: number, simdi = Date.now()): { start: string; end:
   const bicim = (t: number) => new Date(t).toISOString().slice(0, 19).replace("T", " ");
   return { start: bicim(simdi - saat * 3600_000), end: bicim(simdi + 60_000) };
 }
+
+/**
+ * 🔴 AFAD `limit`'i SIRALAMADAN ÖNCE uyguluyor.
+ *
+ * Ölçüldü (2026-08-07): 24 saatlik pencere + `orderby=timedesc&limit=8`
+ * → dönen 8 kayıt günün **en ESKİ** depremleri (00:01–01:51), en yenisi
+ * 09:24 olmasına rağmen. Yani `orderby` sonucu değil yalnız sunum sırasını
+ * etkiliyor.
+ *
+ * Bunun bedeli tam da ürünün var olma sebebinde ortaya çıkardı: artçı
+ * serisinde 24 saatte binlerce kayıt olur, tek istekte limit'e takılırız ve
+ * **en eski 500 depremi gösterip devam eden seriyi kaçırırdık** — üstelik
+ * sessizce, hiçbir hata vermeden.
+ *
+ * Çözüm: pencereyi dilimlere böl, her dilimi ayrı sor. Bir dilim limite
+ * dayanırsa o dilim daha da bölünür (çağıran tarafın işi).
+ */
+export function dilimler(
+  saat: number,
+  simdi = Date.now(),
+  parcaSaat = 3
+): { start: string; end: string }[] {
+  const bicim = (t: number) => new Date(t).toISOString().slice(0, 19).replace("T", " ");
+  const bitis = simdi + 60_000;
+  const baslangic = simdi - saat * 3600_000;
+  const adim = parcaSaat * 3600_000;
+  const liste: { start: string; end: string }[] = [];
+  for (let t = bitis; t > baslangic; t -= adim) {
+    const dilimBasi = Math.max(baslangic, t - adim);
+    // ⚠️ Son dilim, ileriye eklenen 1 dakikalık pay yüzünden dakikalık bir
+    // artığa dönüşebiliyordu — her çağrıda boşa giden bir ağ isteği. Kısa
+    // artık, bir önceki dilimin içine katılır.
+    const oncekiler = liste[liste.length - 1];
+    if (oncekiler && t - dilimBasi < adim * 0.1) {
+      oncekiler.start = bicim(dilimBasi);
+      break;
+    }
+    liste.push({ start: bicim(dilimBasi), end: bicim(t) });
+  }
+  return liste; // en yeni dilim başta
+}
+
+/** Aynı depremi iki kez göstermemek için kimliğe göre birleştirir. */
+export function birlestir(...gruplar: Deprem[][]): Deprem[] {
+  const harita = new Map<string, Deprem>();
+  for (const grup of gruplar) {
+    for (const d of grup) if (!harita.has(d.id)) harita.set(d.id, d);
+  }
+  return [...harita.values()].sort((a, b) => Date.parse(b.zaman) - Date.parse(a.zaman));
+}

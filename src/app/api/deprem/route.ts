@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { depremleriCevir, pencere } from "@/lib/deprem";
+import { birlestir, depremleriCevir, dilimler } from "@/lib/deprem";
 
 /**
  * Son depremler — AFAD servisnet.
@@ -19,31 +19,56 @@ export async function GET(istek: Request) {
   const saat = IZINLI_SAAT.includes(istenen) ? istenen : 24;
   const enAz = Number(url.searchParams.get("minmag") ?? 1.5);
 
-  const { start, end } = pencere(saat);
-  const sorgu = new URLSearchParams({
-    start,
-    end,
-    orderby: "timedesc",
-    limit: "500",
-    minmag: String(Number.isFinite(enAz) ? Math.max(0, Math.min(9, enAz)) : 1.5),
-  });
+  const enAzGecerli = Number.isFinite(enAz) ? Math.max(0, Math.min(9, enAz)) : 1.5;
+  const LIMIT = 400;
 
-  try {
+  /** Tek dilimi çeker; limite dayanırsa dilimi ikiye bölüp yeniden dener. */
+  async function dilimCek(
+    start: string,
+    end: string,
+    derinlik = 0
+  ): Promise<ReturnType<typeof depremleriCevir>> {
+    const sorgu = new URLSearchParams({
+      start,
+      end,
+      orderby: "timedesc",
+      limit: String(LIMIT),
+      minmag: String(enAzGecerli),
+    });
     const yanit = await fetch(`${UC}?${sorgu}`, {
       signal: AbortSignal.timeout(15_000),
-      // Üst kaynağı korumak için 2 dakika: deprem verisi bundan sık değişmez.
       next: { revalidate: 120 },
       headers: { Accept: "application/json" },
     });
-    if (!yanit.ok) {
-      // Hata gövdesini istemciye YANSITMIYORUZ (yangın projesinde üst kaynak
-      // hata gövdesi anahtar sızdırabiliyordu); yalnız durum bilgisi.
-      return NextResponse.json(
-        { depremler: [], hata: `kaynak ${yanit.status}`, kaynak: "AFAD" },
-        { status: 503, headers: { "cache-control": "no-store" } }
-      );
+    if (!yanit.ok) throw new Error(`kaynak ${yanit.status}`);
+    const ham = await yanit.json();
+    const cevrilen = depremleriCevir(ham);
+
+    // Limite dayandıysak bu dilimde kayıp var demektir (AFAD limiti
+    // sıralamadan önce uyguluyor) → ikiye böl. En fazla 3 kademe.
+    if (Array.isArray(ham) && ham.length >= LIMIT && derinlik < 3) {
+      const orta = new Date((Date.parse(`${start}Z`) + Date.parse(`${end}Z`)) / 2)
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+      const [ilk, son] = await Promise.all([
+        dilimCek(orta, end, derinlik + 1),
+        dilimCek(start, orta, derinlik + 1),
+      ]);
+      return birlestir(ilk, son);
     }
-    const depremler = depremleriCevir(await yanit.json());
+    return cevrilen;
+  }
+
+  try {
+    // Dilimler en yeniden eskiye sıralı; sırayla çekiliyor ki üst kaynağa
+    // aynı anda yüklenmeyelim.
+    const gruplar = [];
+    for (const { start, end } of dilimler(saat)) {
+      gruplar.push(await dilimCek(start, end));
+    }
+    const depremler = birlestir(...gruplar);
+
     return NextResponse.json(
       {
         depremler,

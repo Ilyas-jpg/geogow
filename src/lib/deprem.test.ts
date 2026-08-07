@@ -8,7 +8,10 @@ import {
   depremRengi,
   zamanYazisi,
   pencere,
+  dilimler,
+  birlestir,
   type HamDeprem,
+  type Deprem,
 } from "./deprem.ts";
 
 /** AFAD servisinden gerçekten dönen kayıt (6 Şubat 2023, Elbistan). */
@@ -90,4 +93,27 @@ test("pencere AFAD'ın beklediği biçimde üretilir", () => {
   assert.match(start, /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
   assert.equal(start, "2026-08-05 12:00:00");
   assert.ok(end > start);
+});
+
+test("dilimler pencereyi en yeniden eskiye böler — AFAD limit tuzağına karşı", () => {
+  const simdi = Date.parse("2026-08-07T12:00:00Z");
+  const d = dilimler(24, simdi, 3);
+  assert.equal(d.length, 8, "24 sa / 3 sa — dakikalık artık dilim üretilmez");
+  // İlk dilim EN YENİ olmalı: kullanıcı önce güncel depremleri görsün
+  assert.ok(d[0].end > d[1].end);
+  assert.match(d[0].start, /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+  // Dilimler pencereyi baştan sona kapsamalı, boşluk kalmamalı
+  // Pencerenin tamamı kapsanmalı: en eski dilim tam 24 saat öncesinde başlar
+  assert.equal(d[d.length - 1].start, "2026-08-06 12:00:00");
+  assert.equal(d[0].end, "2026-08-07 12:01:00");
+});
+
+test("birlestir aynı depremi tekrarlamaz ve yeniden eskiye sıralar", () => {
+  const yap = (id: string, saat: number): Deprem => ({
+    ...depremCevir(gercek)!,
+    id,
+    zaman: `2026-08-07T0${saat}:00:00Z`,
+  });
+  const sonuc = birlestir([yap("a", 1), yap("b", 3)], [yap("b", 3), yap("c", 2)]);
+  assert.deepEqual(sonuc.map((d) => d.id), ["b", "c", "a"]);
 });

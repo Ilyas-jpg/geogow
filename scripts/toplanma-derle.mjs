@@ -18,6 +18,7 @@ import { brotliCompressSync, constants } from "node:zlib";
 import { pathToFileURL } from "node:url";
 import { ILLER, PLAKAYA_GORE, katla, slugla } from "../src/lib/iller.ts";
 import { kisaAd, anlamliAdres, kompaktSatir, temizTabela } from "../src/lib/alan.ts";
+import { mesafeM } from "../src/lib/geo.ts";
 import { poligonlastir } from "../src/lib/geo.ts";
 
 const HAM_DIZIN = "data/ham";
@@ -159,6 +160,38 @@ function ilDerle(plaka, havuz) {
     "utf8"
   );
 
+  /**
+   * YERLEŞİM TABANLI ERİŞİM ÖLÇÜSÜ.
+   * Her mahallenin MERKEZİNDEN en yakın toplanma alanına mesafe. İl kutusunu
+   * ızgaralayan kaba analiz dağ-tarlayı da sayıyordu ve yanıltıcıydı; bu ölçü
+   * yalnız gerçek yerleşim birimlerini sayar. Girdi hasat sırasında sıfır ek
+   * istekle toplanır (mahalle poligonu zaten çekiliyordu).
+   */
+  const mahalleMesafeleri = [];
+  for (const m of ham.mahalleler ?? []) {
+    if (!Number.isFinite(m.enlem) || !Number.isFinite(m.boylam)) continue;
+    let enYakin = Infinity;
+    for (const a of alanlar) {
+      const d = mesafeM(m.enlem, m.boylam, a.enlem, a.boylam);
+      if (d < enYakin) enYakin = d;
+    }
+    if (Number.isFinite(enYakin)) mahalleMesafeleri.push(Math.round(enYakin));
+  }
+  mahalleMesafeleri.sort((x, y) => x - y);
+  const yuzdelik = (p) =>
+    mahalleMesafeleri.length
+      ? mahalleMesafeleri[Math.min(mahalleMesafeleri.length - 1, Math.floor(mahalleMesafeleri.length * p))]
+      : null;
+  const erisim = mahalleMesafeleri.length
+    ? {
+        olculenMahalle: mahalleMesafeleri.length,
+        medyanM: yuzdelik(0.5),
+        p90M: yuzdelik(0.9),
+        yakin500: mahalleMesafeleri.filter((d) => d <= 500).length,
+        yakin1000: mahalleMesafeleri.filter((d) => d <= 1000).length,
+      }
+    : null;
+
   const toplamMahalle = ham.ilceler.reduce((t, i) => t + i.tarananMahalle, 0);
   const kapsanan = Object.keys(ham.mahalleAlan).length;
   const minKB = brotliKB(minMetin);
@@ -199,6 +232,7 @@ function ilDerle(plaka, havuz) {
     kapsamYuzde: toplamMahalle ? Math.round((kapsanan / toplamMahalle) * 1000) / 10 : 0,
     kayittaGorunmeyen: mahalleDosyasi.kayittaGorunmeyen.length,
     toplandi: ham.toplandi,
+    erisim,
     minBrotliKB: Math.round(minKB * 10) / 10,
     butceAsimi: minKB > BUTCE_KB,
   };
