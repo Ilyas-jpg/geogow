@@ -1,0 +1,26 @@
+# bağımlılıklar
+node_modules/
+.pnp
+.pnp.js
+
+# next
+.next/
+out/
+build/
+next-env.d.ts
+
+# ortam — .env.example dışında hiçbir env dosyası repoya girmez
+.env*
+!.env.example
+
+# hasat ara çıktıları (ham, büyük); yayınlanan veri public/data altında
+data/ham/
+scripts/.oturum/
+*.log
+
+# işletim sistemi / araç
+.DS_Store
+Thumbs.db
+.vercel
+.backups/
+data/gunluk/

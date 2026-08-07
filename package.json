@@ -1,0 +1,37 @@
+{
+  "name": "geogow",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Geogow — Türkiye acil durum haritası: toplanma alanları, afet katmanları, çevrimdışı çalışan kamu yararı platformu",
+  "license": "AGPL-3.0-or-later",
+  "author": "İlyas Saltay / Algow",
+  "homepage": "https://geogow.net",
+  "scripts": {
+    "hasat": "node scripts/toplanma-hasat.mjs",
+    "denetim": "node scripts/toplanma-denetim.mjs",
+    "test": "node --test \"src/lib/*.test.ts\" \"scripts/lib/*.test.mjs\"",
+    "dev": "next dev -p 3070",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "derle": "node scripts/toplanma-derle.mjs"
+  },
+  "dependencies": {
+    "maplibre-gl": "^5.24.0",
+    "next": "^16.2.12",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "swr": "^2.4.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^20.19.43",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.12",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3"
+  }
+}

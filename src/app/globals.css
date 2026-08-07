@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/**
+ * Geogow tasarım temeli.
+ *
+ * İlkeler (plan §5): tek birincil eylem · anlam taşıyan renk sayısı ≤4 ·
+ * renk TEK BAŞINA bilgi taşımaz · dokunma hedefi ≥44 px (afet anında titreyen
+ * el) · kontrast ≥4.5:1 · hareket minimum.
+ */
+
+@theme {
+  /* Algow markası: obsidyen + kobalt */
+  --color-zemin: #0b0d10;
+  --color-zemin-2: #12151a;
+  --color-zemin-3: #1a1f26;
+  --color-cizgi: #262c35;
+
+  --color-metin: #f2f4f7;
+  --color-metin-2: #b8c0cc;
+  /* 4,93:1 — yangın projesinde 3,75:1 olan ton erişilebilirlik turunda düştü */
+  --color-metin-3: #8b93a1;
+
+  /* Anlam taşıyan dört renk. Beşincisi eklenmeyecek. */
+  --color-vurgu: #4c7dff; /* kobalt — birincil eylem, seçili */
+  --color-guvenli: #35c48a; /* toplanma alanı */
+  --color-uyari: #f2a33c; /* dikkat, doğrulanmamış */
+  --color-kritik: #ff5d5d; /* acil, hata */
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--color-zemin);
+  color: var(--color-metin);
+  /* Mobilde gövde 17 px — afet anında okunabilirlik güvenlik meselesidir. */
+  font-size: 17px;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (min-width: 768px) {
+  html,
+  body {
+    font-size: 16px;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  overscroll-behavior-y: none;
+}
+
+/* Odak halkası her zaman görünür — klavye kullanıcısı kaybolmasın. */
+:focus-visible {
+  outline: 2px solid var(--color-vurgu);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Hareket azaltma tercihi mutlak: afet uygulamasında animasyon lüks. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Ekran okuyucuya görünür, göze görünmez */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* MapLibre kontrollerini koyu temaya uydur */
+.maplibregl-ctrl-group {
+  background: var(--color-zemin-2) !important;
+  border: 1px solid var(--color-cizgi) !important;
+}
+.maplibregl-ctrl-group button + button {
+  border-top: 1px solid var(--color-cizgi) !important;
+}
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon {
+  filter: invert(1);
+}
+.maplibregl-ctrl-attrib {
+  background: rgba(11, 13, 16, 0.8) !important;
+  color: var(--color-metin-3) !important;
+  font-size: 11px !important;
+}
+.maplibregl-ctrl-attrib a {
+  color: var(--color-metin-2) !important;
+}
