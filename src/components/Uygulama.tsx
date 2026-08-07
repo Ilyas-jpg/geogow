@@ -15,6 +15,7 @@ import {
 import { ilAdaylari, type IlAdayi } from "@/lib/ilSecimi";
 import CevrimdisiKayit from "./CevrimdisiKayit";
 import ServisCalisani from "./ServisCalisani";
+import UstMenu from "./UstMenu";
 import { zamanYazisi, type Deprem } from "@/lib/deprem";
 import { kompakttanNokta, TUR_BILGISI, type Nokta } from "@/lib/altyapi";
 // ⚠️ Eşik ve tip `Harita.tsx`ten DEĞİL buradan alınır: oradan statik import
@@ -379,48 +380,13 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
   return (
     <div className="flex h-dvh flex-col">
       <ServisCalisani />
-      {/* Başlık SARMALI: dar ekranda eylemler ikinci satıra iner.
-          Tek satırda tutmak için bir eylemi gizlemek (örn. deprem katmanını
-          mobilde kaldırmak) telefonu birincil cihaz olan bir afet
-          uygulamasında özellik kaybıdır — satır eklemek daha ucuz. */}
-      <header className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 border-b border-cizgi bg-zemin px-4 py-3">
-        <div className="flex items-center gap-3">
-          {/* Marka anayasası §5: wordmark bir GÖRSELDİR, tipografi değil —
-              metinle dizilmez, gerçek asset kullanılır. */}
-          <img
-            src="/marka/geogow-wordmark.png"
-            alt="GeoGow"
-            width={172}
-            height={36}
-            className="h-[30px] w-auto"
-          />
-          {/* Slogan yalnız geniş ekranda: mobilde başlık çubuğundaki yeri
-              "Afet anı" bağlantısına bırakıyor. Bilgi değil süs olan tek
-              öğe bu, o yüzden düşen de bu oldu. */}
-          <p className="hidden text-xs text-metin-3 sm:block">
-            Toplanma alanları ve acil durum haritası
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Afet anı ekranı: sıfır JS, çevrimdışı çalışır. Haritadan bile
-              önce gelen soru "şu an ne yapmalıyım" olduğu için başlıkta. */}
-          <Link
-            href="/afet-ani"
-            className="flex min-h-[44px] items-center rounded-lg border border-uyari/50 px-3 text-sm font-medium text-uyari"
-          >
-            Afet anı
-          </Link>
-          {/* Katman anahtarları başlıkta DEĞİL, haritanın üstünde: ikinci
-              katman gelince başlık dar ekranda taşıyordu ve katman kontrolü
-              zaten haritaya ait bir araçtır. */}
-          <Link href="/hazirlik" className="text-sm text-vurgu underline">
-            Hazırlık
-          </Link>
-          <Link href="/dusuk" className="text-sm text-vurgu underline">
-            Metin
-          </Link>
-        </div>
-      </header>
+      {/* Harita sayfası da içerik sayfalarıyla AYNI menüyü kullanır.
+          Önce burada elle dizilmiş üç bağlantı vardı; İlyas'ın tarifi
+          "dümdüz html gibi". İki ayrı menü tutmak hem tutarsız görünüyordu
+          hem her değişikliği iki yerde yaptırıyordu.
+          ⚠️ Burada süslü parantez ŞART: JSX çocuk konumunda düz blok yorumu
+          sayfaya metin olarak basılır. */}
+      <UstMenu aktif="/" />
 
       {cevrimdisi && (
         <div

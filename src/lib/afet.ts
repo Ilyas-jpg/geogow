@@ -707,7 +707,7 @@ export const AFETLER: AfetTuru[] = [
           "sertleşir; o andan sonra boşluk açamazsın.",
       },
       {
-        baslik: "Enerji harca ma, dinle",
+        baslik: "Enerji harcama, dinle",
         detay:
           "Gömüldüysen sürekli bağırma; sesi ancak yakınından duyarlar. " +
           "Kurtarma sesini duyduğunda bağır.",

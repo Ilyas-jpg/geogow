@@ -23,9 +23,13 @@ const BAGLANTILAR = [
 ] as const;
 
 export default function UstMenu({ aktif }: { aktif?: string }) {
+  /* Yükseklik SABİT ve değişkenden geliyor: altında yapışan ikinci çubuk
+     (hazırlık sayfasındaki çanta barı) aynı değeri `top` olarak kullanıyor.
+     Serbest bırakılırsa iki çubuk üst üste biner.
+     Not: süslü parantezli JSX yorumu `return (` ardında kullanılamaz. */
   return (
-    <header className="yazdirma-gizle sticky top-0 z-30 -mx-4 mb-6 border-b border-cizgi bg-zemin/95 px-4 backdrop-blur">
-      <div className="mx-auto flex max-w-2xl items-center gap-x-4 py-2">
+    <header className="yazdirma-gizle sticky top-0 z-30 h-[var(--ust-menu-yuksekligi)] border-b border-cizgi bg-zemin/95 backdrop-blur">
+      <div className="mx-auto flex h-full max-w-[1180px] items-center gap-x-6 px-6">
         {/* Wordmark yalnız geniş ekranda: mobilde 115 px genişliğiyle menüyü
             üçüncü satıra itiyor ve 127 px'lik yapışkan bir başlık üretiyordu.
             Telefonda "Harita" bağlantısı zaten ana sayfaya götürüyor. */}

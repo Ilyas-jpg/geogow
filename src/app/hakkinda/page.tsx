@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ozetOku } from "@/lib/veri";
+import SayfaKabugu from "@/components/SayfaKabugu";
 
 export const metadata: Metadata = {
   title: "Hakkında — veri kaynakları, sınırlar ve lisans",
@@ -20,9 +21,9 @@ export default async function HakkindaSayfasi() {
   const ozet = await ozetOku();
 
   return (
-    <main id="icerik" className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-semibold">GeoGow hakkında</h1>
-      <p className="mt-3 text-metin-2">
+    <SayfaKabugu>
+      <h1 className="pt-8 text-3xl font-semibold sm:text-4xl">GeoGow hakkında</h1>
+      <p className="mt-3 max-w-[68ch] text-lg text-metin-2">
         GeoGow, deprem · yangın · sel gibi afetlerde{" "}
         <strong className="text-metin">
           &ldquo;ben nereye gideceğim&rdquo;
@@ -227,6 +228,6 @@ export default async function HakkindaSayfasi() {
           Haritaya dön
         </Link>
       </p>
-    </main>
+    </SayfaKabugu>
   );
 }

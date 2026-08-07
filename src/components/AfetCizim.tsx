@@ -414,6 +414,27 @@ export function AfetDiyagrami({ slug }: { slug: string }) {
 }
 
 /**
+ * KART KAPAKLARI — `/afet-ani` ızgarasında kullanılır.
+ *
+ * Diyagram görselinin kendisi kapak olarak da kullanılıyor: ayrı kapak
+ * üretmek hem 9 görsel daha demek hem de aynı sahneyi iki farklı çizimle
+ * göstermek kafa karıştırır. Kart `object-cover` ile 3:2 kırpıyor.
+ *
+ * ⚠️ `sel` burada YOK: sel görseli henüz üretilmedi (P3). Kapağı olmayan
+ * afet kartta ikonuyla görünür, boş çerçeve çizilmez.
+ */
+export const KAPAK_GORSELI: Record<string, string> = {
+  deprem: "cok-kapan-tutun.png",
+  "bina-yangini": "duman-altinda.png",
+  "orman-yangini": "orman-yangini.png",
+  kbrn: "kbrn-iceride-kal.png",
+  heyelan: "heyelan.png",
+  cig: "cig.png",
+  firtina: "firtina.png",
+  "asiri-sicak": "asiri-sicak.png",
+};
+
+/**
  * Görselli afetler. Görsellerin İÇİNDE yazı yok — açıklama burada, çünkü
  * seçilebilir, aranabilir ve çevrilebilir olmalı.
  * Üretim notları: `public/cizim/NASIL.md`.

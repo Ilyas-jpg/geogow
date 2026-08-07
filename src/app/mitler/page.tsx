@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { afetBul, tumMitler } from "@/lib/afet";
-import UstMenu from "@/components/UstMenu";
+import { afetBul, METIN_SINIFI, tumMitler } from "@/lib/afet";
+import { AfetIkonu, KAPAK_GORSELI } from "@/components/AfetCizim";
+import SayfaKabugu from "@/components/SayfaKabugu";
 
 export const metadata: Metadata = {
   title: "Doğru bilinen yanlışlar — hayat üçgeni, kapı eşiği ve diğerleri",
@@ -14,14 +15,14 @@ export const metadata: Metadata = {
 /**
  * MİTLER — ürünün en yüksek etkili tek sayfası.
  *
- * Gerekçe: «hayat üçgeni» Türkiye'de hâlâ yaygın olarak paylaşılıyor ve
+ * Gerekçe: «hayat üçgeni» Türkiye'de hâlâ yaygın paylaşılıyor ve
  * uygulanması hâlinde insanı sarsıntı sırasında korumasız bırakıyor. Bu
  * sayfanın işi tartışmayı yumuşatmak değil, kanıtla POZİSYON ALMAK.
  *
  * Dürüstlük kuralı burada özellikle geçerli: AFAD'ın resmî tatbikatı
  * Çök-Kapan-Tutun üzerine kurulu ama kurumun bazı eski sayfalarında hâlâ
- * «hayat üçgeni» ifadesi geçiyor. Bu çelişkiyi saklamak, kullanıcı o sayfayı
- * bulduğunda bize olan güveni bitirir — o yüzden açıkça yazıyoruz.
+ * «hayat üçgeni» geçiyor. Bunu saklamak, kullanıcı o sayfayı bulduğunda
+ * bize olan güveni bitirir.
  */
 export default function MitlerSayfasi() {
   const deprem = afetBul("deprem");
@@ -29,128 +30,167 @@ export default function MitlerSayfasi() {
   const digerleri = tumMitler().filter((m) => m.yanlis !== hayatUcgeni?.yanlis);
 
   return (
-    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16">
-      <UstMenu aktif="/mitler" />
-      <h1 className="text-2xl font-semibold">Doğru bilinen yanlışlar</h1>
-      <p className="mt-2 text-metin-2">
-        Afet bilgisinde yanlış bir alışkanlık, bilgisizlikten daha tehlikelidir:
-        kişi doğru olduğuna inandığı şeyi tereddütsüz yapar. Aşağıdaki
-        maddelerin her biri kaynağıyla birlikte veriliyor.
-      </p>
+    <SayfaKabugu aktif="/mitler">
+      <header className="pt-8">
+        <h1 className="text-3xl font-semibold sm:text-4xl">
+          Doğru bilinen yanlışlar
+        </h1>
+        <p className="mt-3 max-w-[68ch] text-lg text-metin-2">
+          Afet bilgisinde yanlış bir alışkanlık, bilgisizlikten daha
+          tehlikelidir: kişi doğru olduğuna inandığı şeyi tereddütsüz yapar.
+          Aşağıdaki maddelerin her biri kaynağıyla birlikte veriliyor.
+        </p>
+      </header>
 
       {/* ── Baş madde: hayat üçgeni ── */}
-      {hayatUcgeni && (
-        <article className="mt-6 rounded-xl border border-kritik/50 bg-zemin-2 p-5">
-          <p className="text-xs uppercase tracking-wide text-metin-3">
-            En yaygın ve en tehlikeli
-          </p>
-          <h2 className="mt-1 text-xl font-semibold">
-            &ldquo;Hayat üçgeni&rdquo; — uygulama, masanın altına girmekten daha
-            güvenli değildir
-          </h2>
+      {hayatUcgeni && deprem && (
+        <article className="mt-8 overflow-hidden rounded-2xl border border-kritik/50 bg-zemin-2">
+          <div className="grid lg:grid-cols-[1fr_minmax(0,26rem)]">
+            <div className="p-6 sm:p-8">
+              <p className="text-sm font-semibold text-kritik">
+                En yaygın ve en tehlikeli
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold sm:text-3xl">
+                &ldquo;Hayat üçgeni&rdquo; — masanın altına girmekten daha
+                güvenli değildir
+              </h2>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-lg border border-kritik/40 bg-kritik/10 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-kritik">
-                Yanlış
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl border border-kritik/40 bg-kritik/10 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-kritik">
+                    Yanlış
+                  </p>
+                  <p className="mt-1 text-sm text-metin-2">{hayatUcgeni.yanlis}</p>
+                </div>
+                <div className="rounded-xl border border-guvenli/40 bg-guvenli/10 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-guvenli">
+                    Doğru
+                  </p>
+                  <p className="mt-1 text-sm text-metin">{hayatUcgeni.dogru}</p>
+                </div>
+              </div>
+
+              <p className="mt-5 max-w-[68ch] text-metin-2">{hayatUcgeni.neden}</p>
+
+              <p className="mt-5 text-sm">
+                <Link href="/afet/deprem" className="text-vurgu underline">
+                  Depremde adım adım ne yapılır →
+                </Link>
               </p>
-              <p className="mt-1 text-sm text-metin-2">{hayatUcgeni.yanlis}</p>
+              <p className="mt-3 text-xs text-metin-3">
+                Kaynaklar:{" "}
+                {hayatUcgeni.kaynaklar.map((k) => `${k.kurum} (${k.ad})`).join(" · ")}
+              </p>
             </div>
-            <div className="rounded-lg border border-guvenli/40 bg-guvenli/10 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wide text-guvenli">
-                Doğru
-              </p>
-              <p className="mt-1 text-sm text-metin">{hayatUcgeni.dogru}</p>
+
+            {/* Doğru hareketin görseli — metni okumadan da görünsün */}
+            <div className="order-first bg-zemin lg:order-last">
+              <img
+                src="/cizim/cok-kapan-tutun.png"
+                alt="Doğru hareket: diz üstü çök, baş ve boynu kapat, masanın altına girip ayağını tut"
+                width={1440}
+                height={480}
+                className="h-full w-full object-cover"
+              />
             </div>
           </div>
-
-          <p className="mt-4 text-sm text-metin-2">{hayatUcgeni.neden}</p>
-
-          <p className="mt-4 text-sm">
-            <Link href="/afet/deprem" className="text-vurgu underline">
-              Depremde adım adım ne yapılır
-            </Link>
-          </p>
-
-          <p className="mt-3 text-xs text-metin-3">
-            Kaynaklar:{" "}
-            {hayatUcgeni.kaynaklar.map((k) => `${k.kurum} (${k.ad})`).join(" · ")}
-          </p>
         </article>
       )}
 
-      {/* ── Kurum içi çelişki: gizlemek yerine yazıyoruz ── */}
-      <section className="mt-6 rounded-xl border border-uyari/40 bg-uyari/10 p-4">
-        <h2 className="text-base font-semibold text-metin">
+      {/* ── Kurum içi çelişki ── */}
+      <section className="mt-6 rounded-2xl border border-uyari/40 bg-uyari/10 p-6">
+        <h2 className="text-lg font-semibold text-metin">
           Neden kafa karışıklığı var?
         </h2>
-        <p className="mt-2 text-sm text-metin-2">
-          Çünkü resmî kaynakların kendi içinde tam bir tutarlılık yok. AFAD&apos;ın
-          81 ilde yaptığı deprem tatbikatı <strong className="text-metin">
-          Çök–Kapan–Tutun</strong> hareketi üzerine kuruludur; buna karşılık
-          kurumun bazı eski sayfalarında hâlâ &ldquo;hayat üçgeni&rdquo; ifadesi
-          geçmektedir. Bunu saklamıyoruz — bir kurumun eski bir sayfası,
-          uluslararası bilimsel konsensüsü değiştirmez. GeoGow bu konuda{" "}
-          <strong className="text-metin">USGS, FEMA, INSARAG ve Amerikan
-          Kızılhaçı</strong>&apos;nın ortak duruşunu esas alır.
+        <p className="mt-2 max-w-[80ch] text-metin-2">
+          Çünkü resmî kaynakların kendi içinde tam bir tutarlılık yok.
+          AFAD&apos;ın 81 ilde yaptığı deprem tatbikatı{" "}
+          <strong className="text-metin">Çök–Kapan–Tutun</strong> hareketi
+          üzerine kuruludur; buna karşılık kurumun bazı eski sayfalarında hâlâ
+          &ldquo;hayat üçgeni&rdquo; ifadesi geçmektedir. Bunu saklamıyoruz — bir
+          kurumun eski bir sayfası, uluslararası bilimsel konsensüsü
+          değiştirmez. GeoGow bu konuda{" "}
+          <strong className="text-metin">
+            USGS, FEMA, INSARAG ve Amerikan Kızılhaçı
+          </strong>
+          &apos;nın ortak duruşunu esas alır.
         </p>
       </section>
 
-      {/* ── Diğer mitler ── */}
-      <h2 className="mt-10 text-lg font-semibold">Diğer yaygın yanlışlar</h2>
-      <div className="mt-3 space-y-4">
-        {digerleri.map((mit) => (
-          <article
-            key={mit.yanlis}
-            className="rounded-xl border border-cizgi bg-zemin-2 p-4"
-          >
-            <p className="text-xs uppercase tracking-wide text-metin-3">
-              {mit.afet.ad}
-            </p>
-            <p className="mt-1 text-sm">
-              <span className="font-semibold text-kritik">YANLIŞ ·</span>{" "}
-              <span className="text-metin-2">{mit.yanlis}</span>
-            </p>
-            <p className="mt-2 text-sm">
-              <span className="font-semibold text-guvenli">DOĞRU ·</span>{" "}
-              <span className="text-metin">{mit.dogru}</span>
-            </p>
-            <p className="mt-2 text-sm text-metin-2">{mit.neden}</p>
-            <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-metin-3">
-              <span>Kaynak: {mit.kaynaklar.map((k) => k.kurum).join(" · ")}</span>
-              <Link href={`/afet/${mit.afet.slug}`} className="text-vurgu underline">
-                {mit.afet.ad} sayfası
-              </Link>
-            </p>
-          </article>
-        ))}
+      {/* ── Diğer mitler: görselli kart ızgarası ── */}
+      <h2 className="mt-12 text-2xl font-semibold">Diğer yaygın yanlışlar</h2>
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        {digerleri.map((mit) => {
+          const kapak = KAPAK_GORSELI[mit.afet.slug];
+          return (
+            <article
+              key={mit.yanlis}
+              className="flex flex-col overflow-hidden rounded-2xl border border-cizgi bg-zemin-2"
+            >
+              {kapak && (
+                <div className="aspect-[3/1] overflow-hidden bg-zemin">
+                  <img
+                    src={`/cizim/${kapak}`}
+                    alt=""
+                    aria-hidden
+                    width={1200}
+                    height={400}
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
+
+              <div className="flex flex-1 flex-col p-5">
+                <p
+                  className={`flex items-center gap-2 text-sm font-medium ${METIN_SINIFI[mit.afet.renk]}`}
+                >
+                  <AfetIkonu slug={mit.afet.slug} boyut={18} />
+                  {mit.afet.ad}
+                </p>
+
+                <p className="mt-3 text-sm">
+                  <span className="font-semibold text-kritik">YANLIŞ ·</span>{" "}
+                  <span className="text-metin-2">{mit.yanlis}</span>
+                </p>
+                <p className="mt-2 text-sm">
+                  <span className="font-semibold text-guvenli">DOĞRU ·</span>{" "}
+                  <span className="text-metin">{mit.dogru}</span>
+                </p>
+                <p className="mt-3 text-sm text-metin-2">{mit.neden}</p>
+
+                <p className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-4 text-xs text-metin-3">
+                  <span>Kaynak: {mit.kaynaklar.map((k) => k.kurum).join(" · ")}</span>
+                  <Link
+                    href={`/afet/${mit.afet.slug}`}
+                    className="text-vurgu underline"
+                  >
+                    {mit.afet.ad} sayfası
+                  </Link>
+                </p>
+              </div>
+            </article>
+          );
+        })}
       </div>
 
-      <section className="mt-10 rounded-xl border border-cizgi bg-zemin-2 p-4 text-sm text-metin-2">
-        <h2 className="text-base font-semibold text-metin">
+      <section className="mt-12 rounded-2xl border border-cizgi bg-zemin-2 p-6">
+        <h2 className="text-lg font-semibold text-metin">
           Bir bilgiyi paylaşmadan önce
         </h2>
-        <ul className="mt-2 space-y-1">
-          <li>Kaynağı bir kurum mu, yoksa &ldquo;bir uzman&rdquo; mı?</li>
-          <li>Tarihi var mı? Eski bir afetin görüntüsü yeni gibi dolaşıyor olabilir.</li>
-          <li>
-            Aynı bilgiyi AFAD, valilik veya 112 doğruluyor mu? Doğrulamıyorsa
-            paylaşma — afet anında yanlış bilgi ekipleri yanlış yere gönderir.
+        <ul className="mt-3 grid gap-3 text-metin-2 sm:grid-cols-3">
+          <li className="rounded-xl bg-zemin p-4 text-sm">
+            Kaynağı bir kurum mu, yoksa &ldquo;bir uzman&rdquo; mı?
+          </li>
+          <li className="rounded-xl bg-zemin p-4 text-sm">
+            Tarihi var mı? Eski bir afetin görüntüsü yeni gibi dolaşıyor olabilir.
+          </li>
+          <li className="rounded-xl bg-zemin p-4 text-sm">
+            AFAD, valilik veya 112 doğruluyor mu? Doğrulamıyorsa paylaşma — afet
+            anında yanlış bilgi ekipleri yanlış yere gönderir.
           </li>
         </ul>
       </section>
-
-      <p className="mt-6 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-        <Link href="/afet-ani" className="text-vurgu underline">
-          Afet anı ekranı
-        </Link>
-        <Link href="/hazirlik" className="text-vurgu underline">
-          Hazırlık
-        </Link>
-        <Link href="/hakkinda" className="text-vurgu underline">
-          Kaynaklar ve yöntem
-        </Link>
-      </p>
-    </main>
+    </SayfaKabugu>
   );
 }

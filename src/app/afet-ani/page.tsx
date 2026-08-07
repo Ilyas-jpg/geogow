@@ -1,196 +1,194 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AFETLER, METIN_SINIFI, RENK_SINIFI } from "@/lib/afet";
-import { AfetDiyagrami, AfetIkonu } from "@/components/AfetCizim";
-import UstMenu from "@/components/UstMenu";
+import { AFETLER, METIN_SINIFI } from "@/lib/afet";
+import { AfetIkonu, KAPAK_GORSELI } from "@/components/AfetCizim";
+import SayfaKabugu from "@/components/SayfaKabugu";
 
 export const metadata: Metadata = {
   title: "Afet anı — şu an ne yapmalıyım?",
   description:
     "Deprem, yangın, sel, KBRN, heyelan, çığ, fırtına ve aşırı sıcakta " +
-    "o anda yapılacaklar. Tek ekran, JavaScript gerekmez, çevrimdışı çalışır.",
+    "o anda yapılacaklar. JavaScript gerekmez, çevrimdışı çalışır.",
 };
 
 /**
  * AFET ANI — ürünün en kritik ekranı.
  *
- * Tasarım kısıtları, sırayla:
- *  ① SIFIR JAVASCRIPT. Açılır kartlar `<details>` ile yapılır. Afet anında
- *    JS paketi indirilememiş, çökmüş ya da cihaz çok yavaş olabilir; bu
- *    ekranın çalışmama hakkı yok. React state kullanılmaz.
- *  ② TAMAMEN SSG + servis çalışanı kabuğunda. Ağsız açılır.
- *  ③ Titreyen el: dokunma hedefi ≥44 px, gövde 17 px.
- *  ④ Tek birincil eylem yok — burada eylem KULLANICININ durumuna bağlı,
- *    o yüzden ilk ekranda 9 seçenek eşit ağırlıkta durur ve önce
- *    "ilk üç şey" bloğu gelir.
- *  ⑤ Renk tek başına bilgi taşımaz: her kartta metin etiketi de var.
+ * ── NEDEN AKORDEON DEĞİL IZGARA (2026-08-08, İlyas'ın itirazı) ──
+ * Önce dokuz afet açılır-kapanır `<details>` olarak dizilmişti. İlyas
+ * haklı olarak "sayfalarda alt alta açılan menüler" dedi: panikteki insan
+ * önce doğru kartı bulup sonra açmak zorunda kalıyordu ve ekranda hiçbir
+ * görsel yoktu. Artık kapak görselli kart ızgarası — afetini GÖREREK
+ * seçiyorsun, tıklayınca doğrudan adımlara gidiyorsun.
+ *
+ * ── DEĞİŞMEYEN İLKELER ──
+ *  • SIFIR JAVASCRIPT. Izgara saf CSS grid, kartlar düz bağlantı.
+ *  • Tamamen SSG + servis çalışanı kabuğunda: ağsız açılır.
+ *  • Dokunma hedefi ≥44 px, gövde 17 px, hareket yok (panikte animasyon yok).
  */
 export default function AfetAniSayfasi() {
   return (
-    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16">
-      <UstMenu aktif="/afet-ani" />
-      <h1 className="text-2xl font-semibold">Şu an ne yapmalıyım?</h1>
-      <p className="mt-2 text-sm text-metin-2">
-        Afetini seç, ilk hareketleri sırayla oku. Bu sayfa{" "}
-        <strong className="text-metin">internet olmadan da</strong> açılır ve
-        JavaScript gerektirmez.
-      </p>
+    <SayfaKabugu aktif="/afet-ani">
+      <>
+        {/* ── Giriş + acil numaralar yan yana (geniş ekranda) ── */}
+        <section className="grid gap-6 pt-8 lg:grid-cols-[1fr_20rem]">
+          <div>
+            <h1 className="text-3xl font-semibold sm:text-4xl">
+              Şu an ne yapmalıyım?
+            </h1>
+            <p className="mt-3 max-w-[60ch] text-metin-2">
+              Afetini seç, ilk hareketleri sırayla oku. Bu sayfa{" "}
+              <strong className="text-metin">internet olmadan da</strong> açılır
+              ve JavaScript gerektirmez — şebeke çökse bile telefonunda durur.
+            </p>
+          </div>
 
-      {/* ── Acil numaralar: her şeyden önce, tıklanabilir ── */}
-      <div className="mt-5 grid grid-cols-2 gap-3">
-        <a
-          href="tel:112"
-          className="flex min-h-[64px] flex-col items-center justify-center rounded-xl bg-kritik/15 ring-1 ring-kritik/50"
-        >
-          <span className="text-2xl font-semibold tabular-nums text-kritik">112</span>
-          <span className="text-xs text-metin-2">Acil çağrı</span>
-        </a>
-        <a
-          href="tel:122"
-          className="flex min-h-[64px] flex-col items-center justify-center rounded-xl bg-uyari/15 ring-1 ring-uyari/50"
-        >
-          <span className="text-2xl font-semibold tabular-nums text-uyari">122</span>
-          <span className="text-xs text-metin-2">AFAD</span>
-        </a>
-      </div>
-
-      {/* ── Afet türünden bağımsız ilk üç şey ── */}
-      <section className="mt-6 rounded-xl border border-cizgi bg-zemin-2 p-4">
-        <h2 className="font-semibold text-metin">Hangi afet olursa olsun</h2>
-        <ol className="mt-3 space-y-2 text-sm text-metin-2">
-          <li>
-            <strong className="text-metin">1. Kendi güvenliğin önce gelir.</strong>{" "}
-            Kendini riske atan kişi kurtarılacak ikinci kişi olur.
-          </li>
-          <li>
-            <strong className="text-metin">2. Doğrulanmış bilgiyi dinle.</strong>{" "}
-            AFAD, valilik ve 112. Sosyal medyadaki kaynaksız bilgiye göre
-            hareket etme, yaymadan önce doğrula.
-          </li>
-          <li>
-            <strong className="text-metin">3. Şebekeyi meşgul etme.</strong>{" "}
-            Konuşma yerine kısa mesaj gönder; hatlar tıkalıyken metin daha çok
-            geçer. Telefonun şarjını koru.
-          </li>
-        </ol>
-      </section>
-
-      {/* ── Afet kartları ── */}
-      <h2 className="mt-8 text-lg font-semibold">Afetini seç</h2>
-      <div className="mt-3 space-y-3">
-        {AFETLER.map((afet) => (
-          <details
-            key={afet.slug}
-            className={`group rounded-xl border bg-zemin-2 ${RENK_SINIFI[afet.renk]}`}
-          >
-            <summary className="flex min-h-[64px] cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
-              {/* İkon: dokuz kartı birbirinden ayıran ilk sinyal.
-                  Renk tek başına bilgi taşımaz — şekil de ayırt ettiriyor. */}
-              <span className={`shrink-0 ${METIN_SINIFI[afet.renk]}`}>
-                <AfetIkonu slug={afet.slug} boyut={28} />
+          <div className="grid grid-cols-2 gap-3 lg:self-end">
+            <a
+              href="tel:112"
+              className="flex min-h-[76px] flex-col items-center justify-center rounded-xl bg-kritik/15 ring-1 ring-kritik/50 transition-colors duration-200 hover:bg-kritik/25"
+            >
+              <span className="text-3xl font-semibold tabular-nums text-kritik">
+                112
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-base font-semibold text-metin">
-                  {afet.ad}
-                </span>
-                <span className="mt-0.5 block text-sm text-metin-2">{afet.ozet}</span>
+              <span className="text-xs text-metin-2">Acil çağrı</span>
+            </a>
+            <a
+              href="tel:122"
+              className="flex min-h-[76px] flex-col items-center justify-center rounded-xl bg-uyari/15 ring-1 ring-uyari/50 transition-colors duration-200 hover:bg-uyari/25"
+            >
+              <span className="text-3xl font-semibold tabular-nums text-uyari">
+                122
               </span>
-              <span className="flex shrink-0 items-center gap-1.5 text-xs text-metin-3">
-                <span className="group-open:hidden">Aç</span>
-                <span className="hidden group-open:inline">Kapat</span>
-                <svg
-                  viewBox="0 0 16 16"
-                  width="14"
-                  height="14"
+              <span className="text-xs text-metin-2">AFAD</span>
+            </a>
+          </div>
+        </section>
+
+        {/* ── Afet türü olmadan geçerli üç kural ── */}
+        <section className="mt-8 rounded-2xl border border-cizgi bg-zemin-2 p-6">
+          <h2 className="text-lg font-semibold">Hangi afet olursa olsun</h2>
+          <ol className="mt-4 grid gap-4 sm:grid-cols-3">
+            {[
+              [
+                "Kendi güvenliğin önce gelir",
+                "Kendini riske atan kişi kurtarılacak ikinci kişi olur. Yardım etmenin ilk şartı ayakta kalmaktır.",
+              ],
+              [
+                "Doğrulanmış bilgiyi dinle",
+                "AFAD, valilik ve 112. Sosyal medyadaki kaynaksız bilgiye göre hareket etme, yaymadan önce doğrula.",
+              ],
+              [
+                "Şebekeyi meşgul etme",
+                "Konuşma yerine kısa mesaj gönder; hatlar tıkalıyken metin daha çok geçer. Telefonun şarjını koru.",
+              ],
+            ].map(([baslik, metin], sira) => (
+              <li key={baslik} className="flex gap-3">
+                <span
                   aria-hidden
-                  className="transition-transform duration-200 group-open:rotate-180"
+                  className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zemin-3 text-sm font-semibold tabular-nums"
                 >
-                  <path
-                    d="M4 6l4 4 4-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </summary>
+                  {sira + 1}
+                </span>
+                <span>
+                  <strong className="block text-metin">{baslik}</strong>
+                  <span className="mt-1 block text-sm text-metin-2">{metin}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </section>
 
-            <div className="border-t border-cizgi px-4 py-4">
-              {/* Diyagram adımlardan ÖNCE: doğru hareket metni okumadan görünsün. */}
-              <div className="mb-4 empty:mb-0">
-                <AfetDiyagrami slug={afet.slug} />
-              </div>
+        {/* ── Afet ızgarası: kapak görselli kartlar ── */}
+        <h2 className="mt-12 text-2xl font-semibold">Afetini seç</h2>
+        <p className="mt-2 text-metin-2">
+          Her kart o afetin ilk hareketini söylüyor; tıklayınca adımlara,
+          öncesine ve sonrasına gidersin.
+        </p>
 
-              <ol className="space-y-4">
-                {afet.anAdimlari.map((adim, sira) => (
-                  <li key={adim.baslik} className="flex gap-3">
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {AFETLER.map((afet) => {
+            const kapak = KAPAK_GORSELI[afet.slug];
+            return (
+              <Link
+                key={afet.slug}
+                href={`/afet/${afet.slug}`}
+                className="group flex flex-col overflow-hidden rounded-2xl border border-cizgi bg-zemin-2 transition-colors duration-200 hover:border-vurgu"
+              >
+                <div className="relative aspect-[3/2] overflow-hidden bg-zemin">
+                  {kapak ? (
+                    <img
+                      src={`/cizim/${kapak}`}
+                      alt=""
+                      aria-hidden
+                      width={1200}
+                      height={800}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
                     <span
                       aria-hidden
-                      className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zemin-3 text-sm font-semibold tabular-nums text-metin"
+                      className={`flex h-full w-full items-center justify-center ${METIN_SINIFI[afet.renk]}`}
                     >
-                      {sira + 1}
+                      <AfetIkonu slug={afet.slug} boyut={64} />
                     </span>
-                    <span>
-                      <strong className="block text-metin">{adim.baslik}</strong>
-                      <span className="mt-0.5 block text-sm text-metin-2">
-                        {adim.detay}
-                      </span>
+                  )}
+                </div>
+
+                <div className="flex flex-1 flex-col gap-1.5 p-5">
+                  <span className="flex items-center gap-2.5">
+                    <span className={`shrink-0 ${METIN_SINIFI[afet.renk]}`}>
+                      <AfetIkonu slug={afet.slug} boyut={22} />
                     </span>
-                  </li>
-                ))}
-              </ol>
+                    <span className="text-lg font-semibold text-metin">
+                      {afet.ad}
+                    </span>
+                  </span>
+                  <span className={`text-sm font-medium ${METIN_SINIFI[afet.renk]}`}>
+                    {afet.ozet}
+                  </span>
+                  <span className="mt-auto pt-3 text-sm text-metin-3 group-hover:text-vurgu">
+                    {afet.anAdimlari.length} adım · öncesi ve sonrası →
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
 
-              {afet.varyantlar.length > 0 && (
-                <>
-                  <h3 className="mt-5 font-semibold text-metin">Ya o an…</h3>
-                  <dl className="mt-2 space-y-2 text-sm">
-                    {afet.varyantlar.map((v) => (
-                      <div key={v.yer} className="rounded-lg bg-zemin p-3">
-                        <dt className="font-medium text-metin">{v.yer}</dt>
-                        <dd className="text-metin-2">{v.ne}</dd>
-                      </div>
-                    ))}
-                  </dl>
-                </>
-              )}
+        {/* ── Sonrası ── */}
+        <section className="mt-12 grid gap-5 sm:grid-cols-2">
+          <div className="rounded-2xl border border-cizgi bg-zemin-2 p-6">
+            <h2 className="text-lg font-semibold">Afet geçtikten sonra</h2>
+            <p className="mt-2 text-sm text-metin-2">
+              En yakın toplanma alanını{" "}
+              <Link href="/" className="text-vurgu underline">
+                haritadan
+              </Link>{" "}
+              bulabilirsin; internet yoksa{" "}
+              <Link href="/dusuk" className="text-vurgu underline">
+                metin sürümü
+              </Link>{" "}
+              haritasız çalışır.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-cizgi bg-zemin-2 p-6">
+            <h2 className="text-lg font-semibold">Bu iş bitmeden önce</h2>
+            <p className="mt-2 text-sm text-metin-2">
+              Hazırlık afet anında düşünmek zorunda kalmamaktır:{" "}
+              <Link href="/hazirlik" className="text-vurgu underline">
+                afet çantası ve aile buluşma planı
+              </Link>
+              . Yaygın yanlışlar için{" "}
+              <Link href="/mitler" className="text-vurgu underline">
+                doğru bilinen yanlışlar
+              </Link>
+              .
+            </p>
+          </div>
+        </section>
 
-              <p className="mt-4 text-sm">
-                <Link href={`/afet/${afet.slug}`} className="text-vurgu underline">
-                  {afet.ad}: öncesi, sonrası ve doğru bilinen yanlışlar
-                </Link>
-              </p>
-            </div>
-          </details>
-        ))}
-      </div>
-
-      <section className="mt-8 rounded-xl border border-cizgi bg-zemin-2 p-4 text-sm text-metin-2">
-        <h2 className="text-base font-semibold text-metin">Afet geçtikten sonra</h2>
-        <p className="mt-2">
-          En yakın toplanma alanını{" "}
-          <Link href="/" className="text-vurgu underline">
-            haritadan
-          </Link>{" "}
-          ya da internet yoksa{" "}
-          <Link href="/dusuk" className="text-vurgu underline">
-            metin sürümünden
-          </Link>{" "}
-          bulabilirsin. Bu iş bitmeden önce hazırlanmak için{" "}
-          <Link href="/hazirlik" className="text-vurgu underline">
-            afet çantası ve aile buluşma planı
-          </Link>
-          .
-        </p>
-      </section>
-
-      <p className="mt-6 text-xs text-metin-3">
-        Bu sayfa bilgilendirme amaçlıdır ve{" "}
-        <strong className="text-metin-2">resmî uyarının yerine geçmez</strong>.
-        Gerçek acil durumda 112 ve AFAD 122 talimatı esastır. Kaynaklar her afet
-        sayfasının altında listelidir.
-      </p>
-    </main>
+      </>
+    </SayfaKabugu>
   );
 }

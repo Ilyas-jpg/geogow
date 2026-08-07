@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Hazirlik from "@/components/Hazirlik";
-import UstMenu from "@/components/UstMenu";
+import SayfaKabugu from "@/components/SayfaKabugu";
 
 export const metadata: Metadata = {
   title: "Hazırlık — afet çantası ve aile buluşma planı",
@@ -20,9 +20,15 @@ export const metadata: Metadata = {
  */
 export default function HazirlikSayfasi() {
   return (
-    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16">
-      <UstMenu aktif="/hazirlik" />
-      <h1 className="yazdirma-gizle text-2xl font-semibold">Hazırlık</h1>
+    <SayfaKabugu aktif="/hazirlik">
+      <header className="yazdirma-gizle pt-8">
+        <h1 className="text-3xl font-semibold sm:text-4xl">Hazırlık</h1>
+        <p className="mt-3 max-w-[68ch] text-lg text-metin-2">
+          Hazırlık afet anında düşünmek zorunda kalmamaktır. Aşağıdaki listeyi
+          işaretle, planı doldur ve yazdırıp çantana koy — kâğıt, şarjı biten
+          telefondan uzun dayanır.
+        </p>
+      </header>
 
       {/* Yazdırılan sayfada logo yerine düz başlık: baskıda görsel varlık
           yüklenmeyebilir ve marka anayasası wordmark'ın metinle dizilmesini
@@ -32,31 +38,26 @@ export default function HazirlikSayfasi() {
         <p className="text-sm">geogow.net</p>
       </div>
 
-      <p className="yazdirma-gizle mt-2 text-metin-2">
-        Hazırlık afet anında düşünmek zorunda kalmamaktır. Aşağıdaki listeyi
-        işaretle, planı doldur ve yazdırıp çantana koy.
-      </p>
-
       <Hazirlik />
 
-      <section className="yazdirma-gizle mt-10 rounded-xl border border-cizgi bg-zemin-2 p-4 text-sm text-metin-2">
-        <h2 className="text-base font-semibold text-metin">Sırada ne var?</h2>
-        <ul className="mt-2 space-y-1">
-          <li>
+      <section className="yazdirma-gizle mt-12">
+        <h2 className="text-2xl font-semibold">Sırada ne var?</h2>
+        <ul className="mt-4 grid gap-4 sm:grid-cols-3">
+          <li className="rounded-xl border border-cizgi bg-zemin-2 p-5 text-sm text-metin-2">
             Mahallendeki{" "}
             <Link href="/" className="text-vurgu underline">
               toplanma alanını haritadan bul
             </Link>{" "}
             ve plana yaz — afet anında aramak için geç olur.
           </li>
-          <li>
+          <li className="rounded-xl border border-cizgi bg-zemin-2 p-5 text-sm text-metin-2">
             İlini{" "}
             <Link href="/" className="text-vurgu underline">
               çevrimdışı kaydet
             </Link>{" "}
             ki şebeke çöktüğünde de açılsın.
           </li>
-          <li>
+          <li className="rounded-xl border border-cizgi bg-zemin-2 p-5 text-sm text-metin-2">
             <Link href="/afet-ani" className="text-vurgu underline">
               Afet anı ekranını
             </Link>{" "}
@@ -65,11 +66,11 @@ export default function HazirlikSayfasi() {
         </ul>
       </section>
 
-      <p className="mt-6 text-xs text-metin-3">
+      <p className="mt-8 text-xs text-metin-3">
         Miktar veren maddelerin standardı yanında yazılıdır (AFAD · Sphere ·
         WHO). Bu sayfa bilgilendirme amaçlıdır ve resmî uyarının yerine geçmez —
         acil durumda 112 · AFAD 122.
       </p>
-    </main>
+    </SayfaKabugu>
   );
 }

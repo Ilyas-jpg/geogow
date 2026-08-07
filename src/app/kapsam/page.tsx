@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ozetOku, yayindakiIller } from "@/lib/veri";
 import { ILLER } from "@/lib/iller";
+import SayfaKabugu from "@/components/SayfaKabugu";
 
 export const metadata: Metadata = {
   title: "Veri kapsamı — hangi il yayında, ne kadar eksik",
@@ -27,8 +28,8 @@ export default async function KapsamSayfasi() {
   const kapsanan = yayinda.reduce((t, i) => t + i.kapsananMahalle, 0);
 
   return (
-    <main id="icerik" className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="text-2xl font-semibold">Veri kapsamı</h1>
+    <SayfaKabugu>
+      <h1 className="pt-8 text-3xl font-semibold sm:text-4xl">Veri kapsamı</h1>
       <p className="mt-3 text-metin-2">
         Toplanma alanı verisi AFAD&apos;ın e-Devlet üzerindeki resmî sorgulama
         hizmetinden il il toplanıyor. Aşağıdaki tablo o toplamanın bugünkü
@@ -143,6 +144,6 @@ export default async function KapsamSayfasi() {
           Haritaya dön
         </Link>
       </p>
-    </main>
+    </SayfaKabugu>
   );
 }

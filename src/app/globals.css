@@ -39,6 +39,16 @@
 
 :root {
   color-scheme: dark;
+
+  /**
+   * Üst menünün yüksekliği — İKİ yerde kullanılır: menünün kendi yüksekliği
+   * ve altında yapışan ikinci çubuğun `top` değeri.
+   *
+   * 🐛 Sabitlenmeden önce menü ve hazırlık çubuğu ikisi de `top-0`a
+   * yapışıyordu; menü (z-30) çubuğun (z-20) üstünü örtüyor ve kaydırınca
+   * çanta yarım kalıyordu. Tek değişken iki yeri birden hizada tutar.
+   */
+  --ust-menu-yuksekligi: 53px;
 }
 
 html,

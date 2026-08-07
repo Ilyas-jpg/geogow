@@ -225,7 +225,9 @@ export default function Hazirlik() {
   return (
     <>
       {/* ── Çanta + ilerleme ── */}
-      <div className="yazdirma-gizle sticky top-0 z-20 -mx-4 mb-6 border-b border-cizgi bg-zemin/95 px-4 py-3 backdrop-blur">
+      {/* Üst menünün ALTINA yapışır. `top-0` verilirse menü (z-30) bunun
+          üstünü örtüyor ve kaydırırken çanta yarım kalıyor. */}
+      <div className="yazdirma-gizle sticky top-[var(--ust-menu-yuksekligi)] z-20 -mx-4 mb-6 border-b border-cizgi bg-zemin/95 px-4 py-3 backdrop-blur">
         <div className="flex items-center gap-4">
           <div ref={cantaRef} className="shrink-0">
             <CantaGorseli oran={oran} boyut={64} vurgula={dustu} />
@@ -290,8 +292,10 @@ export default function Hazirlik() {
 
       <div className="mt-5 space-y-4">
         {CANTA.map((bolum) => {
+          /* Geniş ekranda iki kolon: 1180 px'te tek kolon satırları 100+
+             karaktere çıkarıyordu, göz satır başını kaybediyor. */
           const liste = (
-            <ul className="mt-3 space-y-1">
+            <ul className="mt-3 grid gap-1 lg:grid-cols-2 lg:gap-x-4">
               {bolum.maddeler.map((madde) => {
                 const secili = !!isaretli[madde.id];
                 return (
@@ -434,9 +438,9 @@ export default function Hazirlik() {
         {yuklendi ? "" : " (kayıtlı bilgiler yükleniyor…)"}
       </p>
 
-      <div className="mt-5 space-y-5">
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
         {PLAN_ALANLARI.map((alan) => (
-          <div key={alan.id}>
+          <div key={alan.id} className={alan.cokSatir ? "lg:col-span-2" : undefined}>
             <label
               htmlFor={`plan-${alan.id}`}
               className="block font-semibold text-metin"
