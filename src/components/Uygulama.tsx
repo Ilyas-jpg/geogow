@@ -178,6 +178,18 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
 
   const konum = durum.tip === "bulundu" ? { enlem: durum.enlem, boylam: durum.boylam } : null;
 
+  /** Yalnız Kandilli'nin bildirdiği depremler — haritada "*" ile işaretli. */
+  const koeriSayisi = depremler.filter((d) => d.kaynak === "KOERI").length;
+  /**
+   * İki kurumun 0,2+ ayrıştığı depremler. Gizlemek yerine sayısını yazıyoruz:
+   * büyüklük tek bir kesin sayı değil, farklı ağların farklı ölçümü.
+   * Ölçüldü (2026-08-07): Marmaris depremi AFAD'da M4,1, Kandilli'de M3,5.
+   */
+  const ayrisan = depremler.filter(
+    (d) =>
+      d.kandilliBuyukluk != null && Math.abs(d.kandilliBuyukluk - d.buyukluk) >= 0.2
+  ).length;
+
   return (
     <div className="flex h-dvh flex-col">
       <ServisCalisani />
@@ -231,8 +243,22 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                 M{Math.max(...depremler.map((d) => d.buyukluk)).toFixed(1).replace(".", ",")}
               </strong>{" "}
               {depremler.reduce((a, b) => (b.buyukluk > a.buyukluk ? b : a)).yer} ·{" "}
-              {zamanYazisi(depremler.reduce((a, b) => (b.buyukluk > a.buyukluk ? b : a)).zaman)}{" "}
-              · kaynak AFAD
+              {zamanYazisi(depremler.reduce((a, b) => (b.buyukluk > a.buyukluk ? b : a)).zaman)}
+              {" · kaynak AFAD"}
+              {koeriSayisi > 0 && (
+                <>
+                  {" ve Kandilli · "}
+                  <strong className="text-metin">{koeriSayisi}</strong>
+                  {"'i (*) yalnız Kandilli'de"}
+                </>
+              )}
+              {ayrisan > 0 && (
+                <>
+                  {" · "}
+                  <strong className="text-metin">{ayrisan}</strong>
+                  {" depremde iki kurumun büyüklüğü farklı"}
+                </>
+              )}
             </>
           )}
         </div>

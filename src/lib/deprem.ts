@@ -39,6 +39,10 @@ export type Deprem = {
   /** UTC ISO — gösterim yerel saatte yapılır. */
   zaman: string;
   guncellendi: boolean;
+  /** Hangi kurum bildirdi (uçta doldurulur). */
+  kaynak?: "AFAD" | "KOERI";
+  /** Aynı deprem için diğer kurumun büyüklüğü — farklıysa gizlenmez. */
+  kandilliBuyukluk?: number | null;
 };
 
 /** Servis yanıtındaki bir kaydı ürün tipine çevirir; bozuksa null. */

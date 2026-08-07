@@ -225,7 +225,10 @@ export default function Harita({
             yaricap: depremYaricapi(d.buyukluk),
             renk: depremRengi(d.buyukluk),
             // Büyüklük virgüllü yazılır; "M 4.2" değil "M 4,2".
-            etiket: `M ${d.buyukluk.toFixed(1).replace(".", ",")}`,
+            // Yıldız = bu depremi yalnız Kandilli bildirdi (lejantta açıklanıyor).
+            etiket:
+              `M ${d.buyukluk.toFixed(1).replace(".", ",")}` +
+              (d.kaynak === "KOERI" ? "*" : ""),
           },
         })),
       });

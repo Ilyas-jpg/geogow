@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { birlestir, depremleriCevir, dilimler } from "@/lib/deprem";
+import { ayniDeprem, kandilliAyristir, type KandilliDeprem } from "@/lib/kandilli";
 
 /**
  * Son depremler — AFAD servisnet.
@@ -12,6 +13,25 @@ export const revalidate = 0;
 
 const UC = "https://servisnet.afad.gov.tr/apigateway/deprem/apiv2/event/filter";
 const IZINLI_SAAT = [24, 72, 168];
+const KOERI = "http://www.koeri.boun.edu.tr/scripts/lst0.asp";
+
+/**
+ * Kandilli listesi. Düşerse SESSİZCE boş döner: ikinci kaynağın yokluğu
+ * birinci kaynağı (AFAD) engellememeli — katman kaybolmaz, yalnız
+ * karşılaştırma yapılamaz.
+ */
+async function kandilliCek(): Promise<KandilliDeprem[]> {
+  try {
+    const yanit = await fetch(KOERI, {
+      signal: AbortSignal.timeout(12_000),
+      next: { revalidate: 120 },
+    });
+    if (!yanit.ok) return [];
+    return kandilliAyristir(await yanit.text());
+  } catch {
+    return [];
+  }
+}
 
 export async function GET(istek: Request) {
   const url = new URL(istek.url);
@@ -67,13 +87,54 @@ export async function GET(istek: Request) {
     for (const { start, end } of dilimler(saat)) {
       gruplar.push(await dilimCek(start, end));
     }
-    const depremler = birlestir(...gruplar);
+    const afad = birlestir(...gruplar);
+
+    /**
+     * İKİNCİ KAYNAK: Kandilli. AFAD'ın yerine geçmez, YANINA konur.
+     * İki kurum aynı depremi farklı büyüklükle yayınlayabiliyor; farkı
+     * gizleyip tek sayı göstermek olmayan bir kesinlik vaat etmek olur.
+     * Kandilli düşerse AFAD tek başına gösterilir — katman kaybolmaz.
+     */
+    /**
+     * ⚠️ Kandilli listesi BİZİM filtrelerimizi tanımıyor: 500 kayıt döndürüyor,
+     * içinde M2 altı ve 24 saatten eski olaylar var. Ölçüldü: filtresiz
+     * birleştirmede 484 alakasız kayıt sızdı ve harita, kullanıcının
+     * istemediği yüzlerce mikro depremle doldu. Aynı pencere ve aynı eşik
+     * uygulanır.
+     */
+    const pencereBasi = Date.now() - saat * 3600_000;
+    const kandilli = (await kandilliCek()).filter(
+      (k) => k.buyukluk >= enAzGecerli && Date.parse(k.zaman) >= pencereBasi
+    );
+    const eslesen = new Map<string, number>();
+    const yalnizKandilli: typeof kandilli = [];
+    for (const k of kandilli) {
+      const es = afad.find((a) => ayniDeprem(a, k));
+      if (es) eslesen.set(es.id, k.buyukluk);
+      else yalnizKandilli.push(k);
+    }
+
+    type Yayin = (typeof afad)[number] & {
+      kaynak: "AFAD" | "KOERI";
+      kandilliBuyukluk: number | null;
+    };
+    const depremler: Yayin[] = afad.map((d) => ({
+      ...d,
+      kaynak: "AFAD",
+      kandilliBuyukluk: eslesen.get(d.id) ?? null,
+    }));
+    for (const k of yalnizKandilli) {
+      depremler.push({ ...k, kaynak: "KOERI", kandilliBuyukluk: null });
+    }
+    depremler.sort((a, b) => Date.parse(b.zaman) - Date.parse(a.zaman));
 
     return NextResponse.json(
       {
         depremler,
         saat,
         kaynak: "AFAD Deprem ve Risk Azaltma Genel Müdürlüğü",
+        ikinciKaynak: kandilli.length ? "Kandilli Rasathanesi (KOERI)" : null,
+        sayim: { afad: afad.length, kandilli: kandilli.length, yalnizKandilli: yalnizKandilli.length },
         alindi: new Date().toISOString(),
       },
       {
