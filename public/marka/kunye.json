@@ -1,0 +1,89 @@
+{
+  "kaynak": "geogowlogo.png (İlyas, 2026-08-07)",
+  "uretildi": "2026-08-07T10:48:07.772Z",
+  "not": "Kaynak şeffaf zeminlidir; kırpma dışında piksele dokunulmaz.",
+  "isaret": {
+    "dosya": "geogow-isaret.png",
+    "genislik": 891,
+    "yukseklik": 360
+  },
+  "wordmark": {
+    "dosya": "geogow-wordmark-siyah.png",
+    "genislik": 1726,
+    "yukseklik": 360
+  },
+  "gradyan": {
+    "baslangic": "#05e1f5",
+    "bitis": "#009db4",
+    "ornekler": [
+      {
+        "oran": 0.05,
+        "hex": "#05e1f5"
+      },
+      {
+        "oran": 0.1,
+        "hex": "#05e1f5"
+      },
+      {
+        "oran": 0.15,
+        "hex": "#05e1f4"
+      },
+      {
+        "oran": 0.2,
+        "hex": "#05e1f4"
+      },
+      {
+        "oran": 0.25,
+        "hex": "#04e1f4"
+      },
+      {
+        "oran": 0.3,
+        "hex": "#04e1f4"
+      },
+      {
+        "oran": 0.35,
+        "hex": "#04e1f3"
+      },
+      {
+        "oran": 0.45,
+        "hex": "#03e1ef"
+      },
+      {
+        "oran": 0.5,
+        "hex": "#03dfed"
+      },
+      {
+        "oran": 0.55,
+        "hex": "#03dbe9"
+      },
+      {
+        "oran": 0.6,
+        "hex": "#03d5e4"
+      },
+      {
+        "oran": 0.65,
+        "hex": "#02cedd"
+      },
+      {
+        "oran": 0.75,
+        "hex": "#01bcce"
+      },
+      {
+        "oran": 0.8,
+        "hex": "#01b3c6"
+      },
+      {
+        "oran": 0.85,
+        "hex": "#01aabf"
+      },
+      {
+        "oran": 0.9,
+        "hex": "#00a3b9"
+      },
+      {
+        "oran": 0.95,
+        "hex": "#009db4"
+      }
+    ]
+  }
+}

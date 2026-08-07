@@ -13,7 +13,9 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "tr",
     orientation: "portrait-primary",
     icons: [
-      { src: "/icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
+      { src: "/marka/ikon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/marka/ikon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/marka/ikon-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     // Telefondan doğrudan "en yakın alan"a gitmek için kısayol.
     shortcuts: [

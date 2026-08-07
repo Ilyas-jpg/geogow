@@ -9,7 +9,7 @@
  */
 
 @theme {
-  /* Algow markası: obsidyen + kobalt */
+  /* Geogow: obsidyen zemin + marka turkuazı */
   --color-zemin: #0b0d10;
   --color-zemin-2: #12151a;
   --color-zemin-3: #1a1f26;
@@ -20,8 +20,16 @@
   /* 4,93:1 — yangın projesinde 3,75:1 olan ton erişilebilirlik turunda düştü */
   --color-metin-3: #8b93a1;
 
+  /* Marka turkuazı — logodan PİKSELLE ölçüldü (public/marka/kunye.json).
+     Tahmin edilmedi: gradyan #05e1f5 → #009db4. */
+  --color-marka: #05e1f5;
+  --color-marka-koyu: #009db4;
+  /* Turkuaz çok parlak: üzerine BEYAZ yazı kontrastı 1,60 — okunmaz.
+     Düğme yazısı bu koyu tonda (kontrast 10,21). */
+  --color-marka-uzeri: #06232b;
+
   /* Anlam taşıyan dört renk. Beşincisi eklenmeyecek. */
-  --color-vurgu: #4c7dff; /* kobalt — birincil eylem, seçili */
+  --color-vurgu: #05e1f5; /* marka turkuazı — birincil eylem, seçili */
   --color-guvenli: #35c48a; /* toplanma alanı */
   --color-uyari: #f2a33c; /* dikkat, doğrulanmamış */
   --color-kritik: #ff5d5d; /* acil, hata */

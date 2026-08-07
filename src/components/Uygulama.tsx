@@ -194,8 +194,16 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
     <div className="flex h-dvh flex-col">
       <ServisCalisani />
       <header className="flex items-center justify-between gap-3 border-b border-cizgi bg-zemin px-4 py-3">
-        <div>
-          <h1 className="text-lg font-semibold leading-tight">Geogow</h1>
+        <div className="flex items-center gap-3">
+          {/* Marka anayasası §5: wordmark bir GÖRSELDİR, tipografi değil —
+              metinle dizilmez, gerçek asset kullanılır. */}
+          <img
+            src="/marka/geogow-wordmark.png"
+            alt="GeoGow"
+            width={172}
+            height={36}
+            className="h-[30px] w-auto"
+          />
           <p className="text-xs text-metin-3">Toplanma alanları ve acil durum haritası</p>
         </div>
         <div className="flex items-center gap-3">
@@ -281,7 +289,9 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                 type="button"
                 onClick={konumBul}
                 disabled={durum.tip === "araniyor"}
-                className="min-h-[52px] w-full rounded-lg bg-vurgu px-4 text-base font-semibold text-white disabled:opacity-60"
+                /* Turkuaz üzerine beyaz yazı kontrastı 1,60 (okunmaz);
+                   ölçülen koyu ton 10,21 veriyor. */
+                className="min-h-[52px] w-full rounded-lg bg-marka px-4 text-base font-semibold text-marka-uzeri disabled:opacity-60"
               >
                 {durum.tip === "araniyor"
                   ? "Konum aranıyor…"
