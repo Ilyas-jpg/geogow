@@ -94,6 +94,22 @@ export default function Harita({
       zoom: 5.2,
       attributionControl: { compact: true },
     });
+
+    /**
+     * Açılışta ülkeyi EKRANA SIĞDIR — sabit zoom kullanma.
+     *
+     * Ölçüldü (420 px genişlik, zoom 5.2): görünen boylam aralığı ~8° oluyor
+     * ve İstanbul (29°D) ekranın dışında kalıyordu. Yani telefonda açan
+     * kullanıcı en büyük veri setinin (3.158 alan) rozetini hiç görmüyordu.
+     * `fitBounds` genişliğe göre kendisi ölçekliyor.
+     */
+    harita.fitBounds(
+      [
+        [25.6, 35.8],
+        [44.9, 42.2],
+      ],
+      { padding: 24, duration: 0 }
+    );
     haritaRef.current = harita;
 
     /** Görünen alanı üst bileşene bildirir: hangi ilin verisi inecek. */
