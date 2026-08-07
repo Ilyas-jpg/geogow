@@ -12,7 +12,7 @@
  *   KARO  — harita karoları: önce önbellek (değişmezler), sınırlı sayıda
  */
 
-const SURUM = "geogow-v2";
+const SURUM = "geogow-v3";
 const KABUK = `${SURUM}-kabuk`;
 const VERI = `${SURUM}-veri`;
 const KARO = `${SURUM}-karo`;
@@ -46,6 +46,20 @@ const KABUK_YOLLARI = [
   "/afet/cig",
   "/afet/firtina",
   "/afet/asiri-sicak",
+  // Anlatım görselleri: davranış bilgisinin yarısı bunlarda. Sayfası
+  // çevrimdışı açılıp görseli gelmezse geriye boş çerçeve kalır.
+  // Toplam ~420 KB — kabuk sayfalarıyla birlikte tek seferlik maliyet.
+  "/cizim/cok-kapan-tutun.png",
+  "/cizim/duman-altinda.png",
+  "/cizim/orman-yangini.png",
+  "/cizim/kbrn-iceride-kal.png",
+  "/cizim/heyelan.png",
+  "/cizim/cig.png",
+  "/cizim/firtina.png",
+  "/cizim/asiri-sicak.png",
+  "/cizim/canta-bos.png",
+  "/cizim/canta-yarim.png",
+  "/cizim/canta-dolu.png",
 ];
 
 self.addEventListener("install", (olay) => {

@@ -17,6 +17,9 @@ import CevrimdisiKayit from "./CevrimdisiKayit";
 import ServisCalisani from "./ServisCalisani";
 import { zamanYazisi, type Deprem } from "@/lib/deprem";
 import { kompakttanNokta, TUR_BILGISI, type Nokta } from "@/lib/altyapi";
+// ⚠️ Eşik ve tip `Harita.tsx`ten DEĞİL buradan alınır: oradan statik import
+// etmek maplibre-gl'i ana pakete geri çeker ve kod bölmeyi yok eder.
+import { NOKTA_YAKINLASMASI, type IlIsareti } from "@/lib/haritaAyar";
 import type { Ozet } from "@/lib/veri";
 
 // Harita motoru ayrı parça: alan listesi MapLibre'yi BEKLEMEZ.
@@ -24,6 +27,74 @@ const Harita = dynamic(() => import("./Harita"), {
   ssr: false,
   loading: () => <div className="h-full w-full bg-zemin-2" aria-hidden />,
 });
+
+/**
+ * Katman anahtarı: renk örneği + ad + açıklama + açık/kapalı işareti.
+ * Renk TEK BAŞINA bilgi taşımaz (marka anayasası §2) — durum hem kutucukla
+ * hem `aria-pressed` ile hem de kenarlık rengiyle veriliyor.
+ */
+function KatmanSatiri({
+  acik,
+  onDegis,
+  renk,
+  ad,
+  aciklama,
+}: {
+  acik: boolean;
+  onDegis: () => void;
+  renk: string;
+  ad: string;
+  aciklama: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onDegis}
+      aria-pressed={acik}
+      className={`flex w-full cursor-pointer items-center gap-2.5 border-b border-cizgi px-3 py-2.5 text-left transition-colors duration-200 ${
+        acik ? "bg-zemin-3" : "hover:bg-zemin-3/60"
+      }`}
+    >
+      <span
+        aria-hidden
+        className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border ${
+          acik ? "border-transparent" : "border-cizgi"
+        }`}
+        style={acik ? { background: renk } : undefined}
+      >
+        {acik && (
+          <svg viewBox="0 0 12 12" width="10" height="10">
+            <path
+              d="M2.5 6.2l2.4 2.4 4.6-5"
+              fill="none"
+              stroke="#0b0d10"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className={`block text-sm ${acik ? "text-metin" : "text-metin-2"}`}>
+          {ad}
+        </span>
+        {/* Açıklama yalnız geniş ekranda: telefonda panel haritanın %20'sini
+            kapatıyordu. Katmanın ADI ve RENGİ her koşulda görünür kalır —
+            "hangi katman" sorusunun cevabı onlar. */}
+        <span className="hidden text-xs text-metin-3 sm:block">{aciklama}</span>
+      </span>
+      {/* Kapalıyken de rengin hangisi olduğu görünsün. */}
+      {!acik && (
+        <span
+          aria-hidden
+          className="h-2.5 w-2.5 shrink-0 rounded-full opacity-70"
+          style={{ background: renk }}
+        />
+      )}
+    </button>
+  );
+}
 
 type Durum =
   | { tip: "hazir" }
@@ -33,7 +104,19 @@ type Durum =
 
 export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
   const [durum, setDurum] = useState<Durum>({ tip: "hazir" });
-  const [alanlar, setAlanlar] = useState<Alan[]>([]);
+  /**
+   * İNDİRİLMİŞ İLLER — plaka → alanlar.
+   *
+   * Tek il yerine sözlük tutuluyor çünkü artık haritada gezinirken de veri
+   * iniyor: kullanıcı konum izni vermeden, sadece bakarak toplanma
+   * alanlarını görebilmeli. İl sınırında duran biri iki ilin alanını
+   * birden görür.
+   */
+  const [ilVerileri, setIlVerileri] = useState<Record<number, Alan[]>>({});
+  const alanlar = useMemo<Alan[]>(
+    () => Object.values(ilVerileri).flat(),
+    [ilVerileri]
+  );
   const [secIl, setSecIl] = useState<IlAdayi | null>(null);
   /** Veri önbellekten geldiyse kullanıcıya SÖYLENİR — sessizce bayat veri gösterilmez. */
   const [cevrimdisi, setCevrimdisi] = useState(false);
@@ -132,24 +215,37 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
     [ozet]
   );
 
-  /** İl verisini indirir. Yalnız gereken il — kötü bağlantı bütçesi böyle korunur. */
-  const ilYukle = useCallback(async (il: IlAdayi) => {
+  /**
+   * İl verisini indirir. Yalnız gereken il — kötü bağlantı bütçesi böyle korunur.
+   * Aynı il iki kez indirilmez; uçuştaki istek de ref ile korunur.
+   */
+  const inenIllerRef = useRef<Set<number>>(new Set());
+  const ilYukle = useCallback(async (plaka: number) => {
+    if (inenIllerRef.current.has(plaka)) return;
+    inenIllerRef.current.add(plaka);
     setYukleniyor(true);
     try {
-      const yanit = await fetch(`/data/toplanma/${il.plaka}.min.json`);
+      const yanit = await fetch(`/data/toplanma/${plaka}.min.json`);
       if (!yanit.ok) throw new Error(String(yanit.status));
       // Servis çalışanı önbellekten servis ettiyse başlıkla bildiriyor.
       // (Ağ tamamen düştüğünde tetiklenir; tarayıcı HTTP önbelleği devreye
       //  girerse `navigator.onLine` dinleyicisi yakalar.)
       if (yanit.headers.get("x-geogow-cevrimdisi") === "1") setCevrimdisi(true);
       const veri: IlVerisi = await yanit.json();
-      setAlanlar(veri.a.map(kompakttanAlan));
-      setSecIl(il);
+      setIlVerileri((onceki) => ({
+        ...onceki,
+        [plaka]: veri.a.map(kompakttanAlan),
+      }));
     } catch {
-      setDurum({
-        tip: "hata",
-        mesaj: "Alan verisi indirilemedi. Bağlantını kontrol edip tekrar dene.",
-      });
+      inenIllerRef.current.delete(plaka); // tekrar denenebilsin
+      setDurum((o) =>
+        o.tip === "bulundu"
+          ? o
+          : {
+              tip: "hata",
+              mesaj: "Alan verisi indirilemedi. Bağlantını kontrol edip tekrar dene.",
+            }
+      );
     } finally {
       setYukleniyor(false);
     }
@@ -214,11 +310,52 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
 
   // Konum bulununca doğru ilin verisini indir.
   useEffect(() => {
-    if (durum.tip !== "bulundu" || secIl || yukleniyor) return;
+    if (durum.tip !== "bulundu" || secIl) return;
     const adaylar = ilAdaylari(iller, durum.enlem, durum.boylam);
     if (!adaylar.length) return;
-    void ilYukle(adaylar[0]);
-  }, [durum, iller, secIl, yukleniyor, ilYukle]);
+    setSecIl(adaylar[0]);
+    void ilYukle(adaylar[0].plaka);
+  }, [durum, iller, secIl, ilYukle]);
+
+  /**
+   * HARİTAYA BAKMAK VERİYİ İNDİRİR — konum izni gerekmez.
+   *
+   * Önceki sürümde harita açılışta bomboştu ve kullanıcı konum iznini
+   * vermeden hiçbir toplanma alanı göremiyordu. Artık: ülke görünümünde il
+   * rozetleri, yakınlaşınca görünen illerin gerçek noktaları iner.
+   *
+   * ⚠️ En fazla 3 il: ülke görünümüne yakın bir kutu 8 ilin dosyasını birden
+   * indirtebilir (~200 KB) ve bu, ürünün "kötü bağlantıda çalışır" iddiasını
+   * doğrudan çürütür. Yakınlaşma eşiği zaten bunu büyük ölçüde engelliyor,
+   * bu sınır ikinci emniyet.
+   */
+  const gorunumDegisti = useCallback(
+    ({ zoom, kutu }: { zoom: number; kutu: [number, number, number, number] }) => {
+      if (zoom < NOKTA_YAKINLASMASI) return;
+      const [bati, guney, dogu, kuzey] = kutu;
+      const kesisen = iller.filter((il) => {
+        if (!il.kutu) return false;
+        const [b, g, d, k] = il.kutu;
+        return !(d < bati || b > dogu || k < guney || g > kuzey);
+      });
+      for (const il of kesisen.slice(0, 3)) void ilYukle(il.plaka);
+    },
+    [iller, ilYukle]
+  );
+
+  /** Ülke görünümündeki il rozetleri — `ozet.json`'dan, ek istek yok. */
+  const ilIsaretleri = useMemo<IlIsareti[]>(
+    () =>
+      (ozet?.iller ?? [])
+        .filter((il) => il.merkez)
+        .map((il) => ({
+          plaka: il.plaka,
+          il: il.il,
+          alan: il.alan,
+          merkez: il.merkez as [number, number],
+        })),
+    [ozet]
+  );
 
   const yakinlar: YakinAlan[] = useMemo(() => {
     if (durum.tip !== "bulundu" || !alanlar.length) return [];
@@ -339,58 +476,62 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
           alanlar={alanlar}
           depremler={depremAcik ? depremler : []}
           altyapi={altyapiAcik ? altyapi : []}
+          ilIsaretleri={ilIsaretleri}
           konum={konum}
           secili={secili}
           onSec={setSecili}
+          onGorunum={gorunumDegisti}
+          onIlSec={ilYukle}
         />
 
-        {/* ── Katman kontrolü ── */}
-        <div className="pointer-events-none absolute right-3 top-3 flex flex-col items-end gap-2">
-          <button
-            type="button"
-            onClick={() => setDepremAcik((a) => !a)}
-            aria-pressed={depremAcik}
-            className={`pointer-events-auto min-h-[44px] rounded-lg border px-3 text-sm backdrop-blur ${
-              depremAcik
-                ? "border-vurgu bg-zemin-3/95 text-metin"
-                : "border-cizgi bg-zemin-2/90 text-metin-2"
-            }`}
-          >
-            {/* Açık/kapalı yalnız renkle değil işaretle de belli. */}
-            <span aria-hidden className="mr-1.5">
-              {depremAcik ? "✓" : "+"}
-            </span>
-            Depremler
-          </button>
-          <button
-            type="button"
-            onClick={() => setAltyapiAcik((a) => !a)}
-            aria-pressed={altyapiAcik}
-            className={`pointer-events-auto min-h-[44px] rounded-lg border px-3 text-sm backdrop-blur ${
-              altyapiAcik
-                ? "border-vurgu bg-zemin-3/95 text-metin"
-                : "border-cizgi bg-zemin-2/90 text-metin-2"
-            }`}
-          >
-            <span aria-hidden className="mr-1.5">
-              {altyapiAcik ? "✓" : "+"}
-            </span>
-            Hastane · itfaiye
-          </button>
+        {/* ── KATMANLAR ──
+         * Başlıklı panel: "hangi katman ne" sorusunun cevabı renk örneği,
+         * ad ve açık/kapalı işaretiyle aynı anda görünür. Önceki sürümde
+         * iki isimsiz düğme vardı ve hangi rengin hangisi olduğu ancak
+         * katman açılınca anlaşılıyordu. */}
+        <div className="pointer-events-auto absolute right-3 top-3 w-[13.5rem] overflow-hidden rounded-xl border border-cizgi bg-zemin-2/95 backdrop-blur">
+          <p className="border-b border-cizgi px-3 py-2 text-xs font-semibold text-metin-2">
+            Katmanlar
+          </p>
 
+          <KatmanSatiri
+            acik={depremAcik}
+            onDegis={() => setDepremAcik((a) => !a)}
+            renk="#ff5d5d"
+            ad="Son depremler"
+            aciklama="AFAD ve Kandilli, son 24 saat"
+          />
+          {depremAcik && (
+            <p className="border-b border-cizgi bg-zemin px-3 py-2 text-xs text-metin-3">
+              Daire büyüklüğü depremin büyüklüğünü gösterir.{" "}
+              <strong className="text-metin-2">*</strong> işaretli olanları yalnız
+              Kandilli bildirdi.
+            </p>
+          )}
+
+          <KatmanSatiri
+            acik={altyapiAcik}
+            onDegis={() => setAltyapiAcik((a) => !a)}
+            renk={TUR_BILGISI.h.renk}
+            ad="Hastane ve itfaiye"
+            aciklama="Sağlık merkezleri dahil"
+          />
           {altyapiAcik && (
             <div
               role="status"
-              className="pointer-events-auto max-w-[13rem] rounded-lg border border-cizgi bg-zemin-2/95 p-2.5 text-xs text-metin-2 backdrop-blur"
+              className="border-b border-cizgi bg-zemin px-3 py-2 text-xs text-metin-2"
             >
-              {altyapiDurumu === "bos" && "Önce ilini bul, katman o ile göre yüklenir."}
-              {altyapiDurumu === "yukleniyor" && "Altyapı noktaları indiriliyor…"}
+              {altyapiDurumu === "bos" &&
+                "Haritada bir ile yakınlaş ya da konumunu bul."}
+              {altyapiDurumu === "yukleniyor" && "Noktalar indiriliyor…"}
               {altyapiDurumu === "hata" && "Altyapı verisi indirilemedi."}
               {altyapiDurumu === "yok" && (
                 <>
-                  Bu il için altyapı verisi henüz toplanmadı —{" "}
-                  <strong className="text-metin">&ldquo;burada hastane yok&rdquo;
-                  demek değil</strong>.
+                  Bu il için veri henüz toplanmadı —{" "}
+                  <strong className="text-metin">
+                    &ldquo;burada hastane yok&rdquo; demek değil
+                  </strong>
+                  .
                 </>
               )}
               {altyapiDurumu === "tamam" && (
@@ -406,8 +547,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                           {tur === "h" ? "H" : tur === "i" ? "İ" : "S"}
                         </span>
                         {/* ⚠️ `.toLowerCase()` KULLANILMAZ: "İtfaiye" →
-                            "i̇tfaiye" (noktalı i + birleşen nokta) çıkıyor.
-                            Etiket olduğu gibi, büyük harfle yazılıyor. */}
+                            "i̇tfaiye" (noktalı i + birleşen nokta) çıkıyor. */}
                         <span className="tabular-nums">
                           {altyapiSayim[tur] ?? 0} {TUR_BILGISI[tur].ad}
                         </span>
@@ -415,14 +555,28 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                     ))}
                   </ul>
                   <p className="mt-2 text-metin-3">
-                    Kaynak OpenStreetMap (ODbL). Liste{" "}
-                    <strong className="text-metin-2">eksik olabilir</strong>; resmî
-                    kayıt değildir.
+                    OpenStreetMap (ODbL) · liste eksik olabilir
                   </p>
                 </>
               )}
             </div>
           )}
+
+          {/* Toplanma alanı katmanı kapatılamaz: ürünün kendisi o. Yine de
+              lejantta yer alır, yoksa yeşil noktaların ne olduğu yazmaz. */}
+          <div className="flex items-center gap-2.5 px-3 py-2.5">
+            <span
+              aria-hidden
+              className="h-3 w-3 shrink-0 rounded-full"
+              style={{ background: "#35c48a" }}
+            />
+            <span className="min-w-0">
+              <span className="block text-sm text-metin">Toplanma alanları</span>
+              <span className="hidden text-xs text-metin-3 sm:block">
+                AFAD kaydı · her zaman açık
+              </span>
+            </span>
+          </div>
         </div>
 
         {/* ── Tek birincil eylem ── */}
@@ -482,7 +636,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
 
               {yakinlar.length > 0 && (
                 <>
-                  <h2 className="text-sm uppercase tracking-wide text-metin-3">
+                  <h2 className="font-semibold text-metin">
                     Sana en yakın {yakinlar.length} toplanma alanı
                     {secIl ? ` · ${secIl.il}` : ""}
                   </h2>

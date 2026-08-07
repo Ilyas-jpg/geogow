@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AFETLER, RENK_SINIFI } from "@/lib/afet";
+import { AFETLER, METIN_SINIFI, RENK_SINIFI } from "@/lib/afet";
+import { AfetDiyagrami, AfetIkonu } from "@/components/AfetCizim";
+import UstMenu from "@/components/UstMenu";
 
 export const metadata: Metadata = {
   title: "Afet anı — şu an ne yapmalıyım?",
@@ -25,13 +27,9 @@ export const metadata: Metadata = {
  */
 export default function AfetAniSayfasi() {
   return (
-    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16 pt-6">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Şu an ne yapmalıyım?</h1>
-        <Link href="/" className="shrink-0 text-sm text-vurgu underline">
-          Haritaya dön
-        </Link>
-      </div>
+    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16">
+      <UstMenu aktif="/afet-ani" />
+      <h1 className="text-2xl font-semibold">Şu an ne yapmalıyım?</h1>
       <p className="mt-2 text-sm text-metin-2">
         Afetini seç, ilk hareketleri sırayla oku. Bu sayfa{" "}
         <strong className="text-metin">internet olmadan da</strong> açılır ve
@@ -58,9 +56,7 @@ export default function AfetAniSayfasi() {
 
       {/* ── Afet türünden bağımsız ilk üç şey ── */}
       <section className="mt-6 rounded-xl border border-cizgi bg-zemin-2 p-4">
-        <h2 className="text-sm uppercase tracking-wide text-metin-3">
-          Hangi afet olursa olsun
-        </h2>
+        <h2 className="font-semibold text-metin">Hangi afet olursa olsun</h2>
         <ol className="mt-3 space-y-2 text-sm text-metin-2">
           <li>
             <strong className="text-metin">1. Kendi güvenliğin önce gelir.</strong>{" "}
@@ -87,21 +83,46 @@ export default function AfetAniSayfasi() {
             key={afet.slug}
             className={`group rounded-xl border bg-zemin-2 ${RENK_SINIFI[afet.renk]}`}
           >
-            <summary className="flex min-h-[64px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
-              <span>
+            <summary className="flex min-h-[64px] cursor-pointer list-none items-center gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
+              {/* İkon: dokuz kartı birbirinden ayıran ilk sinyal.
+                  Renk tek başına bilgi taşımaz — şekil de ayırt ettiriyor. */}
+              <span className={`shrink-0 ${METIN_SINIFI[afet.renk]}`}>
+                <AfetIkonu slug={afet.slug} boyut={28} />
+              </span>
+              <span className="min-w-0 flex-1">
                 <span className="block text-base font-semibold text-metin">
                   {afet.ad}
                 </span>
                 <span className="mt-0.5 block text-sm text-metin-2">{afet.ozet}</span>
               </span>
-              {/* Renk tek başına bilgi taşımaz: açık/kapalı metinle de belli. */}
-              <span className="shrink-0 text-xs text-metin-3">
-                <span className="group-open:hidden">aç ▾</span>
-                <span className="hidden group-open:inline">kapat ▴</span>
+              <span className="flex shrink-0 items-center gap-1.5 text-xs text-metin-3">
+                <span className="group-open:hidden">Aç</span>
+                <span className="hidden group-open:inline">Kapat</span>
+                <svg
+                  viewBox="0 0 16 16"
+                  width="14"
+                  height="14"
+                  aria-hidden
+                  className="transition-transform duration-200 group-open:rotate-180"
+                >
+                  <path
+                    d="M4 6l4 4 4-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </span>
             </summary>
 
             <div className="border-t border-cizgi px-4 py-4">
+              {/* Diyagram adımlardan ÖNCE: doğru hareket metni okumadan görünsün. */}
+              <div className="mb-4 empty:mb-0">
+                <AfetDiyagrami slug={afet.slug} />
+              </div>
+
               <ol className="space-y-4">
                 {afet.anAdimlari.map((adim, sira) => (
                   <li key={adim.baslik} className="flex gap-3">
@@ -123,9 +144,7 @@ export default function AfetAniSayfasi() {
 
               {afet.varyantlar.length > 0 && (
                 <>
-                  <h3 className="mt-5 text-sm uppercase tracking-wide text-metin-3">
-                    Ya o an…
-                  </h3>
+                  <h3 className="mt-5 font-semibold text-metin">Ya o an…</h3>
                   <dl className="mt-2 space-y-2 text-sm">
                     {afet.varyantlar.map((v) => (
                       <div key={v.yer} className="rounded-lg bg-zemin p-3">

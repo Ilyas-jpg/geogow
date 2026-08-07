@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AFETLER, afetBul, RENK_SINIFI } from "@/lib/afet";
+import { AFETLER, afetBul, METIN_SINIFI, RENK_SINIFI } from "@/lib/afet";
+import { AfetDiyagrami, AfetIkonu } from "@/components/AfetCizim";
+import UstMenu from "@/components/UstMenu";
 
 type Parametre = { params: Promise<{ tur: string }> };
 
@@ -36,7 +38,8 @@ export default async function AfetSayfasi({ params }: Parametre) {
   if (!afet) notFound();
 
   return (
-    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16 pt-6">
+    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16">
+      <UstMenu aktif="/afet-ani" />
       <nav className="text-sm text-metin-3">
         <Link href="/afet-ani" className="text-vurgu underline">
           Afet anı
@@ -44,18 +47,26 @@ export default async function AfetSayfasi({ params }: Parametre) {
         / {afet.ad}
       </nav>
 
-      <h1 className="mt-2 text-2xl font-semibold">{afet.ad}</h1>
+      <h1 className="mt-2 flex items-center gap-3 text-2xl font-semibold">
+        <span className={METIN_SINIFI[afet.renk]}>
+          <AfetIkonu slug={afet.slug} boyut={30} />
+        </span>
+        {afet.ad}
+      </h1>
       <p
         className={`mt-3 rounded-xl border bg-zemin-2 px-4 py-3 text-base font-medium ${RENK_SINIFI[afet.renk]}`}
       >
         {afet.ozet}
       </p>
 
+      {/* Diyagram özetten hemen sonra: metni okumadan da doğru hareket görünsün. */}
+      <div className="mt-5">
+        <AfetDiyagrami slug={afet.slug} />
+      </div>
+
       {afet.turkiye && (
         <section className="mt-5 rounded-xl border border-cizgi bg-zemin-2 p-4">
-          <h2 className="text-sm uppercase tracking-wide text-metin-3">
-            Türkiye&apos;de durum
-          </h2>
+          <h2 className="font-semibold text-metin">Türkiye&apos;de durum</h2>
           <p className="mt-2 text-sm text-metin-2">{afet.turkiye}</p>
         </section>
       )}

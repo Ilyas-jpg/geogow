@@ -868,3 +868,10 @@ export const RENK_SINIFI: Record<AfetTuru["renk"], string> = {
   uyari: "border-uyari/50 text-uyari",
   guvenli: "border-guvenli/50 text-guvenli",
 };
+
+/** Yalnız metin/ikon rengi. `RENK_SINIFI`'nı parçalamak kırılgandı. */
+export const METIN_SINIFI: Record<AfetTuru["renk"], string> = {
+  kritik: "text-kritik",
+  uyari: "text-uyari",
+  guvenli: "text-guvenli",
+};

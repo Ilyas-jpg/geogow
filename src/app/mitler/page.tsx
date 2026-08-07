@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { afetBul, tumMitler } from "@/lib/afet";
+import UstMenu from "@/components/UstMenu";
 
 export const metadata: Metadata = {
   title: "Doğru bilinen yanlışlar — hayat üçgeni, kapı eşiği ve diğerleri",
@@ -28,13 +29,9 @@ export default function MitlerSayfasi() {
   const digerleri = tumMitler().filter((m) => m.yanlis !== hayatUcgeni?.yanlis);
 
   return (
-    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16 pt-6">
-      <div className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Doğru bilinen yanlışlar</h1>
-        <Link href="/" className="shrink-0 text-sm text-vurgu underline">
-          Haritaya dön
-        </Link>
-      </div>
+    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16">
+      <UstMenu aktif="/mitler" />
+      <h1 className="text-2xl font-semibold">Doğru bilinen yanlışlar</h1>
       <p className="mt-2 text-metin-2">
         Afet bilgisinde yanlış bir alışkanlık, bilgisizlikten daha tehlikelidir:
         kişi doğru olduğuna inandığı şeyi tereddütsüz yapar. Aşağıdaki

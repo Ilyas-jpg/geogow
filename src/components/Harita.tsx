@@ -6,6 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { Alan } from "@/lib/alan";
 import { depremRengi, depremYaricapi, type Deprem } from "@/lib/deprem";
 import { TUR_BILGISI, type Nokta } from "@/lib/altyapi";
+import { NOKTA_YAKINLASMASI, type IlIsareti } from "@/lib/haritaAyar";
 
 /**
  * ⚠️ maplibre-gl v6 KIRIK (vault dersi): harita tamamen boş kalıyor, hata da
@@ -30,20 +31,44 @@ export default function Harita({
   alanlar,
   depremler = [],
   altyapi = [],
+  ilIsaretleri = [],
   konum,
   secili,
   onSec,
+  onGorunum,
+  onIlSec,
 }: {
   alanlar: Alan[];
   depremler?: Deprem[];
   altyapi?: Nokta[];
+  /** Düşük yakınlaşmada gösterilen il rozetleri. */
+  ilIsaretleri?: IlIsareti[];
   konum: { enlem: number; boylam: number } | null;
   secili: number | null;
   onSec: (id: number) => void;
+  /** Harita durduğunda görünen alanı bildirir — hangi ilin indirileceğini belirler. */
+  onGorunum?: (bilgi: {
+    zoom: number;
+    kutu: [number, number, number, number];
+  }) => void;
+  /** İl rozetine tıklanınca o ile yakınlaş. */
+  onIlSec?: (plaka: number) => void;
 }) {
   const kapRef = useRef<HTMLDivElement>(null);
   const haritaRef = useRef<HaritaTipi | null>(null);
   const hazirRef = useRef(false);
+
+  /* Geri çağrılar ref'te tutulur ve kurulum efekti bağımlılıksız çalışır.
+     Aksi hâlde her render'da yeni bir fonksiyon kimliği haritayı YIKIP
+     yeniden kuruyor; kullanıcının kaydırdığı konum ve inen karolar gidiyor. */
+  const onSecRef = useRef(onSec);
+  const onGorunumRef = useRef(onGorunum);
+  const onIlSecRef = useRef(onIlSec);
+  useEffect(() => {
+    onSecRef.current = onSec;
+    onGorunumRef.current = onGorunum;
+    onIlSecRef.current = onIlSec;
+  });
 
   useEffect(() => {
     if (!kapRef.current || haritaRef.current) return;
@@ -70,6 +95,16 @@ export default function Harita({
       attributionControl: { compact: true },
     });
     haritaRef.current = harita;
+
+    /** Görünen alanı üst bileşene bildirir: hangi ilin verisi inecek. */
+    const bildir = () => {
+      const k = harita.getBounds();
+      onGorunumRef.current?.({
+        zoom: harita.getZoom(),
+        kutu: [k.getWest(), k.getSouth(), k.getEast(), k.getNorth()],
+      });
+    };
+    harita.on("moveend", bildir);
 
     harita.on("load", () => {
       hazirRef.current = true;
@@ -245,6 +280,75 @@ export default function Harita({
         harita.getCanvas().style.cursor = "";
       });
 
+      /* ── İl rozetleri: ülke görünümünde harita BOŞ KALMAZ ──
+       * Ziyaretçi hiçbir izin vermeden nerede veri olduğunu görür; asıl
+       * noktalar yakınlaşınca iner. Önceki sürümde harita açılışta bomboştu
+       * ve kullanıcı konum iznini vermeden hiçbir şey göremiyordu. */
+      harita.addSource("iller", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+      harita.addLayer({
+        id: "il-halka",
+        type: "circle",
+        source: "iller",
+        maxzoom: NOKTA_YAKINLASMASI,
+        paint: {
+          // Yarıçap alan sayısına göre: büyük il görsel olarak da büyük.
+          "circle-radius": [
+            "interpolate",
+            ["linear"],
+            ["get", "alan"],
+            0, 14,
+            3200, 30,
+          ],
+          "circle-color": "#35c48a",
+          "circle-opacity": 0.16,
+          "circle-stroke-width": 1.6,
+          "circle-stroke-color": "#35c48a",
+          "circle-stroke-opacity": 0.7,
+        },
+      });
+      harita.addLayer({
+        id: "il-etiket",
+        type: "symbol",
+        source: "iller",
+        maxzoom: NOKTA_YAKINLASMASI,
+        layout: {
+          "text-field": ["get", "etiket"],
+          "text-size": 12,
+          "text-line-height": 1.2,
+          "text-allow-overlap": false,
+        },
+        paint: {
+          "text-color": "#f2f4f7",
+          "text-halo-color": "#0b0d10",
+          "text-halo-width": 1.6,
+        },
+      });
+      harita.on("click", "il-halka", (olay) => {
+        const oge = olay.features?.[0];
+        if (!oge) return;
+        const plaka = oge.properties?.plaka;
+        if (typeof plaka !== "number") return;
+        onIlSecRef.current?.(plaka);
+        // Rozete basmak o ile yakınlaştırır: nokta eşiğinin hemen üstüne
+        // çıkılır ki gerçek toplanma alanları aynı hareketle görünsün.
+        if (oge.geometry.type === "Point") {
+          harita.easeTo({
+            center: oge.geometry.coordinates as [number, number],
+            zoom: NOKTA_YAKINLASMASI + 0.6,
+            duration: 700,
+          });
+        }
+      });
+      harita.on("mouseenter", "il-halka", () => {
+        harita.getCanvas().style.cursor = "pointer";
+      });
+      harita.on("mouseleave", "il-halka", () => {
+        harita.getCanvas().style.cursor = "";
+      });
+
       harita.addSource("konum", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
@@ -263,7 +367,7 @@ export default function Harita({
 
       harita.on("click", "alan-nokta", (olay) => {
         const id = olay.features?.[0]?.properties?.id;
-        if (typeof id === "number") onSec(id);
+        if (typeof id === "number") onSecRef.current(id);
       });
       harita.on("mouseenter", "alan-nokta", () => {
         harita.getCanvas().style.cursor = "pointer";
@@ -271,6 +375,8 @@ export default function Harita({
       harita.on("mouseleave", "alan-nokta", () => {
         harita.getCanvas().style.cursor = "";
       });
+
+      bildir();
     });
 
     return () => {
@@ -278,7 +384,7 @@ export default function Harita({
       haritaRef.current = null;
       hazirRef.current = false;
     };
-  }, [onSec]);
+  }, []);
 
   // Alanlar değişince kaynağı güncelle
   useEffect(() => {
@@ -356,6 +462,33 @@ export default function Harita({
     if (hazirRef.current) uygula();
     else harita.once("load", uygula);
   }, [altyapi]);
+
+  // İl rozetleri değişince kaynağı güncelle
+  useEffect(() => {
+    const harita = haritaRef.current;
+    if (!harita) return;
+    const uygula = () => {
+      const kaynak = harita.getSource("iller");
+      if (!kaynak || !("setData" in kaynak)) return;
+      (kaynak as { setData: (v: unknown) => void }).setData({
+        type: "FeatureCollection",
+        features: ilIsaretleri.map((il) => ({
+          type: "Feature",
+          id: il.plaka,
+          geometry: { type: "Point", coordinates: [il.merkez[1], il.merkez[0]] },
+          properties: {
+            plaka: il.plaka,
+            alan: il.alan,
+            // Sayı yazıyla da veriliyor: rozetin büyüklüğü tek başına
+            // "kaç alan" bilgisini taşımaz.
+            etiket: `${il.il}\n${il.alan.toLocaleString("tr-TR")} alan`,
+          },
+        })),
+      });
+    };
+    if (hazirRef.current) uygula();
+    else harita.once("load", uygula);
+  }, [ilIsaretleri]);
 
   // Konum değişince noktayı taşı ve ilk seferde oraya uç
   const ucusYapildi = useRef(false);

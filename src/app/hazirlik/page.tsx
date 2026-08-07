@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Hazirlik from "@/components/Hazirlik";
+import UstMenu from "@/components/UstMenu";
 
 export const metadata: Metadata = {
   title: "Hazırlık — afet çantası ve aile buluşma planı",
@@ -19,13 +20,9 @@ export const metadata: Metadata = {
  */
 export default function HazirlikSayfasi() {
   return (
-    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16 pt-6">
-      <div className="yazdirma-gizle flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-semibold">Hazırlık</h1>
-        <Link href="/" className="shrink-0 text-sm text-vurgu underline">
-          Haritaya dön
-        </Link>
-      </div>
+    <main id="icerik" className="mx-auto max-w-2xl px-4 pb-16">
+      <UstMenu aktif="/hazirlik" />
+      <h1 className="yazdirma-gizle text-2xl font-semibold">Hazırlık</h1>
 
       {/* Yazdırılan sayfada logo yerine düz başlık: baskıda görsel varlık
           yüklenmeyebilir ve marka anayasası wordmark'ın metinle dizilmesini
