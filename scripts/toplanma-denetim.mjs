@@ -54,13 +54,34 @@ export function ilDenetle(plaka) {
   if (geometrisiz.length) uyari.push(`${geometrisiz.length} alanın poligonu yok`);
 
   const bozuk = [];
+  const poligonsuz = [];
   const cokBuyuk = [];
   const cokKucuk = [];
   const uzakMerkez = [];
   for (const alan of ham.alanlar) {
     if (!alan.geometri) continue;
     const halkaDizisi = halkalar(alan.geometri);
-    if (!halkaDizisi.length || halkaDizisi.some((h) => h.length < 4)) {
+    /*
+     * ⚠️ İKİ AYRI DURUM, İKİ AYRI ŞİDDET — eskiden ikisi de KRİTİK'ti ve
+     * tek bir AFAD kaydı 39 ilin yayınını durduruyordu.
+     *
+     * (a) Halka HİÇ YOK: geometri var ama poligon değil. AFAD bazı alanları
+     *     dejenere LineString olarak veriyor (Mersin/Tarsus "TARSUS DEVLET
+     *     PARKI" iki noktalı çizgi, alanM2 = 0). `poligonlastir()` bunlara
+     *     zaten null dönüyor: alan `min.json`'a NOKTA olarak giriyor —
+     *     "en yakın toplanma alanı" araması çalışıyor — ve `geo.json`'a
+     *     girmiyor, yani yanlış bir şekil çizilmiyor. Sonuç ürün açısından
+     *     "poligonu yok" ile aynı, o da zaten UYARI. Bu yüzden uyarı.
+     *
+     * (b) Halka VAR ama 4 noktadan az: poligon olduğunu iddia eden bozuk
+     *     veri. Kapalı halka en az 4 nokta ister. Bu çizilirse yanlış şekil
+     *     çıkar — KRİTİK kalır.
+     */
+    if (!halkaDizisi.length) {
+      poligonsuz.push(alan.id);
+      continue;
+    }
+    if (halkaDizisi.some((h) => h.length < 4)) {
       bozuk.push(alan.id);
       continue;
     }
@@ -76,6 +97,10 @@ export function ilDenetle(plaka) {
     }
   }
   if (bozuk.length) kritik.push(`${bozuk.length} bozuk poligon (halka < 4 nokta)`);
+  if (poligonsuz.length)
+    uyari.push(
+      `${poligonsuz.length} alanın geometrisi poligon değil (nokta olarak yayınlanıyor)`
+    );
   if (cokBuyuk.length)
     uyari.push(
       `${cokBuyuk.length} alan 2 km²'den büyük (en büyüğü ${Math.round(
