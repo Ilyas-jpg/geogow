@@ -14,6 +14,7 @@
  *   insan  #dfe5ec   · doğru/güvenli #35c48a · yanlış/tehlike #ff5d5d
  *   yapı   #4a5563   · vurgu/ölçü    #05e1f5
  */
+import Gorsel from "@/components/Gorsel";
 
 const INSAN = "#dfe5ec";
 const YAPI = "#4a5563";
@@ -350,11 +351,12 @@ export function AfetDiyagrami({ slug }: { slug: string }) {
   if (slug === "deprem") {
     return (
       <figure className="rounded-xl border border-cizgi bg-zemin-2 p-3">
-        <img
-          src="/cizim/cok-kapan-tutun.png"
+        <Gorsel
+          kaynak="/cizim/cok-kapan-tutun.png"
           alt="Üç adımda deprem anı: diz üstü çöküp başını kollarıyla koruyan, masanın altına giren ve masanın ayağını tutan bir kişi"
           width={1440}
           height={480}
+          loading="eager"
           className="w-full rounded-lg"
         />
         <div className="mt-3 grid grid-cols-3 gap-2">
@@ -383,8 +385,8 @@ export function AfetDiyagrami({ slug }: { slug: string }) {
   if (gorsel) {
     return (
       <figure className="rounded-xl border border-cizgi bg-zemin-2 p-3">
-        <img
-          src={`/cizim/${gorsel.dosya}`}
+        <Gorsel
+          kaynak={`/cizim/${gorsel.dosya}`}
           alt={gorsel.alt}
           width={1200}
           height={800}

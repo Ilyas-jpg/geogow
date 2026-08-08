@@ -3,6 +3,7 @@ import Link from "next/link";
 import { afetBul, METIN_SINIFI, tumMitler } from "@/lib/afet";
 import { AfetIkonu } from "@/components/AfetCizim";
 import SayfaKabugu from "@/components/SayfaKabugu";
+import Gorsel from "@/components/Gorsel";
 
 export const metadata: Metadata = {
   title: "Doğru bilinen yanlışlar — hayat üçgeni, kapı eşiği ve diğerleri",
@@ -85,8 +86,8 @@ export default function MitlerSayfasi() {
 
             {/* Doğru hareketin görseli — metni okumadan da görünsün */}
             <div className="order-first bg-zemin lg:order-last">
-              <img
-                src="/cizim/cok-kapan-tutun.png"
+              <Gorsel
+                kaynak="/cizim/cok-kapan-tutun.png"
                 alt="Doğru hareket: diz üstü çök, baş ve boynu kapat, masanın altına girip ayağını tut"
                 width={1440}
                 height={480}

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AFETLER, METIN_SINIFI } from "@/lib/afet";
 import { AfetIkonu, KAPAK_GORSELI } from "@/components/AfetCizim";
 import SayfaKabugu from "@/components/SayfaKabugu";
+import Gorsel from "@/components/Gorsel";
 
 export const metadata: Metadata = {
   title: "Afet anı — şu an ne yapmalıyım?",
@@ -111,8 +112,8 @@ export default function AfetAniSayfasi() {
               >
                 <div className="relative aspect-[3/2] overflow-hidden bg-zemin">
                   {kapak ? (
-                    <img
-                      src={`/cizim/${kapak}`}
+                    <Gorsel
+                      kaynak={`/cizim/${kapak}`}
                       alt=""
                       aria-hidden
                       width={1200}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { CANTA, PLAN_ALANLARI, SU_NOTU } from "@/lib/hazirlik";
 import CantaGorseli from "./CantaGorseli";
+import Gorsel from "./Gorsel";
 
 const CANTA_ANAHTARI = "geogow-canta";
 const PLAN_ANAHTARI = "geogow-plan";
@@ -318,10 +319,11 @@ export default function Hazirlik() {
                           anlaşılsın. Görseli olmayan maddede boş kutu
                           çizilmez, satır ikonsuz akar. */}
                       {madde.ikon && (
-                        <img
-                          src={`/cizim/ekipman/${madde.ikon}.png`}
+                        <Gorsel
+                          kaynak={`/cizim/ekipman/${madde.ikon}.png`}
+                          /* alt="" görseli erişilebilirlik ağacından zaten
+                             çıkarır; ayrıca aria-hidden gereksizdi. */
                           alt=""
-                          aria-hidden
                           width={220}
                           height={220}
                           loading="lazy"

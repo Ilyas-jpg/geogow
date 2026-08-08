@@ -12,9 +12,11 @@
  * zaten yanındaki ilerleme çubuğunda ve "9/17" yazısında var; buradaki
  * görselin işi oranı ölçmek değil, ilerlemeyi HİSSETTİRMEK.
  *
- * Toplam ağırlık 26 KB (7+6+13) — üçü de peşin yüklenir ki durum
- * değişirken beyaz boşluk oluşmasın.
+ * Üçü de peşin yüklenir ki durum değişirken beyaz boşluk oluşmasın;
+ * bu yüzden ağırlıkları toplanır. AVIF varyantıyla birlikte üç katman
+ * PNG'deki 32 KB yerine yaklaşık 17 KB iniyor (bkz. `Gorsel`).
  */
+import Gorsel from "./Gorsel";
 
 const DURUMLAR = [
   { esik: 0, dosya: "/cizim/canta-bos.png", alt: "Afet çantası boş" },
@@ -47,11 +49,11 @@ export default function CantaGorseli({
       aria-label={`${DURUMLAR[etkin].alt} — yüzde ${Math.round(guvenli * 100)} hazır`}
     >
       {DURUMLAR.map((durum, sira) => (
-        <img
+        <Gorsel
           key={durum.dosya}
-          src={durum.dosya}
+          kaynak={durum.dosya}
+          /* Dış kapta role="img" + aria-label var; bu üç katman süs. */
           alt=""
-          aria-hidden
           width={boyut}
           height={boyut}
           /* Üçü de yüklü durur, yalnız opaklık değişir: `src` değiştirmek

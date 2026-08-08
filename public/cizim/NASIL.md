@@ -37,6 +37,27 @@ tutturamazsa sorun değil — **turkuaz yalnız ölçü/vurgu çizgisinde geçer
 markayı temsil etmez. Logo, wordmark veya marka bloğu görsel içinde
 ÜRETİLMEZ (tasarım anayasası md.5).
 
+## 🔴 Yeni PNG ekledikten SONRA: varyantları üret
+
+```
+npm run gorsel
+```
+
+Her PNG'nin yanına `.avif` ve `.webp` koyar; sayfalar `<picture>` ile
+AVIF → WebP → PNG sırasını dener. **Bu adım atlanırsa kırılma olmaz ama
+bütçe tutmaz:** varyant yoksa tarayıcı sessizce PNG'ye iner.
+
+Ölçüm (2026-08-08, 49 görsel): PNG 737 KB · WebP 556 KB (%24) ·
+**AVIF 397 KB (%46)**. Betik AVIF toplamı 900 KB'ı aşarsa hata verip durur.
+
+⛔ **"Daha agresif palet" (`colours:32`) DENENDİ ve ÇÜRÜDÜ** — dosyaları
+25 KB *büyütüyor*. Bu görseller düz vektör; PNG kodlayıcısı zaten verimli
+palet seçiyor, renk sayısını zorla düşürünce giren dithering gürültüsü daha
+kötü sıkışıyor. Bir daha denenmeyecek.
+
+⚠️ PNG'ler silinmez: AVIF iOS 16, WebP iOS 14 öncesinde yok ve bu ürünün
+hedefi eski telefon. Depoda üç kopya durur, istemci yalnız birini indirir.
+
 ## Geldiğinde ne oluyor
 
 `src/components/AfetCizim.tsx` içindeki `FIGURLU_CIZIM_YAYINDA` bayrağı

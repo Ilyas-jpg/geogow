@@ -12,10 +12,22 @@
  *   KARO  — harita karoları: önce önbellek (değişmezler), sınırlı sayıda
  */
 
-const SURUM = "geogow-v3";
+const SURUM = "geogow-v4";
 const KABUK = `${SURUM}-kabuk`;
-const VERI = `${SURUM}-veri`;
 const KARO = `${SURUM}-karo`;
+
+/**
+ * ⚠️ VERİ ÖNBELLEĞİ BİLEREK SÜRÜMSÜZ.
+ *
+ * v1→v2 geçişinde kullanıcının "ilimi çevrimdışı kaydet" ile sakladığı
+ * dosyalar sürüm adı değiştiği için silinmişti: kişi bir daha çevrimiçi
+ * olana kadar kaydettiği ili kaybediyordu — yani tam da çevrimdışı
+ * kalınca lazım olan şey, bir uygulama güncellemesi yüzünden gidiyordu.
+ * Kabuk ve karo sürümle birlikte tazelenir (kod değişince eski HTML
+ * kalmasın), veri kalır. Şema değişirse burası ELLE `geogow-veri-2`
+ * yapılır; sürüm numarasına bağlanmaz.
+ */
+const VERI = "geogow-veri";
 
 /** Karo önbelleği sınırsız büyümemeli — telefon deposu dolmasın. */
 const KARO_SINIRI = 700;
@@ -49,6 +61,11 @@ const KABUK_YOLLARI = [
   // Anlatım görselleri: davranış bilgisinin yarısı bunlarda. Sayfası
   // çevrimdışı açılıp görseli gelmezse geriye boş çerçeve kalır.
   // Toplam ~420 KB — kabuk sayfalarıyla birlikte tek seferlik maliyet.
+  //
+  // ⚠️ Bilerek PNG: bu liste ÇEVRİMDIŞI yedeği, çevrimiçi sunulan dosya
+  // değil. Çevrimiçi tarayıcı `<picture>` üzerinden AVIF'i alır (%46 küçük);
+  // ağ yokken `gorselYedegi()` istenen varyantı buradaki PNG'den karşılar.
+  // Üç varyantı birden peşin indirmek tek seferlik maliyeti ikiye katlardı.
   "/cizim/cok-kapan-tutun.png",
   "/cizim/duman-altinda.png",
   "/cizim/orman-yangini.png",
@@ -88,7 +105,12 @@ self.addEventListener("activate", (olay) => {
           adlar
             // ⚠️ `endsWith` yerine önek karşılaştırması: eski sürüm adları
             // yeni sürümün alt dizesi olabiliyor (yangın projesinin dersi).
-            .filter((ad) => ad.startsWith("geogow-") && !ad.startsWith(SURUM))
+            // VERİ önbelleği sürümsüzdür ve BU SÜPÜRMEDEN MUAFTIR — yoksa
+            // her sürümde kullanıcının kaydettiği il silinir.
+            .filter(
+              (ad) =>
+                ad.startsWith("geogow-") && ad !== VERI && !ad.startsWith(SURUM)
+            )
             .map((ad) => caches.delete(ad))
         )
       )
@@ -112,6 +134,34 @@ function karoMu(url) {
 
 function veriMi(url) {
   return url.origin === self.location.origin && url.pathname.startsWith("/data/");
+}
+
+/**
+ * ÇEVRİMDIŞI GÖRSEL YEDEĞİ — varyantlar arası geçiş.
+ *
+ * Görseller `<picture>` ile AVIF → WebP → PNG sırasıyla sunuluyor, yani
+ * modern tarayıcı `/cizim/heyelan.avif` ister. Kabuk önbelleğinde ise
+ * yalnız PNG var: üç varyantı birden peşin indirmek çevrimdışı çekirdeğin
+ * tek seferlik maliyetini iki katına çıkarırdı ve bu ürünün hedefi kötü
+ * bağlantı.
+ *
+ * Bu yüzden çevrimdışıyken istenen varyant bulunamazsa kardeş dosyalar
+ * denenir. PNG gövdesini `.avif` isteğine cevap olarak vermek güvenlidir:
+ * `<source type="image/avif">` yalnız SEÇİM için kullanılır, tarayıcı
+ * gelen baytların türünü kendi tanır. Alternatif, kırık görsel çerçevesi
+ * göstermekti.
+ */
+const GORSEL_UZANTILARI = [".avif", ".webp", ".png"];
+
+async function gorselYedegi(url) {
+  const nokta = url.pathname.lastIndexOf(".");
+  if (nokta === -1) return null;
+  const taban = url.pathname.slice(0, nokta);
+  for (const uzanti of GORSEL_UZANTILARI) {
+    const kayitli = await caches.match(taban + uzanti);
+    if (kayitli) return kayitli;
+  }
+  return null;
 }
 
 self.addEventListener("fetch", (olay) => {
@@ -187,6 +237,10 @@ self.addEventListener("fetch", (olay) => {
       } catch {
         const kayitli = await caches.match(istek);
         if (kayitli) return kayitli;
+        if (url.pathname.startsWith("/cizim/")) {
+          const yedek = await gorselYedegi(url);
+          if (yedek) return yedek;
+        }
         if (istek.mode === "navigate") {
           const kok = await caches.match("/");
           if (kok) return kok;
