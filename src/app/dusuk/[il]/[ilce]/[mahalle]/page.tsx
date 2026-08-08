@@ -16,18 +16,34 @@ async function bul(ilSlug: string, ilceSlug: string, mahalleSlug: string) {
   return metin && ilce && mahalle ? { il, metin, ilce, mahalle } : null;
 }
 
+/**
+ * 🔴 MAHALLE SAYFALARI BUILD'DE ÖNİZLENMEZ — İLK İSTEKTE ÜRETİLİP ÖNBELLEĞE ALINIR.
+ *
+ * Neden: bu rota her mahalle için bir sayfa demek. 8 ilde 406, 40 ilde
+ * 12.156 sayfa etti ve Vercel deploy'u `Maximum call stack size exceeded`
+ * ile ÇÖKTÜ (dpl_2mcbziMDW…, 2026-08-09). Build'in kendisi 6 dakikada
+ * başarıyla bitiyor; patlayan adım çıktı manifestinin toplanması — on
+ * binlerce dosya. 81 ilin tamamı ~28.000 sayfa demek, yani bu duvar
+ * kaçınılmazdı; il eklendikçe her seferinde çarpacaktık.
+ *
+ * Boş sayfa kırpmak çözüm DEĞİL: ölçüldü, 12.156 mahallenin %100'ünde
+ * kayıtlı alan var (derleme zaten alansız mahalleyi metin.json'a yazmıyor).
+ * Kesilecek çöp yok — sayfa sayısının kendisi fazla.
+ *
+ * ⚠️ ÜRÜN SÖZÜ BOZULMUYOR. Kullanıcı açısından değişen bir şey yok:
+ * URL aynı, çıktı aynı sıfır-JS HTML, JavaScript yine gerekmiyor. Tek fark
+ * bir mahalleye İLK giren kişinin sunucu render'ı beklemesi (bir JSON okuyup
+ * HTML basmak); sonrasında sayfa CDN'den statik geliyor. `revalidate = false`
+ * ile önbellek süresiz — yani pratikte "ilk istekte üretilen SSG".
+ *
+ * İl ve ilçe kademeleri ÖNİZLENMEYE DEVAM EDİYOR (~640 sayfa): gezinmenin
+ * omurgası ve mahalle listesi orada, soğuk başlangıç oraya düşmemeli.
+ */
+export const dynamicParams = true;
+export const revalidate = false;
+
 export async function generateStaticParams() {
-  const iller = await yayindakiIller();
-  const yollar: { il: string; ilce: string; mahalle: string }[] = [];
-  for (const il of iller) {
-    const metin = await metinVerisiOku(il.plaka);
-    for (const ilce of metin?.ilceler ?? []) {
-      for (const mahalle of ilce.mahalleler) {
-        yollar.push({ il: il.slug, ilce: ilce.slug, mahalle: mahalle.slug });
-      }
-    }
-  }
-  return yollar;
+  return [];
 }
 
 export async function generateMetadata({ params }: Param): Promise<Metadata> {
