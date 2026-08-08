@@ -29,7 +29,17 @@ export default function UstMenu({ aktif }: { aktif?: string }) {
      Not: süslü parantezli JSX yorumu `return (` ardında kullanılamaz. */
   return (
     <header className="yazdirma-gizle sticky top-0 z-30 h-[var(--ust-menu-yuksekligi)] border-b border-cizgi bg-zemin/95 backdrop-blur">
-      <div className="mx-auto flex h-full max-w-[1180px] items-center gap-x-6 px-6">
+      {/* ── YERLEŞİM ──
+          Mobil: tek satır flex, wordmark gizli, bağlantılar genişliğe yayılır.
+          Masaüstü: üç kolonlu ızgara [1fr | auto | 1fr] — wordmark SOLA
+          dayanır, menü ekrana göre GERÇEKTEN ortalanır. Eşit iki yan kolon
+          olmadan "ortala" yapılamaz; `justify-center` menüyü logonun kalan
+          alanında ortalar ve göze ortalı görünmez.
+
+          ⚠️ İçerik kabuğu 1180 px ama header bilerek daha geniş: 1180'e
+          hapsedilince logo geniş ekranda soldan ~400 px içeride kalıyordu
+          ve menü ona yapışık duruyordu (İlyas, 2026-08-08). */}
+      <div className="mx-auto flex h-full max-w-[1600px] items-center gap-x-6 px-5 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:gap-x-8 sm:px-8">
         {/* Wordmark yalnız geniş ekranda: mobilde 115 px genişliğiyle menüyü
             üçüncü satıra itiyor ve 127 px'lik yapışkan bir başlık üretiyordu.
             Telefonda "Harita" bağlantısı zaten ana sayfaya götürüyor. */}
@@ -48,8 +58,8 @@ export default function UstMenu({ aktif }: { aktif?: string }) {
           />
         </Link>
 
-        <nav aria-label="Ana menü" className="min-w-0 flex-1">
-          <ul className="flex items-center justify-between gap-x-3 sm:justify-start sm:gap-x-4">
+        <nav aria-label="Ana menü" className="min-w-0 flex-1 sm:flex-none">
+          <ul className="flex items-center justify-between gap-x-3 sm:justify-center sm:gap-x-8">
             {BAGLANTILAR.map((b) => {
               const secili = b.yol === aktif;
               return (
