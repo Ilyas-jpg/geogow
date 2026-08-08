@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { afetBul, METIN_SINIFI, tumMitler } from "@/lib/afet";
-import { AfetIkonu, KAPAK_GORSELI } from "@/components/AfetCizim";
+import { AfetIkonu } from "@/components/AfetCizim";
 import SayfaKabugu from "@/components/SayfaKabugu";
 
 export const metadata: Metadata = {
@@ -121,26 +121,15 @@ export default function MitlerSayfasi() {
       <h2 className="mt-12 text-2xl font-semibold">Diğer yaygın yanlışlar</h2>
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
         {digerleri.map((mit) => {
-          const kapak = KAPAK_GORSELI[mit.afet.slug];
+          /* ⚠️ Afetin KAPAK görseli burada KULLANILMAZ: aynı afetin iki miti
+             aynı görseli tekrar ediyordu ve tembel duruyordu (İlyas).
+             Mit başına kendi görseli üretilene kadar kart görselsiz — aynı
+             resmi iki kez göstermektense hiç göstermemek daha dürüst. */
           return (
             <article
               key={mit.yanlis}
               className="flex flex-col overflow-hidden rounded-2xl border border-cizgi bg-zemin-2"
             >
-              {kapak && (
-                <div className="aspect-[3/1] overflow-hidden bg-zemin">
-                  <img
-                    src={`/cizim/${kapak}`}
-                    alt=""
-                    aria-hidden
-                    width={1200}
-                    height={400}
-                    loading="lazy"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              )}
-
               <div className="flex flex-1 flex-col p-5">
                 <p
                   className={`flex items-center gap-2 text-sm font-medium ${METIN_SINIFI[mit.afet.renk]}`}

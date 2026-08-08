@@ -137,7 +137,7 @@ export default async function KapsamSayfasi() {
       <p className="mt-8 text-sm text-metin-3">
         Kaynak: {ozet?.kaynak ?? "AFAD / e-Devlet"} · Son derleme:{" "}
         {ozet ? new Date(ozet.uretildi).toLocaleString("tr-TR") : "—"} · Resmî
-        uyarı değildir, acil durumda 112 · AFAD 122.
+        uyarı değildir, acil durumda 112.
       </p>
       <p className="mt-4 text-sm">
         <Link href="/" className="text-vurgu underline">

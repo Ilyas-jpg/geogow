@@ -68,7 +68,7 @@ export default async function Anasayfa() {
           .
         </p>
         <p className="mt-2 text-metin-3">
-          Resmî uyarı değildir. Acil durumda 112, AFAD 122.
+          Resmî uyarı değildir. Acil durumda 112.
         </p>
         <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
           <Link href="/afet-ani" className="text-vurgu underline">

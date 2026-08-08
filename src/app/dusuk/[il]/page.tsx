@@ -69,7 +69,7 @@ export default async function IlSayfasi({ params }: Param) {
       <p className="mt-8 text-sm text-metin-3">
         Veri {new Date(metin.toplandi).toLocaleDateString("tr-TR")} tarihinde
         AFAD / e-Devlet hizmetinden alındı. Resmî uyarı değildir; acil durumda
-        112 · AFAD 122.
+        112.
       </p>
     </main>
   );

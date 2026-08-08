@@ -115,7 +115,7 @@ export default async function MahalleSayfasi({ params }: Param) {
       <p className="mt-8 text-sm text-metin-3">
         Kaynak: AFAD / e-Devlet Afet ve Acil Durum Toplanma Alanı Sorgulama.
         Bilgiler değişebilir; sahadaki tabela ve resmî duyuru esastır. Resmî
-        uyarı değildir — acil durumda 112 · AFAD 122.
+        uyarı değildir — acil durumda 112.
       </p>
     </main>
   );

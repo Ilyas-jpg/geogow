@@ -375,19 +375,9 @@ export function AfetDiyagrami({ slug }: { slug: string }) {
     );
   }
 
-  if (slug === "sel") {
-    return (
-      <figure className="rounded-xl border border-cizgi bg-zemin-2 p-4">
-        <div className="rounded-lg bg-zemin p-3">
-          <CizimSuSeviyesi />
-        </div>
-        <figcaption className="mt-3 text-xs text-metin-3">
-          Akıntı hızı arttıkça bu derinlikler daha da azalır. Suyun altındaki
-          çökmüş asfaltı ve açılmış rögarı göremezsin.
-        </figcaption>
-      </figure>
-    );
-  }
+  /* ⛔ Elle çizilen `CizimSuSeviyesi` KALDIRILDI (İlyas: "paintten çizilmiş
+     gibi"). Yerine üretilen görsel; 15/30 cm ölçüsü artık altyazıda yazıyor
+     çünkü görselin içine yazı koymuyoruz. */
 
   const gorsel = GORSELLER[slug];
   if (gorsel) {
@@ -427,6 +417,7 @@ export const KAPAK_GORSELI: Record<string, string> = {
   deprem: "cok-kapan-tutun.png",
   "bina-yangini": "duman-altinda.png",
   "orman-yangini": "orman-yangini.png",
+  sel: "sel.png",
   kbrn: "kbrn-iceride-kal.png",
   heyelan: "heyelan.png",
   cig: "cig.png",
@@ -445,6 +436,12 @@ const GORSELLER: Record<string, { dosya: string; alt: string; aciklama: string }
     alt: "Oda kesiti: duman tavanda kalın bir katman hâlinde toplanmış, temiz hava yere yakın; bir kişi dumanın altında emekleyerek çıkışa ilerliyor",
     aciklama:
       "Duman ve sıcak hava yukarı toplanır, temiz hava yere yakındır. Yangında ölümlerin büyük kısmı alevden değil duman solumaktan olur.",
+  },
+  sel: {
+    dosya: "sel.png",
+    alt: "Su basmış sokak: solda bir kişi baldır hizasındaki akan suda dengesini kaybediyor ve yeşil ok yüksek zemine çıkan merdiveni gösteriyor, sağda tekerlek üstü suda kalan otomobil yana sürükleniyor",
+    aciklama:
+      "Yaklaşık 15 cm akan su bir yetişkini yerden keser, 30 cm bir otomobili sürükler. Akıntı hızlandıkça bu derinlikler daha da azalır; suyun altındaki çökmüş asfaltı ve açılmış rögarı göremezsin.",
   },
   "orman-yangini": {
     dosya: "orman-yangini.png",

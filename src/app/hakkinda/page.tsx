@@ -185,7 +185,7 @@ export default async function HakkindaSayfasi() {
         değildir</strong>. Bilgiler değişebilir; sahadaki tabela ve resmî
         duyuru esastır. Acil durumda{" "}
         <strong className="text-metin">112</strong> ve{" "}
-        <strong className="text-metin">AFAD 122</strong>.
+        112.
       </p>
 
       <h2 className="mt-8 text-lg font-semibold">Kaynak kodu ve lisans</h2>

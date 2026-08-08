@@ -376,10 +376,11 @@ export const AFETLER: AfetTuru[] = [
           "çıkma, yere yat.",
       },
       {
-        baslik: "112 ve 177",
+        baslik: "112'yi ara",
         detay:
-          "Orman yangını ihbar hattı 177. Yerini olabildiğince tarif et: " +
-          "yol, köy, mevki adı ve mümkünse konum.",
+          "Yerini olabildiğince tarif et: yol, köy, mevki adı ve mümkünse " +
+          "konum. Dumanın hangi yöne gittiğini de söyle — ekip yaklaşma " +
+          "yönünü ona göre seçer.",
       },
     ],
     varyantlar: [
@@ -411,7 +412,7 @@ export const AFETLER: AfetTuru[] = [
     turkiye:
       "Türkiye'nin Akdeniz ve Ege kıyı bandı yüksek riskli kuşaktır; yaz " +
       "aylarında sıcak, kuru ve rüzgârlı günler yangını saatler içinde " +
-      "kilometrelerce taşıyabilir. Yangın ihbar hattı 177.",
+      "kilometrelerce taşıyabilir.",
     mitler: [
       {
         yanlis: "Vatandaş da müdahale etmeli, herkes söndürmeye gitmeli.",
@@ -419,7 +420,7 @@ export const AFETLER: AfetTuru[] = [
         neden:
           "Eğitimsiz ve donanımsız müdahale hem ikinci bir kurban üretir hem " +
           "de ekiplerin çalışma alanını ve yolları tıkar. Vatandaşın en " +
-          "değerli katkısı erken ihbar (177) ve yolu boş bırakmaktır.",
+          "değerli katkısı erken ihbar ve yolu boş bırakmaktır.",
         kaynaklar: [OGM, AFAD],
       },
       {

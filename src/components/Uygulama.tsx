@@ -636,7 +636,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                   </ol>
                   <p className="mt-3 text-xs text-metin-3">
                     Mesafeler <strong className="text-metin-2">kuş uçuşudur</strong>;
-                    yürüme yolu daha uzun olabilir. Resmî uyarı değildir — 112 · AFAD 122.
+                    yürüme yolu daha uzun olabilir. Resmî uyarı değildir — 112.
                   </p>
 
                   <CevrimdisiKayit

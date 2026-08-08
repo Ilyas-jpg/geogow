@@ -43,26 +43,20 @@ export default function AfetAniSayfasi() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 lg:self-end">
-            <a
-              href="tel:112"
-              className="flex min-h-[76px] flex-col items-center justify-center rounded-xl bg-kritik/15 ring-1 ring-kritik/50 transition-colors duration-200 hover:bg-kritik/25"
-            >
-              <span className="text-3xl font-semibold tabular-nums text-kritik">
-                112
-              </span>
-              <span className="text-xs text-metin-2">Acil çağrı</span>
-            </a>
-            <a
-              href="tel:122"
-              className="flex min-h-[76px] flex-col items-center justify-center rounded-xl bg-uyari/15 ring-1 ring-uyari/50 transition-colors duration-200 hover:bg-uyari/25"
-            >
-              <span className="text-3xl font-semibold tabular-nums text-uyari">
-                122
-              </span>
-              <span className="text-xs text-metin-2">AFAD</span>
-            </a>
-          </div>
+          {/* TEK NUMARA: Türkiye'de 112 bütün acil çağrıları karşılıyor.
+              Önce yanında AFAD 122 de duruyordu; ikisini ayrı göstermek hem
+              eski hem panik anında bir saniye düşündürüyordu (İlyas). */}
+          <a
+            href="tel:112"
+            className="flex min-h-[104px] flex-col items-center justify-center rounded-2xl bg-kritik/15 ring-1 ring-kritik/50 transition-colors duration-200 hover:bg-kritik/25 lg:self-end"
+          >
+            <span className="text-5xl font-semibold tabular-nums text-kritik">
+              112
+            </span>
+            <span className="mt-1 text-sm text-metin-2">
+              Acil çağrı — her afet için
+            </span>
+          </a>
         </section>
 
         {/* ── Afet türü olmadan geçerli üç kural ── */}

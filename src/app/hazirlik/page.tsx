@@ -69,7 +69,7 @@ export default function HazirlikSayfasi() {
       <p className="mt-8 text-xs text-metin-3">
         Miktar veren maddelerin standardı yanında yazılıdır (AFAD · Sphere ·
         WHO). Bu sayfa bilgilendirme amaçlıdır ve resmî uyarının yerine geçmez —
-        acil durumda 112 · AFAD 122.
+        acil durumda 112.
       </p>
     </SayfaKabugu>
   );

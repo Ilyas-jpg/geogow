@@ -60,7 +60,7 @@ export default async function MetinAnasayfa() {
       <p className="mt-6 text-sm text-metin-3">
         Kaynak: {ozet?.kaynak ?? "AFAD / e-Devlet"} · Resmî uyarı değildir.
         Acil durumda <strong className="text-metin-2">112</strong> ·{" "}
-        <strong className="text-metin-2">AFAD 122</strong>.
+        112.
       </p>
       {/* Afet anı ekranı da tamamen JavaScript'sizdir — metin sürümünü
           kullanabilen her cihazda açılır, o yüzden buradan da erişilebilir. */}

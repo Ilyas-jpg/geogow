@@ -313,6 +313,22 @@ export default function Hazirlik() {
                         onChange={(olay) => maddeDegis(madde.id, olay)}
                         className="mt-1 h-5 w-5 shrink-0 cursor-pointer accent-[#35c48a]"
                       />
+
+                      {/* Ekipman görseli — sözcüğü okumadan da ne olduğu
+                          anlaşılsın. Görseli olmayan maddede boş kutu
+                          çizilmez, satır ikonsuz akar. */}
+                      {madde.ikon && (
+                        <img
+                          src={`/cizim/ekipman/${madde.ikon}.png`}
+                          alt=""
+                          aria-hidden
+                          width={220}
+                          height={220}
+                          loading="lazy"
+                          className="mt-0.5 h-12 w-12 shrink-0 rounded-lg bg-zemin object-contain"
+                        />
+                      )}
+
                       <span className="min-w-0">
                         <span className="flex flex-wrap items-baseline gap-x-2">
                           <span

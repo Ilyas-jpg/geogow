@@ -116,9 +116,7 @@ function SayfaAltligi() {
         <p className="mx-auto max-w-[1180px] px-5 py-4 text-xs text-metin-3 sm:px-6 lg:px-8">
           Bilgilendirme amaçlıdır,{" "}
           <strong className="text-metin-2">resmî uyarının yerine geçmez</strong>.
-          Acil durumda <strong className="text-metin-2">112</strong> ·{" "}
-          <strong className="text-metin-2">AFAD 122</strong> · orman yangını{" "}
-          <strong className="text-metin-2">177</strong>.
+          Acil durumda <strong className="text-metin-2">112</strong>.
         </p>
       </div>
     </footer>

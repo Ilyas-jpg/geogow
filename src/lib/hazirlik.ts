@@ -30,6 +30,12 @@ export type CantaMaddesi = {
   ipucu?: string;
   /** Bitmeyen madde yoktur: kaç ayda bir kontrol edilir. */
   tazele?: string;
+  /**
+   * `public/cizim/ekipman/<ad>.png` — ChatGPT'de ikon sayfası olarak üretilip
+   * `sharp.extract` ile kesildi. Görseli olmayan madde ikonsuz görünür,
+   * boş kutu çizilmez.
+   */
+  ikon?: string;
 };
 
 export type CantaBolumu = {
@@ -62,6 +68,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "su",
         ad: "Su",
+        ikon: "su",
         miktar: "Çantada kişi başı en az 3 litre; evde 72 saatlik stok ayrıca",
         neden:
           "Susuz kalan bir insanın karar verme ve yürüme yeteneği günler değil " +
@@ -75,6 +82,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "gida",
         ad: "Bozulmayan yüksek kalorili gıda",
+        ikon: "gida",
         miktar: "Kişi başı günde ~2.000 kcal × 3 gün (pişirme gerektirmeyen)",
         neden:
           "Elektrik ve doğalgaz kesilir; pişirilmesi gereken gıda afet anında " +
@@ -87,6 +95,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "fener",
         ad: "El feneri ve yedek pil",
+        ikon: "fener",
         miktar: "Kişi başı 1 fener + 1 takım yedek pil",
         neden:
           "Elektrik ilk kesilen şeydir ve enkaz/merdiven karanlıkta geçilmez. " +
@@ -100,6 +109,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "radyo",
         ad: "Pilli veya kurmalı radyo",
+        ikon: "radyo",
         miktar: "Hane başı 1",
         neden:
           "Baz istasyonları hem elektrik kesintisinden hem aşırı yüklenmeden " +
@@ -111,6 +121,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "duduk",
         ad: "Düdük",
+        ikon: "duduk",
         miktar: "Kişi başı 1 (çantada değil, boyunda veya cepte)",
         neden:
           "Enkaz altında bağırmak birkaç saat içinde sesi tamamen bitirir ve " +
@@ -124,6 +135,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "ilkyardim",
         ad: "İlk yardım kiti",
+        ikon: "ilkyardim",
         miktar: "Hane başı 1 (steril gazlı bez, sargı, bant, makas, eldiven, antiseptik)",
         neden:
           "Afette hastane ilk saatlerde ağır yaralılara ayrılır; kesik ve " +
@@ -135,6 +147,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "ilac",
         ad: "Sürekli kullandığın ilaçlar",
+        ikon: "ilac",
         miktar: "En az 7 günlük + reçetenin fotoğrafı",
         neden:
           "Tansiyon, kalp, diyabet, epilepsi ve psikiyatri ilaçları kesilince " +
@@ -148,6 +161,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "powerbank",
         ad: "Powerbank ve kablo",
+        ikon: "powerbank",
         miktar: "En az 10.000 mAh (≈2 telefon şarjı), dolu tutulur",
         neden:
           "Telefon afet anında fener, harita, kimlik ve haberleşme demektir; " +
@@ -160,6 +174,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "belge",
         ad: "Önemli belgelerin kopyası",
+        ikon: "belge",
         miktar: "Kimlik, tapu, DASK poliçesi, sigorta, ruhsat — kilitli poşette",
         neden:
           "Hasar tespiti, yardım başvurusu ve sigorta işlemleri belge ister; " +
@@ -171,6 +186,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "nakit",
         ad: "Nakit",
+        ikon: "nakit",
         miktar: "Küçük banknotlarla, birkaç günlük temel harcama kadar",
         neden:
           "Elektrik ve internet olmadan POS cihazı ve ATM çalışmaz; kart bir " +
@@ -180,6 +196,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "hijyen",
         ad: "Hijyen malzemesi",
+        ikon: "hijyen",
         miktar: "Sabun, ıslak mendil, tuvalet kâğıdı, diş fırçası-macun",
         neden:
           "Afet sonrası ölümlerin bir kısmı yaralanmadan değil, bozulan " +
@@ -190,6 +207,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "battaniye",
         ad: "Isı yalıtım battaniyesi",
+        ikon: "battaniye",
         miktar: "Kişi başı 1 (avuç içi kadar, ~50 g)",
         neden:
           "Hipotermi ılık havada bile öldürür: yağmurda ıslanmış ve hareketsiz " +
@@ -202,6 +220,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "eldiven",
         ad: "Kalın iş eldiveni ve toz maskesi",
+        ikon: "eldiven",
         miktar: "Kişi başı 1 çift eldiven + FFP2/N95 maske",
         neden:
           "Enkaz kırık cam, çivi ve keskin sacdan oluşur; yaralanan el seni " +
@@ -212,6 +231,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "caki",
         ad: "Çok amaçlı çakı",
+        ikon: "caki",
         miktar: "Hane başı 1 (konserve açacağı ve makas içeren)",
         neden:
           "Konserveyi açamamak, kablo veya kumaş kesememek küçük görünür ama " +
@@ -220,6 +240,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "bant",
         ad: "Koli bandı ve plastik örtü",
+        ikon: "bant",
         miktar: "1 rulo geniş bant + 2-3 m² kalın naylon",
         neden:
           "Kırılan pencereyi kapatmak, ıslanmayı önlemek, KBRN durumunda " +
@@ -229,6 +250,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "kagit",
         ad: "Kâğıt ve kalem",
+        ikon: "kagit",
         miktar: "Küçük bir defter + kurşun kalem",
         neden:
           "Nereye gittiğini kapıya yazmak, kurtarma ekibine bilgi bırakmak ve " +
@@ -238,6 +260,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "ayakkabi",
         ad: "Yatağın yanında sağlam ayakkabı ve fener",
+        ikon: "ayakkabi",
         miktar: "Her yatağın yanında 1 çift + 1 fener",
         neden:
           "Deprem geceleri olur ve sarsıntı biter bitmez zemin kırık cam, " +
@@ -258,6 +281,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "bebek-beslenme",
         ad: "Beslenme malzemesi",
+        ikon: "bebek-beslenme",
         miktar: "Emziriyorsan ek malzeme gerekmez; mama kullanıyorsan 3 günlük + temiz su",
         neden:
           "Acil durumda anne sütü en güvenli seçenektir: hazırlama gerektirmez, " +
@@ -271,6 +295,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "bebek-bez",
         ad: "Bez, pişik kremi ve ıslak mendil",
+        ikon: "bebek-bez",
         miktar: "Günde ~6 bez × 3 gün = en az 18 bez",
         neden:
           "Bez değiştirilemeyen bebekte birkaç gün içinde ciddi cilt tahrişi ve " +
@@ -280,6 +305,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "bebek-giysi",
         ad: "Yedek giysi ve ısı yalıtımı",
+        ikon: "bebek-giysi",
         miktar: "2 kat yedek giysi + battaniye + şapka",
         neden:
           "Bebek vücut ısısını erişkin gibi koruyamaz; ıslanan bebek ılık havada " +
@@ -288,6 +314,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "bebek-oyuncak",
         ad: "Tanıdık bir oyuncak veya örtü",
+        ikon: "bebek-oyuncak",
         miktar: "1 adet — bebeğin zaten bildiği bir nesne",
         neden:
           "Afet bebeği de travmatize eder ve sürekli ağlayan bir bebek hem " +
@@ -307,6 +334,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "ped",
         ad: "Ped veya yeniden kullanılabilir malzeme",
+        ikon: "ped",
         miktar: "Sphere ölçeği: kişi başı ayda 15 tek kullanımlık ped ya da yılda 6 yeniden kullanılabilir ped",
         neden:
           "Adet afet takvimine göre gelmez. Malzemesiz kalan kişi hareketini " +
@@ -318,6 +346,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "ic-camasiri",
         ad: "Yedek iç çamaşırı",
+        ikon: "ic-camasiri",
         miktar: "2-3 adet",
         neden:
           "Yıkama imkânı günlerce olmayabilir; kirli iç çamaşırı kısa sürede " +
@@ -326,6 +355,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "sabun",
         ad: "Ek sabun",
+        ikon: "sabun",
         miktar: "Sphere: kişi başı ayda 250 g banyo sabunu",
         neden:
           "Menstrüel hijyen su ve sabun olmadan sürdürülemez; genel hijyen " +
@@ -334,6 +364,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "poset",
         ad: "Kapaklı atık poşeti",
+        ikon: "poset",
         miktar: "Birkaç adet",
         neden:
           "Atık toplama durur. Kapalı poşet hem koku ve sinek sorununu hem de " +
@@ -349,6 +380,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "yasli-ilac",
         ad: "İlaç listesi ve tıbbi özet",
+        ikon: "yasli-ilac",
         miktar: "1 sayfa: tanılar, ilaçlar, dozlar, alerjiler, hekim telefonu",
         neden:
           "Yaşlı hasta çok ilaç kullanır ve stres altında hangisini aldığını " +
@@ -359,6 +391,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "yasli-gozluk",
         ad: "Yedek gözlük, protez, işitme cihazı pili",
+        ikon: "yasli-gozluk",
         miktar: "Yedek gözlük 1, işitme cihazı pili en az 1 hafta",
         neden:
           "Göremeyen ya da duyamayan kişi tahliye anonsunu almaz ve enkazlı " +
@@ -367,6 +400,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "yasli-plan",
         ad: "Merdiven ve taşıma planı",
+        ikon: "yasli-plan",
         miktar: "Yazılı: kim yardım edecek, hangi çıkıştan",
         neden:
           "Asansör çalışmayacak. Yürümekte zorlanan biri için bu, önceden " +
@@ -383,6 +417,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "engelli-belge",
         ad: "Engelli kimlik kartı ve sağlık belgeleri",
+        ikon: "engelli-belge",
         miktar: "Kopyası çantada, aslı kilitli poşette",
         neden:
           "Tahliye önceliği, uygun barınma ve yardım tahsisi belge ile " +
@@ -391,6 +426,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "engelli-cihaz",
         ad: "Yedek cihaz, pil ve şarj aleti",
+        ikon: "engelli-cihaz",
         miktar: "En az 1 hafta yetecek pil/şarj",
         neden:
           "İşitme cihazı, konuşma cihazı veya solunum desteği elektriğe " +
@@ -401,6 +437,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "engelli-plan",
         ad: "Kişiye özel tahliye planı",
+        ikon: "engelli-plan",
         miktar: "Yazılı, evde ve komşuda birer kopya",
         neden:
           "Asansör çalışmayacak, koridor kalabalık olacak. Kimin nasıl " +
@@ -417,6 +454,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "kronik-ilac",
         ad: "Ek ilaç stoğu ve tıbbi özet",
+        ikon: "kronik-ilac",
         miktar: "En az 7 günlük",
         neden:
           "Diyaliz, insülin, tansiyon ve kalp ilaçlarında birkaç günlük kesinti " +
@@ -427,6 +465,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "kronik-soguk",
         ad: "Soğuk zincir gereken ilaç için plan",
+        ikon: "kronik-soguk",
         miktar: "Termos/soğutucu kutu + buz aküsü",
         neden:
           "İnsülin gibi ilaçlar oda sıcaklığında bozulur ve bozulduğu " +
@@ -436,6 +475,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "kronik-cihaz",
         ad: "Cihaz kullanılıyorsa yedek güç",
+        ikon: "kronik-cihaz",
         miktar: "Cihazın tükettiğine göre hesaplanmış powerbank/akü",
         neden:
           "Solunum cihazı veya pompa elektriğe bağlıysa kesinti süresi doğrudan " +
@@ -451,6 +491,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "hayvan-mama",
         ad: "Mama ve su",
+        ikon: "hayvan-mama",
         miktar: "3 günlük mama + kabı",
         neden:
           "Barınaklar ve yardım noktaları hayvan maması dağıtmayabilir. " +
@@ -460,6 +501,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "hayvan-tasima",
         ad: "Taşıma kabı, tasma ve ağızlık",
+        ikon: "hayvan-tasima",
         miktar: "Hayvan başına 1",
         neden:
           "Korkan hayvan kaçar veya ısırır; taşıma kabı olmadan çoğu barınma " +
@@ -469,6 +511,7 @@ export const CANTA: CantaBolumu[] = [
       {
         id: "hayvan-karne",
         ad: "Aşı karnesi ve kimlik/çip bilgisi",
+        ikon: "hayvan-karne",
         miktar: "Kopyası çantada + fotoğrafı telefonda",
         neden:
           "Kaybolan hayvanı geri almanın ve geçici barınmaya kabul ettirmenin " +

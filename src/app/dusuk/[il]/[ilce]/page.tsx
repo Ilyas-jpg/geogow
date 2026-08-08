@@ -89,7 +89,7 @@ export default async function IlceSayfasi({ params }: Param) {
       <p className="mt-8 text-sm text-metin-3">
         Listede olmayan bir mahalle, &ldquo;orada alan yok&rdquo; anlamına
         gelmez — AFAD kaydında o mahalleye bağlı alan görünmediği anlamına
-        gelir. Resmî uyarı değildir; acil durumda 112 · AFAD 122.
+        gelir. Resmî uyarı değildir; acil durumda 112.
       </p>
     </main>
   );
