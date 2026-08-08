@@ -70,7 +70,26 @@ export default async function AfetSayfasi({ params }: Parametre) {
         <div className="min-w-0">
           <AfetDiyagrami slug={afet.slug} />
 
-          <h2 className="mt-10 text-2xl font-semibold">O anda — sırayla</h2>
+          {/*
+            Mekanizma ve erken belirti. Adımlardan ÖNCE gelir çünkü sakin
+            zamanda okuyan kişi önce "bu nedir, geldiğini nasıl anlarım"
+            sorusunu sorar. Panik ekranı olan `/afet-ani` bu bölümü
+            göstermez — orada okunacak tek şey adımlardır.
+          */}
+          <section className="mt-10 grid gap-4 md:grid-cols-2">
+            <article className="rounded-xl border border-cizgi bg-zemin-2 p-5">
+              <h2 className="text-xl font-semibold text-metin">Neden olur</h2>
+              <p className="mt-3 text-metin-2">{afet.nedenOlur}</p>
+            </article>
+            <article className="rounded-xl border border-cizgi bg-zemin-2 p-5">
+              <h2 className={`text-xl font-semibold ${METIN_SINIFI[afet.renk]}`}>
+                Nasıl anlaşılır
+              </h2>
+              <p className="mt-3 text-metin-2">{afet.nasilAnlasilir}</p>
+            </article>
+          </section>
+
+          <h2 className="mt-12 text-2xl font-semibold">O anda — sırayla</h2>
           <ol className="mt-4 space-y-5">
             {afet.anAdimlari.map((adim, sira) => (
               <li key={adim.baslik} className="flex gap-4">

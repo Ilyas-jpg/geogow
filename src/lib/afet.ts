@@ -50,6 +50,18 @@ export type AfetTuru = {
   ozet: string;
   /** Anlam rengi — dörtten fazlası yok (marka anayasası §2). */
   renk: "kritik" | "uyari" | "guvenli";
+  /**
+   * Mekanizma: bu afet neden ve nasıl oluşur. Öyküleyici bağlı cümle —
+   * madde listesi DEĞİL (marka anayasası §7). Sakin zamanda okunur;
+   * `/afet-ani` bu alanı göstermez, panikte mekanizma okunmaz.
+   */
+  nedenOlur: string;
+  /**
+   * Erken belirti, uyarı işareti ve resmî uyarı kanalı. Belirtisi
+   * olmayan afette (deprem) bu dürüstçe söylenir — uydurma öncü
+   * işaret yazmak, insanı olmayan bir uyarıyı beklemeye iter.
+   */
+  nasilAnlasilir: string;
   anAdimlari: Adim[];
   varyantlar: Varyant[];
   oncesi: string[];
@@ -97,6 +109,18 @@ const WHO: Kaynak = {
   ad: "Dünya Sağlık Örgütü",
   url: "https://www.who.int",
 };
+/** Heyelan mekanizması ve erken belirti listesinin uluslararası dayanağı. */
+const USGS_HEYELAN: Kaynak = {
+  kurum: "USGS",
+  ad: "ABD Jeoloji Araştırmaları Kurumu — heyelan tehlikesi",
+  url: "https://www.usgs.gov/programs/landslide-hazards",
+};
+/** Çığ: Avrupa çığ uyarı servislerinin ortak tehlike ölçeği ve işaretleri. */
+const EAWS: Kaynak = {
+  kurum: "EAWS",
+  ad: "Avrupa Çığ Uyarı Servisleri Birliği",
+  url: "https://www.avalanches.org",
+};
 
 export const AFETLER: AfetTuru[] = [
   /* ─────────────────────────────  DEPREM  ───────────────────────────── */
@@ -105,6 +129,29 @@ export const AFETLER: AfetTuru[] = [
     ad: "Deprem",
     ozet: "Çök · Kapan · Tutun. Koşma, dışarı çıkmaya çalışma.",
     renk: "kritik",
+    nedenOlur:
+      "Anadolu, kuzeyden Avrasya, güneyden Arap ve Afrika levhaları " +
+      "arasında sıkışmış bir kara parçasıdır; bu sıkışma onu Kuzey Anadolu " +
+      "ve Doğu Anadolu fay hatları boyunca batıya doğru iter. Fay yüzeyleri " +
+      "sürtünmeyle kilitli kaldığı sürece hareket durur, ama levhalar " +
+      "durmadığı için kayaçta gerilme birikmeye devam eder. Kilit " +
+      "koptuğunda biriken enerji saniyeler içinde boşalır ve yüzeye " +
+      "sarsıntı olarak ulaşır. Artçılar bu kopmanın ardından kabuğun yeni " +
+      "dengesine oturmasıdır: günlerce, bazen aylarca sürer ve ana " +
+      "sarsıntının çatlattığı binayı çoğu zaman onlar yıkar.",
+    nasilAnlasilir:
+      "Dürüst cevap: anlaşılmaz. Bir depremin yerini, zamanını ve " +
+      "büyüklüğünü önceden bildiren doğrulanmış bir yöntem yoktur; USGS " +
+      "bunu açıkça belirtir ve dolaşan «deprem tahmini» paylaşımlarının " +
+      "hiçbiri bilimsel dayanak taşımaz. Önceden bilinebilecek olan " +
+      "başkadır: hangi fay kuşağında yaşadığın, oturduğun binanın taşıyıcı " +
+      "sistemi ve zeminin cinsi. Sarsıntı başladıktan sonra ise yalnızca " +
+      "saniyeler vardır — hızlı giden P dalgası bazen derin bir uğultu ya " +
+      "da eşyada kısa bir titreşim olarak asıl sarsıntıdan birkaç saniye " +
+      "önce hissedilir; erken uyarı sistemleri de tam olarak bu farkı " +
+      "kullanır. Kıyıdaysan güçlü bir sarsıntının ardından denizin " +
+      "çekilmesi tsunami işaretidir ve resmî uyarı beklemeden yüksek yere " +
+      "çıkmayı gerektirir.",
     anAdimlari: [
       {
         baslik: "ÇÖK",
@@ -245,6 +292,29 @@ export const AFETLER: AfetTuru[] = [
     ad: "Bina yangını",
     ozet: "Eğil, sürün, çık. Asansör yok, eşya için geri dönme yok.",
     renk: "kritik",
+    nedenOlur:
+      "Ev yangınlarının çoğu birkaç tanıdık kaynaktan çıkar: gözetimsiz " +
+      "bırakılan ocak, aşırı yüklenmiş priz ve uzatma kablosu, eskimiş " +
+      "tesisat, ısıtıcı ve söndürülmemiş sigara. Asıl tehlike büyüme " +
+      "hızıdır. Alev önce kendi çevresini yakar, ama yükselen sıcak duman " +
+      "tavanda birikip odadaki bütün yüzeyleri ısıtır; her yüzey tutuşma " +
+      "sıcaklığına ulaştığında yangın tek tek eşyalara değil bir anda " +
+      "hacmin tamamına yayılır. Bugünün mobilyası bu süreyi kısaltmıştır: " +
+      "sentetik sünger, plastik ve kaplama malzemesi eski doğal " +
+      "malzemeden hem daha hızlı yanar hem çok daha yoğun ve zehirli " +
+      "duman üretir. Kaçış için kalan süre bu yüzden onlarca yıl öncesine " +
+      "göre belirgin biçimde azalmıştır.",
+    nasilAnlasilir:
+      "Uyuyan bir insanın koku duyusu çalışmaz; gecenin tek gerçek " +
+      "uyarısı duman dedektörüdür. Yangın çıkmadan önce de işaret verir: " +
+      "sık atan sigorta, ısınan ya da rengi değişen priz ve anahtar, " +
+      "yanık plastik kokusu, prizden gelen cızırtı, sürekli ısınan bir " +
+      "uzatma kablosu. Bunların hiçbiri kendiliğinden geçmez, hepsi " +
+      "kontrol ettirilir. Karbonmonoksit ayrı bir tehlikedir çünkü rengi " +
+      "ve kokusu yoktur: evde baş ağrısı, bulantı, sersemlik ve halsizlik " +
+      "varsa ve bu şikâyetler evden çıkınca geçiyorsa bu bir yakıt cihazı " +
+      "arızasının işaretidir; kombi, şofben ve soba derhal kontrol " +
+      "ettirilmelidir.",
     anAdimlari: [
       {
         baslik: "Herkesi uyar, çık",
@@ -347,6 +417,30 @@ export const AFETLER: AfetTuru[] = [
     ad: "Orman yangını",
     ozet: "Erken çık. Geç kalan tahliye, tahliye değil kaçıştır.",
     renk: "uyari",
+    nedenOlur:
+      "Bir orman yangınının seyrini üç şey belirler: yakıt, hava ve arazi. " +
+      "Kuru ot, çalı ve iğne yaprak döküntüsü yakıtı; sıcaklık, düşük nem " +
+      "ve rüzgâr havayı; yamacın eğimi de araziyi oluşturur. Yangın yokuş " +
+      "yukarı hızlanır, çünkü alev daha oraya varmadan üstündeki bitki " +
+      "örtüsünü kurutup tutuşmaya hazırlar; dar ve dik vadiler havayı " +
+      "yukarı çekerek bu etkiyi büyütür. Rüzgâr ise cepheyi taşımakla " +
+      "kalmaz, kor parçalarını cephenin çok ilerisine düşürerek önde yeni " +
+      "yangınlar başlatır — cephe ile aranda mesafe olması güvende olduğun " +
+      "anlamına gelmez. Çıkış nedenine gelince, Türkiye'de orman " +
+      "yangınlarının büyük bölümü doğal değil insan kaynaklıdır: anız ve " +
+      "bahçe atığı yakma, elektrik hattı, izmarit ve söndürülmemiş ateş.",
+    nasilAnlasilir:
+      "İlk işaret çoğu zaman kokudur; duman rüzgârla kilometrelerce önden " +
+      "gelir ve gece uzaktaki bir yangının tek habercisi olabilir. Duman " +
+      "sütununun rengi ve yönü de bilgi taşır: koyulaşıp kalınlaşan bir " +
+      "sütun büyüyen cepheyi, yön değiştirmesi rüzgârın dönmesini " +
+      "gösterir; rüzgâr döndüğünde güvenli sandığın yön birkaç dakikada " +
+      "tehlikeli hâle gelebilir. En kritik işaret kor yağmasıdır: üzerine " +
+      "küçük yanan parçalar düşmeye başladıysa yangın artık uzakta " +
+      "değildir ve tahliye için beklenecek vakit kalmamıştır. Resmî " +
+      "tarafta MGM'nin sıcaklık, nem ve rüzgâr uyarıları ile OGM ve " +
+      "valilik duyuruları izlenir; yüksek riskli günlerde açıklanan ormana " +
+      "giriş yasakları da bu ölçümlere dayanır.",
     anAdimlari: [
       {
         baslik: "Tahliye çağrısını bekleme, erken çık",
@@ -442,6 +536,29 @@ export const AFETLER: AfetTuru[] = [
     ad: "Sel ve taşkın",
     ozet: "Suya girme. Yaya 15 cm, araç 30 cm akan suda sürüklenir.",
     renk: "uyari",
+    nedenOlur:
+      "Sel, bir havzaya düşen yağmurun toprağın emebileceğinden ve " +
+      "derelerin taşıyabileceğinden fazla olmasıyla başlar. Dik havzalarda " +
+      "su yamaçtan hızla iner ve yatağı dakikalar içinde doldurur; buna " +
+      "ani taşkın denir ve en tehlikeli yanı, yağmurun senin bulunduğun " +
+      "yerde yağmak zorunda olmamasıdır. Yukarı havzada saatler önce " +
+      "düşen yağış, aşağıya gökyüzü açıkken gelir. Şehirde tablo ayrıca " +
+      "ağırlaşır: asfalt ve beton suyun toprağa geçmesini engellediği için " +
+      "yağışın neredeyse tamamı yüzeyden akar, tıkalı ızgara ve yetersiz " +
+      "kanalizasyon bu suyu sokakta biriktirir. Üstü kapatılmış dere " +
+      "yatakları da su yükseldiğinde yeniden dere olur.",
+    nasilAnlasilir:
+      "Resmî uyarı en güvenilir kanaldır: MGM'nin turuncu ve kırmızı " +
+      "uyarıları ile AFAD ve valilik duyuruları yağış başlamadan önce " +
+      "yayınlanır ve telefonda bildirim olarak takip edilebilir. Sahada " +
+      "ise suyun kendisi haber verir. Berrak akan bir derenin " +
+      "bulanıklaşması, seviyesinin gözle görülür biçimde yükselmesi, dal " +
+      "ve çöp taşımaya başlaması yukarıda yağış olduğunu gösterir. Kuru " +
+      "bir yatakta duyulan uğultu ise suyun yaklaştığı anlamına gelir ve " +
+      "o yataktan hemen çıkmayı gerektirir. Gece gelen ani taşkın en " +
+      "ölümcül olanıdır çünkü bu işaretlerin hiçbiri görülmez; bu yüzden " +
+      "akşam verilen kuvvetli yağış uyarısı, bodrumdan ve dere kenarından " +
+      "önceden çıkmak için tek başına yeterli sebeptir.",
     anAdimlari: [
       {
         baslik: "Yüksek yere çık",
@@ -537,6 +654,29 @@ export const AFETLER: AfetTuru[] = [
     ad: "Kimyasal, biyolojik, radyolojik, nükleer",
     ozet: "İçeri gir · İçeride kal · Yetkiliyi dinle.",
     renk: "uyari",
+    nedenOlur:
+      "Bu olaylar çoğunlukla bir kazadan doğar: sanayi tesisinde sızıntı, " +
+      "tehlikeli madde taşıyan bir aracın devrilmesi, depo yangınının " +
+      "zehirli duman üretmesi ya da bir radyoaktif kaynağın kontrol dışına " +
+      "çıkması. Kasıtlı salım da mümkündür ama nadirdir. Sebep ne olursa " +
+      "olsun tehlikenin nereye gideceğini belirleyen şey meteorolojidir: " +
+      "rüzgârın yönü ve hızı bulutu taşır, yağış onu yere indirir, hava " +
+      "sıcaklığındaki fark ise ne kadar yükselip seyreleceğini belirler. " +
+      "Bu yüzden aynı olay rüzgârın bir tarafında ciddi risk üretirken " +
+      "öbür tarafında hiç risk üretmeyebilir; tahliye ve içeride kalma " +
+      "kararları da her zaman rüzgâra göre verilir.",
+    nasilAnlasilir:
+      "Birincil kaynak resmî uyarıdır: siren, AFAD bildirimi, valilik " +
+      "duyurusu ve yayın kuruluşlarından geçilen anons. Kendi gözlemin " +
+      "ikincildir ama önemlidir — alışılmadık renkte ya da kokuda bir " +
+      "bulut, devrilmiş bir tehlikeli madde tankeri, aynı yerde çok " +
+      "sayıda insanın aynı anda öksürmeye, gözleri yaşarmaya, bulanık " +
+      "görmeye veya bayılmaya başlaması, kuş ve böceklerin toplu ölümü. " +
+      "Kokuya güvenmemek gerekir: bazı maddelerin kokusu hiç yoktur, " +
+      "bazılarının kokusu da maruziyet sürdükçe hissedilmez olur. Kokuyu " +
+      "tehlikenin ölçüsü saymak yerine, ortamda açıklanamayan bir belirti " +
+      "kümesi varsa rüzgârı arkana alıp uzaklaşmak ve en yakın binaya " +
+      "girmek doğru karardır.",
     anAdimlari: [
       {
         baslik: "İÇERİ GİR",
@@ -624,6 +764,31 @@ export const AFETLER: AfetTuru[] = [
     ad: "Heyelan",
     ozet: "Yamacın yanına doğru kaç, aşağıya değil.",
     renk: "uyari",
+    nedenOlur:
+      "Heyelan, bir yamacı yerinde tutan sürtünme direncinin, o kütleyi " +
+      "aşağı çeken ağırlığın altına düşmesiyle olur. Dengeyi bozan en " +
+      "yaygın etken sudur: uzun süreli yağış veya hızlı kar erimesi " +
+      "toprağın boşluklarını doldurur, tanecikler arasındaki tutunmayı " +
+      "zayıflatır ve kütleyi ağırlaştırır. Deprem sarsıntısı aynı işi " +
+      "saniyeler içinde yapar. İnsan eliyle de tetiklenir: yamacın " +
+      "eteğinden yol ya da temel için toprak alınması, üst tarafa dolgu " +
+      "yığılması, bitki örtüsünün kaldırılması ve kaçak suyun yamaca " +
+      "akıtılması eğimi taşıyabileceğinin ötesine zorlar. Yanmış yamaçlar " +
+      "ayrı bir risk taşır, çünkü toprağı kökleriyle bağlayan örtü " +
+      "gittiği için ilk büyük yağmurda çamur akışı başlayabilir.",
+    nasilAnlasilir:
+      "Heyelan, kendini en çok belli eden afettir; çoğu zaman günler, " +
+      "hatta haftalar öncesinden işaret verir ve bu işaretler okunduğunda " +
+      "can kaybı önlenebilir. Yapıda: duvarda, sıvada ve döşemede beliren " +
+      "yeni çatlaklar, daha önce rahat kapanan kapı ve pencerelerin " +
+      "sıkışmaya başlaması, kapı ile çerçevesi arasında açılan boşluk. " +
+      "Arazide: yolda ve bahçede açılan çatlaklar, istinat duvarının " +
+      "şişmesi ya da çatlaması, eğrilmeye başlayan direk, ağaç ve çit, " +
+      "daha önce olmayan yerlerden su sızması veya her zaman akan bir " +
+      "kaynağın aniden kesilmesi. Hareket yakınsa ses de gelir: ağaç " +
+      "çatırtısı, taş yuvarlanması ve giderek yükselen bir uğultu " +
+      "duyulduğunda beklenmez, yamacın hareket yönünden yana doğru " +
+      "uzaklaşılır.",
     anAdimlari: [
       {
         baslik: "Sesi duyduğunda hemen hareket et",
@@ -676,7 +841,7 @@ export const AFETLER: AfetTuru[] = [
       "yoğunlaşır; yol yarması, eğim eteğine yapılaşma ve bilinçsiz kazı " +
       "riski artıran başlıca insan etkileridir.",
     mitler: [],
-    kaynaklar: [AFAD, MGM],
+    kaynaklar: [AFAD, MGM, USGS_HEYELAN],
   },
 
   /* ────────────────────────────────  ÇIĞ  ──────────────────────────── */
@@ -685,6 +850,31 @@ export const AFETLER: AfetTuru[] = [
     ad: "Çığ",
     ozet: "Yana kaç, tutun, düşersen yüzünün önünde boşluk aç.",
     renk: "uyari",
+    nedenOlur:
+      "Kar örtüsü tek parça değildir; her yağış, rüzgâr ve erime dönemi " +
+      "üst üste binen katmanlar bırakır. Katmanlardan biri zayıfsa — " +
+      "açık ve soğuk gecelerde oluşan gevşek kristaller bunun en bilinen " +
+      "örneğidir — üstüne binen yeni ve ağır kar sertleşerek bir levha " +
+      "hâline gelir ve alttaki zayıf katman bu yükü zar zor taşır. Rüzgâr " +
+      "yükü ayrıca eşitsiz dağıtır: karı tepenin rüzgâr alan yüzünden " +
+      "alıp arka yüzüne yığar ve orada kalın, gergin bir levha oluşturur. " +
+      "Zayıf katman koptuğunda üstündeki levha tek parça hâlinde kayar. " +
+      "Çığların büyük bölümü kendiliğinden değil, üzerine çıkan kişinin " +
+      "ağırlığıyla tetiklenir; en tehlikeli eğim aralığı otuz ile kırk beş " +
+      "derece arasıdır ve kayak ile tırmanış için tercih edilen eğimler " +
+      "tam olarak bu aralığa denk gelir.",
+    nasilAnlasilir:
+      "Risk önce havadan okunur: son iki gün içinde düşen yoğun kar, " +
+      "güçlü rüzgâr, ani ısınma ya da kar üstüne yağan yağmur. Rüzgârın " +
+      "karı taşıdığı arazide sırtlarda oluşan saçaklar ve ayak altında " +
+      "boğuk ses veren sertleşmiş yüzeyler bunun görünür işaretidir. Kar " +
+      "örtüsünün kendisi de uyarır: basıldığında duyulan boğuk bir çökme " +
+      "sesi ve yüzeyde yanlara doğru koşan çatlaklar, zayıf katmanın " +
+      "ayağının altında çöktüğünü söyler; bu, bulunduğun yeri hemen terk " +
+      "etmeni gerektiren en net işarettir. Aynı yöne bakan ve aynı " +
+      "yükseklikteki bir yamaçta son günlerde inmiş çığ izi görüyorsan " +
+      "koşullar değişmemiş demektir. Resmî tarafta AFAD ve valilik çığ " +
+      "uyarıları ile MGM'nin kar ve rüzgâr tahminleri izlenir.",
     anAdimlari: [
       {
         baslik: "Yana doğru kaç",
@@ -737,7 +927,7 @@ export const AFETLER: AfetTuru[] = [
       "Çığ riski Doğu Anadolu'nun yüksek ve karla kaplı kesimlerinde " +
       "yoğunlaşır; köy yolları ve dağ geçitleri en sık etkilenen yerlerdir.",
     mitler: [],
-    kaynaklar: [AFAD, MGM],
+    kaynaklar: [AFAD, MGM, EAWS],
   },
 
   /* ─────────────────────────  FIRTINA / HORTUM  ────────────────────── */
@@ -746,6 +936,31 @@ export const AFETLER: AfetTuru[] = [
     ad: "Fırtına ve hortum",
     ozet: "İçeri gir, pencereden uzaklaş, en alt ve iç mekâna geç.",
     renk: "uyari",
+    nedenOlur:
+      "Şiddetli hava, sıcak ve nemli hava ile üstündeki soğuk hava " +
+      "arasındaki farkın büyümesiyle başlar. Isınan nemli hava yükselir, " +
+      "yükseldikçe içindeki su buharı yoğuşur ve bu sırada açığa çıkan " +
+      "ısı yükselişi daha da hızlandırır; ortaya dikey olarak hızla " +
+      "büyüyen bir fırtına bulutu çıkar. Yükseklikle rüzgârın yönü ve " +
+      "hızı da değişiyorsa yükselen hava kütlesi dönmeye başlar, dönme " +
+      "yere kadar uzandığında hortum oluşur. Fırtınanın en yaygın hasar " +
+      "biçimi ise hortum değildir: buluttan yere çarpıp yanlara dağılan " +
+      "soğuk hava inişi dar bir alanda hortuma yakın hasar üretir ve çok " +
+      "daha sık görülür. Türkiye'de hortumlar en çok Ege ve Akdeniz " +
+      "kıyılarında, özellikle sonbaharda deniz üstünde oluşup karaya " +
+      "geçer.",
+    nasilAnlasilir:
+      "MGM'nin sarı, turuncu ve kırmızı uyarıları bu olaylar için saatler " +
+      "öncesinden ve bölge bazlı yayınlanır; takip edilmesi gereken ilk " +
+      "kanal budur. Bulut tarafında birkaç işaret vardır: gökyüzünün " +
+      "koyulaşıp yeşile çalması, alçalan ve döndüğü fark edilen bir bulut " +
+      "tabanı, rüzgârın aniden kesilip ortalığın sessizleşmesi ve ardından " +
+      "yükselen, tren sesini andıran sürekli bir uğultu. Yerden kalkan toz " +
+      "ve yaprak dönmeye başladıysa dönme zaten yere ulaşmıştır ve " +
+      "sığınmak için saniyeler kalmıştır. Yıldırımda ölçü basittir: gök " +
+      "gürültüsünü duyabiliyorsan yıldırımın ulaşabileceği mesafedesin. " +
+      "Ses duyulduğu anda kapalı bir alana girilir ve son gürültünün " +
+      "üzerinden yaklaşık yarım saat geçmeden dışarı çıkılmaz.",
     anAdimlari: [
       {
         baslik: "Hemen sağlam bir binaya gir",
@@ -798,6 +1013,31 @@ export const AFETLER: AfetTuru[] = [
     ad: "Aşırı sıcak",
     ozet: "Gölgede kal, su iç, aracında kimseyi bırakma.",
     renk: "uyari",
+    nedenOlur:
+      "Aşırı sıcak, yüksek basıncın bir bölgenin üzerine yerleşip " +
+      "günlerce kıpırdamamasıyla oluşur. Alçalan hava bulut oluşumunu " +
+      "bastırır, güneş kesintisiz ısıtır ve her günün ısısı bir " +
+      "öncekinin üstüne biner. Şehirde tablo ağırlaşır, çünkü asfalt, " +
+      "beton ve çatı gün boyu ısı depolayıp bunu gece boyunca geri " +
+      "verir; kırsalda düşen gece sıcaklığı şehirde düşmez. Aşırı " +
+      "sıcağın öldürücü yanı da buradadır: insan vücudu gündüz biriken " +
+      "ısıyı serin gecelerde atar, gece serinlemediğinde bu toparlanma " +
+      "hiç olmaz ve yük gün gün birikir. Asıl risk tek bir sıcak öğleden " +
+      "sonra değil, gecesi de sıcak geçen üst üste birkaç gündür.",
+    nasilAnlasilir:
+      "MGM sıcak hava dalgası uyarılarını gün öncesinden yayınlar; " +
+      "izlenmesi gereken sayı en yüksek gündüz sıcaklığı kadar en düşük " +
+      "gece sıcaklığıdır, çünkü tehlikeyi belirleyen gecenin " +
+      "serinleyip serinlemediğidir. Vücudun verdiği işaretler iki " +
+      "kademelidir ve aradaki farkı bilmek hayat kurtarır. Sıcak " +
+      "bitkinliğinde bol terleme, halsizlik, baş dönmesi, bulantı, baş " +
+      "ağrısı ve soğuk-nemli bir cilt görülür; kişi serin bir yere " +
+      "alınır, kıyafeti gevşetilir, su verilir ve genellikle toparlanır. " +
+      "Sıcak çarpması ise acil bir tıbbi durumdur: cilt sıcaktır ve " +
+      "çoğu zaman terleme durmuştur, kişi şaşkın ve huzursuzdur, " +
+      "konuşması bozulur, bilinci kapanabilir. Bu tabloda beklenmez, " +
+      "hemen 112 aranır ve ambulans gelene kadar kişi gölgeye alınıp " +
+      "serinletilir.",
     anAdimlari: [
       {
         baslik: "En sıcak saatlerde dışarı çıkma",

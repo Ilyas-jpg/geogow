@@ -375,6 +375,10 @@ export const CANTA: CantaBolumu[] = [
   {
     id: "yasli",
     baslik: "Yaşlı birey varsa",
+    aciklama:
+      "Tahliyeyi yavaşlatan şey çoğu zaman yürümek değil, geride kalan " +
+      "küçük şeylerdir: gözlük, işitme cihazı, baston ve ilaç kutusu. " +
+      "Hepsi bir arada ve yatağın yanında dururken çıkmak kolaydır.",
     eklenti: true,
     maddeler: [
       {
@@ -412,6 +416,10 @@ export const CANTA: CantaBolumu[] = [
   {
     id: "engelli",
     baslik: "Engelli birey varsa",
+    aciklama:
+      "Hazırlık burada çantadan önce plandır: kim yardım edecek, hangi " +
+      "çıkış kullanılacak, asansör çalışmazsa ne olacak. Yedek parça ve " +
+      "yardımcı cihaz, yerine hemen konulamadığı için ayrıca önemlidir.",
     eklenti: true,
     maddeler: [
       {
@@ -449,6 +457,11 @@ export const CANTA: CantaBolumu[] = [
   {
     id: "kronik",
     baslik: "Kronik hastalık varsa",
+    aciklama:
+      "Afetten sonra eczane kapalı, reçete sistemi erişilemez ve hastane " +
+      "yaralılarla dolu olabilir. Düzenli kullanılan ilacın birkaç " +
+      "günlük yedeği ile tedaviyi anlatan bir kâğıt, kesintiyi önleyen " +
+      "en ucuz hazırlıktır.",
     eklenti: true,
     maddeler: [
       {
@@ -486,6 +499,11 @@ export const CANTA: CantaBolumu[] = [
   {
     id: "hayvan",
     baslik: "Evcil hayvan varsa",
+    aciklama:
+      "Hayvanını bırakmak istemeyen insan tahliyeyi geciktirir ya da " +
+      "tehlikeli alana geri döner; bu yüzden hayvan hazırlığı sahibinin " +
+      "de güvenliğidir. Taşıma kabı ve kimlik künyesi önceden hazırsa " +
+      "karar anında tereddüt kalmaz.",
     eklenti: true,
     maddeler: [
       {
