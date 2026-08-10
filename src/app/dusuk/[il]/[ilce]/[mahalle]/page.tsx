@@ -31,7 +31,7 @@ async function bul(ilSlug: string, ilceSlug: string, mahalleSlug: string) {
  * Kesilecek çöp yok — sayfa sayısının kendisi fazla.
  *
  * ⚠️ ÜRÜN SÖZÜ BOZULMUYOR. Kullanıcı açısından değişen bir şey yok:
- * URL aynı, çıktı aynı sıfır-JS HTML, JavaScript yine gerekmiyor. Tek fark
+ * URL aynı, çıktı aynı HTML, JavaScript yine gerekmiyor. Tek fark
  * bir mahalleye İLK giren kişinin sunucu render'ı beklemesi (bir JSON okuyup
  * HTML basmak); sonrasında sayfa CDN'den statik geliyor. `revalidate = false`
  * ile önbellek süresiz — yani pratikte "ilk istekte üretilen SSG".

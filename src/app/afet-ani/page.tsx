@@ -23,7 +23,10 @@ export const metadata: Metadata = {
  * seçiyorsun, tıklayınca doğrudan adımlara gidiyorsun.
  *
  * ── DEĞİŞMEYEN İLKELER ──
- *  • SIFIR JAVASCRIPT. Izgara saf CSS grid, kartlar düz bağlantı.
+ *  • JAVASCRIPT GEREKTİRMEZ. Izgara saf CSS grid, kartlar düz bağlantı;
+ *    bu sayfada bizim yazdığımız istemci kodu yok. (App Router runtime'ı
+ *    yine de iner ama `async` — sayfa o gelmeden okunur. "Sıfır JS" hedefi
+ *    2026-08-10'da kaldırıldı, tutulan söz "gerektirmez".)
  *  • Tamamen SSG + servis çalışanı kabuğunda: ağsız açılır.
  *  • Dokunma hedefi ≥44 px, gövde 17 px, hareket yok (panikte animasyon yok).
  */

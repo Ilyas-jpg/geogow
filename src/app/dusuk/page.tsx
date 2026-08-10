@@ -20,15 +20,18 @@ export const metadata: Metadata = {
  *   /dusuk 6,8 KB · /dusuk/afet 3,9 KB · /dusuk/afet/deprem 7,6 KB ·
  *   /dusuk/hazirlik 14,7 KB  → hepsi 50 KB hedefinin ALTINDA.
  *
- * ⚠️ Ama "JS sıfır" LAFZEN DOĞRU DEĞİL: Next App Router her sayfaya ~188 KB
+ * ⚠️ "JS sıfır" LAFZEN DOĞRU DEĞİL: Next App Router her sayfaya ~188 KB
  * React/Next runtime'ı ekliyor ve bu sade sayfalarda da iniyor. Önemli olan
  * şu: tüm script etiketleri `async`, yani ENGELLEYİCİ yük yalnız yukarıdaki
  * HTML. Sayfa JS gelmeden okunur ve bağlantıları çalışır; JS hiç gelmese de
  * içerik tamdır. Kötü bağlantıda belirleyici olan sayı 7,6 KB, 199 KB değil.
  *
  * ✓ MapLibre bu sayfalara BİNMİYOR (chunk'lar tarandı) — kod bölme doğru.
- * Gerçekten sıfır JS istenirse App Router'dan çıkıp bu rotaları düz HTML
- * olarak üretmek gerekir; ayrı ve büyük bir iş, bilerek yapılmadı.
+ *
+ * 🔒 KARAR (İlyas, 2026-08-10): **App Router'dan ÇIKILMAYACAK ve "sıfır JS"
+ * hedefi şimdilik KALKTI.** Bu sayfaların sözü bundan sonra "JavaScript
+ * GEREKTİRMEZ" — ölçülmüş ve doğru olan iddia bu. "Sıfır JS" bir daha hedef
+ * olarak yazılmayacak; kullanıcıya da hiçbir yerde öyle söylenmiyor.
  */
 export default async function MetinAnasayfa() {
   const iller = await yayindakiIller();
