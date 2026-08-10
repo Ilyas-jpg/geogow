@@ -64,6 +64,41 @@ const MIT_GORSELI: Record<string, { dosya: string; alt: string }> = {
       "kapı altı bezle tıkanmış odada, pencereden bez sallayarak kendini " +
       "görünür kılan kişi.",
   },
+  "Vatandaş da müdahale etmeli, herkes söndürmeye gitmeli.": {
+    dosya: "mit-mudahale.png",
+    alt:
+      "Solda yanlış: elinde bahçe hortumuyla kendinden kat kat büyük yangın " +
+      "cephesine yürüyen sivil; yol araçla tıkalı. Sağda doğru: aynı kişi erken " +
+      "tahliye ediyor, arkasındaki itfaiye aracı açık yoldan geçiyor.",
+  },
+  "Alevi görene kadar vakit var.": {
+    dosya: "mit-alevi-gorene.png",
+    alt:
+      "Solda yanlış: evinin önünde durup uzaktaki duman sütununu izleyen kişi; " +
+      "ağaçların üstüne kor parçaları düşüyor. Sağda doğru: ufukta yalnız ince " +
+      "bir duman izi varken çantasını alıp yola çıkmış kişi.",
+  },
+  "Arabam yüksek, bu sudan geçerim.": {
+    dosya: "mit-arac-su.png",
+    alt:
+      "Solda yanlış: suyla kaplı yola girmiş, yana sürüklenmeye başlamış arazi " +
+      "aracı; suyun altında asfalt çökmüş ve rögar kapağı açık. Sağda doğru: " +
+      "aynı araç suya girmeden dönmüş, ters yöne bakıyor.",
+  },
+  "Su berrak görünüyorsa sığdır.": {
+    dosya: "mit-berrak-su.png",
+    alt:
+      "Solda yanlış: berrak görünen suya adım atan kişi; suyun altında yol " +
+      "oyulmuş ve rögar kapağı açık. Sağda doğru: aynı kişi suyun kenarında " +
+      "durmuş, ayakları kuru zeminde.",
+  },
+  "Böyle bir olayda hemen şehirden kaçmak gerekir.": {
+    dosya: "mit-sehirden-kacma.png",
+    alt:
+      "Solda yanlış: trafikte sıkışmış aracın içinde, çevresi kırmızı bulutla " +
+      "sarılı kişi. Sağda doğru: aynı kişi evinin içinde; kapı ve pencere " +
+      "kapatılıp bantlanmış, elinde radyo, bulut duvarın dışında kalmış.",
+  },
 };
 
 export default function MitlerSayfasi() {

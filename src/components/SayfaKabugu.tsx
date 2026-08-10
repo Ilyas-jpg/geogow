@@ -93,7 +93,9 @@ function SayfaAltligi() {
               ["/afet-ani", "Afet anı"],
               ["/hazirlik", "Hazırlık"],
               ["/mitler", "Doğru bilinen yanlışlar"],
-              ["/kilavuz", "Basılabilir kılavuz"],
+              /* Katalog giriş noktası — tek belgeye değil rafın tamamına
+                 götürür, kullanıcı ne olduğunu görüp seçsin. */
+              ["/printables", "Basılabilir malzemeler"],
               ["/dusuk", "Sade sürüm"],
             ].map(([yol, ad]) => (
               <li key={yol}>
