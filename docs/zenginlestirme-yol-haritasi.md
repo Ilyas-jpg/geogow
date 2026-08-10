@@ -4,6 +4,11 @@
 diye yazılan hiçbir kaynak listeye alınmamıştır. Ölçüm tarihleri ve dönen
 kodlar yazılıdır ki altı ay sonra tekrar denenmesin.
 
+> ➡️ **İKİNCİ TUR: `zenginlestirme-arastirma-2.md` (2026-08-10).**
+> Bu dosyadaki iki madde orada **kapandı**: MGM uyarı ucunun şeması yakalandı
+> (ve `Origin` başlığının zorunlu olduğu bulundu), kaba kapsam analizini
+> kurtaracak nüfus verisi ölçüldü. Bu dosyanın geri kalanı geçerlidir.
+
 ---
 
 ## 1. Ölçülen kaynaklar
