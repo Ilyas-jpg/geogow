@@ -123,6 +123,26 @@ sık geçiyor (metin içinde "heyelan" araması ikinci bir sinyal verir).
 ister. Yanlış numarayla 200 döner ama gövde **boş** (2 bayt) — hata vermez,
 sessizce boş gelir. Birinci turdaki `TR-6`/`TR-06` tuzağının aynısı.
 
+### ✅ Ö1 YAPILDI (2026-08-10) — uygularken çıkan üç yeni ölçüm
+
+`src/lib/mgmUyari.ts` + `/api/uyari` + `src/components/UyariSeridi.tsx`.
+Uygulama sırasında araştırmada görünmeyen üç şey ölçüldü:
+
+| Bulgu | Ölçüm | Sonuç |
+|---|---|---|
+| **Next fetch önbelleği 4,5 MB'ı SAKLAMIYOR** | `next: { revalidate }` ile uç **5–10 sn**, bir indirme düşünce **503** | Ham veri süreç belleğinde tutuluyor: soğuk **18,1 sn** → sonraki istekler **7 ms** |
+| **MGM sıkıştırma yapmıyor** | `--compressed` ile de **4.499.874 bayt**, `Content-Encoding` yok | İndirme 12–13 sn; `maxDuration = 60`, fetch bütçesi 45 sn |
+| **Küçültme parametresi yok** | `limit` · `son` · `aktif` · `adet` · `size` · `page` → hepsi **200 ama gövde 4,5 MB** | Payload küçültülemez; korunma kenar önbelleği + bellek önbelleği |
+
+⛔ **Reddedilen kestirme:** ucuz `/web/alarmlar` (229 bayt) ucunu "aktif uyarı
+var mı" sondası yapmak. İki ucun kapsamı aynı DEĞİL — `/web/alarmlar` ölçüm
+anında gelecekte başlayacak uyarıyı göstermiyordu. Sonda boş dönseydi gerçek
+uyarıyı atlardık; **yanlış negatif, yavaş uçtan kötüdür.**
+
+Canlı doğrulama: aktif sarı sağanak uyarısı `/afet/sel`'de **Ordu, Samsun ·
+11 Ağustos 05:00–15:00 TSİ** olarak göründü; `/afet/deprem`'de uca **0 istek**
+gitti; mobilde (375 px) taşma yok.
+
 ### 📌 Öneri Ö1 — MGM uyarı şeridi (öncelik: YÜKSEK)
 `/afet/<tür>` ve ana sayfada, kullanıcının iline ait **aktif** uyarı varsa
 üstte şerit: şiddet rengi + MGM'nin kendi metni + geçerlilik aralığı + kaynak.
@@ -230,7 +250,7 @@ Vercel'in range isteklerindeki davranışı.
 
 | # | İş | Değer | Emek | Engel |
 |---|---|---|---|---|
-| **Ö1** | MGM uyarı şeridi (+ hissedilen sıcaklık) | Yüksek — 9 afetin 4'ü canlı veriyle beslenir | Orta | Yok, hepsi ölçüldü |
+| ~~**Ö1**~~ | ~~MGM uyarı şeridi~~ **✅ YAPILDI** (hissedilen sıcaklık ayağı hâlâ açık) | Yüksek — 9 afetin 4'ü canlı veriyle besleniyor | Orta | — |
 | **Ö2** | Nüfus ağırlıklı erişim karnesi | Yüksek — ülkede yayınlayan yok | Orta | Hasat 68/81, kapsam yazılmalı |
 | **Ö3** | Altlığı cartocdn'den alma | Orta — bağımlılık + CSP kırılganlığı | Yüksek | Depolama maliyeti ölçülmedi |
 | Ö4 | EMSC "hissettim" sayısı (deprem detayında) | Düşük-orta | Düşük | Gerçek zamanlı değil |
