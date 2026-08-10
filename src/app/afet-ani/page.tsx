@@ -29,7 +29,7 @@ export const metadata: Metadata = {
  */
 export default function AfetAniSayfasi() {
   return (
-    <SayfaKabugu aktif="/afet-ani">
+    <SayfaKabugu aktif="/afet-ani" sadeYol="/dusuk/afet">
       <>
         {/* ── Giriş + acil numaralar yan yana (geniş ekranda) ── */}
         <section className="grid gap-6 pt-8 lg:grid-cols-[1fr_20rem]">

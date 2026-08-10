@@ -1,3 +1,4 @@
+import Link from "next/link";
 import UstMenu from "./UstMenu";
 
 /**
@@ -20,10 +21,19 @@ export default function SayfaKabugu({
   children,
   /** Tam genişlik gerektiren sayfalar (harita) kabuğu kendisi yönetir. */
   genis = false,
+  /**
+   * Bu sayfanın sade (metin) karşılığı. Verilirse içeriğin üstünde geçiş
+   * bağlantısı çıkar.
+   *
+   * Neden üstte: bağlantının işe yaradığı an, sayfanın AĞIR geldiği andır.
+   * Dibe koyarsak zaten yüklenmesini bekleyemeyen kullanıcı onu hiç görmez.
+   */
+  sadeYol,
 }: {
   aktif?: string;
   children: React.ReactNode;
   genis?: boolean;
+  sadeYol?: string;
 }) {
   return (
     <>
@@ -36,6 +46,15 @@ export default function SayfaKabugu({
             : "mx-auto w-full max-w-[1180px] px-5 pb-24 sm:px-6 lg:px-8"
         }
       >
+        {sadeYol && (
+          <p className="yazdirma-gizle pt-3 text-sm text-metin-3">
+            Yavaş bağlantı mı?{" "}
+            <Link href={sadeYol} className="text-vurgu underline">
+              Sade sürüme geç
+            </Link>{" "}
+            — görselsiz, JavaScript gerektirmez.
+          </p>
+        )}
         {children}
       </main>
       <SayfaAltligi />
@@ -74,6 +93,7 @@ function SayfaAltligi() {
               ["/afet-ani", "Afet anı"],
               ["/hazirlik", "Hazırlık"],
               ["/mitler", "Doğru bilinen yanlışlar"],
+              ["/kilavuz", "Basılabilir kılavuz"],
               ["/dusuk", "Sade sürüm"],
             ].map(([yol, ad]) => (
               <li key={yol}>

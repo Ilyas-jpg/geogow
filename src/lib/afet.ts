@@ -142,7 +142,7 @@ export const AFETLER: AfetTuru[] = [
     nasilAnlasilir:
       "Dürüst cevap: anlaşılmaz. Bir depremin yerini, zamanını ve " +
       "büyüklüğünü önceden bildiren doğrulanmış bir yöntem yoktur; USGS " +
-      "bunu açıkça belirtir ve dolaşan «deprem tahmini» paylaşımlarının " +
+      "bunu açıkça belirtir ve dolaşan “deprem tahmini” paylaşımlarının " +
       "hiçbiri bilimsel dayanak taşımaz. Önceden bilinebilecek olan " +
       "başkadır: hangi fay kuşağında yaşadığın, oturduğun binanın taşıyıcı " +
       "sistemi ve zeminin cinsi. Sarsıntı başladıktan sonra ise yalnızca " +
@@ -231,7 +231,7 @@ export const AFETLER: AfetTuru[] = [
         yanlis: "Hayat üçgeni: sağlam eşyaların yanına çömel, masanın altına girme.",
         dogru: "Çök–Kapan–Tutun. Sağlam bir masanın altına gir ve tutun.",
         neden:
-          "«Hayat üçgeni» bilimsel dayanağı olmayan, zincirleme e-posta ve " +
+          "“Hayat üçgeni” bilimsel dayanağı olmayan, zincirleme e-posta ve " +
           "sosyal medya paylaşımıyla yayılmış bir modeldir. USGS, FEMA, " +
           "Amerikan Kızılhaçı ve arama-kurtarma standardı INSARAG bu modeli " +
           "açıkça reddeder. Gerekçe: modern binalarda yaralanma ve ölümlerin " +
@@ -239,8 +239,8 @@ export const AFETLER: AfetTuru[] = [
           "sarsıntı sırasında eşyanın yanına ulaşmaya çalışmak seni " +
           "korumasız hâlde ayakta bırakır. AFAD'ın 81 ilde yaptığı resmî " +
           "tatbikat da Çök–Kapan–Tutun hareketi üzerine kuruludur. " +
-          "⚠️ Dürüstlük notu: AFAD'ın bazı eski sayfalarında hâlâ «hayat " +
-          "üçgeni» ifadesi geçiyor. Bu bir kurum içi tutarsızlıktır; biz " +
+          "⚠️ Dürüstlük notu: AFAD'ın bazı eski sayfalarında hâlâ “hayat " +
+          "üçgeni” ifadesi geçiyor. Bu bir kurum içi tutarsızlıktır; biz " +
           "bilimsel konsensüsü esas alıyoruz ve çelişkiyi gizlemiyoruz.",
         kaynaklar: [
           USGS,

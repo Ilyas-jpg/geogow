@@ -20,7 +20,7 @@ export const metadata: Metadata = {
  */
 export default function HazirlikSayfasi() {
   return (
-    <SayfaKabugu aktif="/hazirlik">
+    <SayfaKabugu aktif="/hazirlik" sadeYol="/dusuk/hazirlik">
       <header className="yazdirma-gizle pt-8">
         <h1 className="text-3xl font-semibold sm:text-4xl">Hazırlık</h1>
         <p className="mt-3 max-w-[68ch] text-lg text-metin-2">

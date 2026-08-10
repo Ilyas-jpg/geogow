@@ -140,11 +140,35 @@ body {
 }
 
 @media print {
+  /* A4 + kenar boşluğu: kılavuz (/kilavuz) evde delgeçle klasöre takılacak
+     ve okulda dağıtılacak; kenar boşluğu olmadan delgeç metni deler. */
+  @page {
+    size: A4;
+    margin: 14mm 14mm 16mm;
+  }
+
   html,
   body {
     background: #fff !important;
     color: #000 !important;
     font-size: 11pt;
+  }
+
+  /* Kılavuzda her ana bölüm yeni sayfadan başlar. */
+  .yazdirma-yeni-sayfa {
+    break-before: page;
+  }
+  /* Başlık sayfanın en dibinde yalnız kalmasın, içeriğiyle gitsin. */
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+  /* Tek satırlık dul/öksüz satır bırakma. */
+  p,
+  li {
+    orphans: 3;
+    widows: 3;
   }
 
   /* Ekrana ait gezinme, düğme ve yapışkan başlıklar kâğıda basılmaz. */

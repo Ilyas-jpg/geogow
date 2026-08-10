@@ -12,7 +12,7 @@
  *   KARO  — harita karoları: önce önbellek (değişmezler), sınırlı sayıda
  */
 
-const SURUM = "geogow-v4";
+const SURUM = "geogow-v5";
 const KABUK = `${SURUM}-kabuk`;
 const KARO = `${SURUM}-karo`;
 
@@ -42,8 +42,28 @@ const VERI_SINIRI = 120;
  * birkaç yüz KB statik HTML — bu ürün için doğru takas.
  */
 const KABUK_YOLLARI = [
-  "/",
+  /*
+   * 🔑 SADE SÜRÜM LİSTENİN BAŞINDA — bilerek.
+   *
+   * Kurulum sırasında ağ kopar ya da kota dolarsa liste sonundakiler
+   * yazılamaz. O yüzden en dayanıklı yüzey en başta olmalı: sade sayfalar
+   * görselsiz ve JavaScript'siz, yani kabuğa girmesi en ucuz ve afet anında
+   * çalışması en garantili olan onlar. Zengin sürüm arkalarından gelir.
+   */
   "/dusuk",
+  "/dusuk/afet",
+  "/dusuk/hazirlik",
+  "/dusuk/afet/deprem",
+  "/dusuk/afet/bina-yangini",
+  "/dusuk/afet/orman-yangini",
+  "/dusuk/afet/sel",
+  "/dusuk/afet/kbrn",
+  "/dusuk/afet/heyelan",
+  "/dusuk/afet/cig",
+  "/dusuk/afet/firtina",
+  "/dusuk/afet/asiri-sicak",
+
+  "/",
   "/kapsam",
   "/hakkinda",
   "/afet-ani",
@@ -83,9 +103,10 @@ self.addEventListener("install", (olay) => {
   olay.waitUntil(
     (async () => {
       const onbellek = await caches.open(KABUK);
-      // ⚠️ `addAll` ATOMİKTİR: 16 yoldan biri düşerse hiçbiri yazılmaz ve
-      // çevrimdışı çekirdek tamamen boş kalırdı. Yollar tek tek eklenir ki
-      // bir sayfanın düşmesi diğer 15'ini götürmesin.
+      // ⚠️ `addAll` ATOMİKTİR: yollardan biri düşerse HİÇBİRİ yazılmaz ve
+      // çevrimdışı çekirdek tamamen boş kalırdı. Tek tek eklenir ki bir
+      // sayfanın düşmesi diğerlerini götürmesin — özellikle listenin
+      // başındaki sade sürüm her hâlükârda yazılabilsin.
       const sonuclar = await Promise.allSettled(
         KABUK_YOLLARI.map((yol) => onbellek.add(yol))
       );

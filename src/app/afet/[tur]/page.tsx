@@ -41,7 +41,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
   if (!afet) notFound();
 
   return (
-    <SayfaKabugu aktif="/afet-ani">
+    <SayfaKabugu aktif="/afet-ani" sadeYol={`/dusuk/afet/${afet.slug}`}>
       <nav className="pt-6 text-sm text-metin-3">
         <Link href="/afet-ani" className="text-vurgu hover:underline">
           Afet anı

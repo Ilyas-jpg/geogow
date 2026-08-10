@@ -15,6 +15,20 @@ export const metadata: Metadata = {
  * Harita motoru yok, konum izni yok, veri indirmesi yok. Afet anında şebeke
  * dizlerinin üstündeyken çalışması gereken sayfa budur; bu yüzden tamamı
  * SSG ve içerik JavaScript'siz okunur.
+ *
+ * 📏 ÖLÇÜLDÜ (2026-08-10, üretim derlemesi, gzip):
+ *   /dusuk 6,8 KB · /dusuk/afet 3,9 KB · /dusuk/afet/deprem 7,6 KB ·
+ *   /dusuk/hazirlik 14,7 KB  → hepsi 50 KB hedefinin ALTINDA.
+ *
+ * ⚠️ Ama "JS sıfır" LAFZEN DOĞRU DEĞİL: Next App Router her sayfaya ~188 KB
+ * React/Next runtime'ı ekliyor ve bu sade sayfalarda da iniyor. Önemli olan
+ * şu: tüm script etiketleri `async`, yani ENGELLEYİCİ yük yalnız yukarıdaki
+ * HTML. Sayfa JS gelmeden okunur ve bağlantıları çalışır; JS hiç gelmese de
+ * içerik tamdır. Kötü bağlantıda belirleyici olan sayı 7,6 KB, 199 KB değil.
+ *
+ * ✓ MapLibre bu sayfalara BİNMİYOR (chunk'lar tarandı) — kod bölme doğru.
+ * Gerçekten sıfır JS istenirse App Router'dan çıkıp bu rotaları düz HTML
+ * olarak üretmek gerekir; ayrı ve büyük bir iş, bilerek yapılmadı.
  */
 export default async function MetinAnasayfa() {
   const iller = await yayindakiIller();
@@ -22,14 +36,40 @@ export default async function MetinAnasayfa() {
 
   return (
     <main id="icerik" className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-semibold">Toplanma alanları — metin sürümü</h1>
+      <h1 className="text-2xl font-semibold">GeoGow — metin sürümü</h1>
       <p className="mt-3 text-metin-2">
-        Harita ve JavaScript gerektirmez. İlinizi seçin, ilçe ve mahallenize
-        inin; toplanma alanlarının adını, adresini ve varsa tabela kodunu
-        görün.
+        Harita, görsel ve JavaScript gerektirmez. Kötü bağlantıda ve eski
+        telefonlarda açılır; sitenin tüm içeriğinin sade karşılığı buradadır.
       </p>
 
+      {/* Afet anı ve hazırlık ÖNCE geliyor: buraya düşen kullanıcı büyük
+          ihtimalle ya bağlantısı kötü ya da olayın içinde. Toplanma alanı
+          listesi önemli ama ilk hareketi anlatan sayfa daha acil. */}
+      <nav aria-label="Bölümler" className="mt-6 grid gap-2">
+        <Link
+          href="/dusuk/afet"
+          className="rounded border border-kritik/40 bg-kritik/10 px-4 py-3 hover:border-kritik"
+        >
+          <span className="font-medium text-metin">Şu an ne yapmalıyım?</span>
+          <span className="mt-0.5 block text-sm text-metin-2">
+            Dokuz afet için o anda ne yapılır, öncesi ve sonrası
+          </span>
+        </Link>
+        <Link
+          href="/dusuk/hazirlik"
+          className="rounded border border-cizgi bg-zemin-2 px-4 py-3 hover:border-vurgu"
+        >
+          <span className="font-medium text-metin">Hazırlık</span>
+          <span className="mt-0.5 block text-sm text-metin-2">
+            Afet çantası ve aile buluşma planı — yazdırılabilir
+          </span>
+        </Link>
+      </nav>
+
       <nav aria-label="Yayındaki iller" className="mt-8">
+        <p className="text-metin-2">
+          Toplanma alanı aramak için ilinizi seçin, ilçe ve mahallenize inin.
+        </p>
         <h2 className="text-sm uppercase tracking-wide text-metin-3">
           Yayındaki iller ({iller.length})
         </h2>
@@ -57,22 +97,17 @@ export default async function MetinAnasayfa() {
         </p>
       )}
 
+      {/* ⚠️ Burada bir zamanlar "Acil durumda 112 · 112." yazıyordu: 122 ve 177
+          kaldırılırken artık bir numara kalmış ve aynı numara iki kez
+          basılıyordu. */}
       <p className="mt-6 text-sm text-metin-3">
         Kaynak: {ozet?.kaynak ?? "AFAD / e-Devlet"} · Resmî uyarı değildir.
-        Acil durumda <strong className="text-metin-2">112</strong> ·{" "}
-        112.
+        Acil durumda <strong className="text-metin-2">112</strong>.
       </p>
-      {/* Afet anı ekranı da tamamen JavaScript'sizdir — metin sürümünü
-          kullanabilen her cihazda açılır, o yüzden buradan da erişilebilir. */}
-      <p className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-        <Link href="/afet-ani" className="text-vurgu underline">
-          Şu an ne yapmalıyım?
-        </Link>
-        <Link href="/hazirlik" className="text-vurgu underline">
-          Hazırlık
-        </Link>
+
+      <p className="mt-4 text-sm">
         <Link href="/" className="text-vurgu underline">
-          Haritalı sürüme geç
+          Haritalı sürüme geç →
         </Link>
       </p>
     </main>

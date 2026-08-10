@@ -8,7 +8,7 @@ import Gorsel from "@/components/Gorsel";
 export const metadata: Metadata = {
   title: "Doğru bilinen yanlışlar — hayat üçgeni, kapı eşiği ve diğerleri",
   description:
-    "«Hayat üçgeni» neden yanlış, doğrusu neden Çök-Kapan-Tutun? Depremde, " +
+    "“Hayat üçgeni” neden yanlış, doğrusu neden Çök-Kapan-Tutun? Depremde, " +
     "yangında ve selde yaygın yanlışların kaynaklarıyla düzeltilmesi.",
   alternates: { canonical: "/mitler" },
 };
@@ -25,6 +25,47 @@ export const metadata: Metadata = {
  * «hayat üçgeni» geçiyor. Bunu saklamak, kullanıcı o sayfayı bulduğunda
  * bize olan güveni bitirir.
  */
+/**
+ * MİT BAŞINA GÖRSEL — iki panel: solda yanlış hareket, sağda doğrusu.
+ *
+ * Kartın metni zaten "YANLIŞ / DOĞRU" ikilisiyle konuşuyor; görsel de aynı
+ * dili konuşsun diye hepsi bu kalıpta üretildi. Anahtar mitin `yanlis`
+ * cümlesi: mit sırası değişse de eşleşme bozulmaz.
+ *
+ * ⚠️ Görseli olmayan mit görselsiz kalır. Yakın bir görseli "idare eder"
+ * diye koymak, aynı resmi iki mite koymanın başka bir biçimi olurdu.
+ */
+const MIT_GORSELI: Record<string, { dosya: string; alt: string }> = {
+  "Kapı eşiği binanın en sağlam yeridir, oraya geç.": {
+    dosya: "mit-kapi-esigi.png",
+    alt:
+      "Solda yanlış: sallanan kapı kanadının altında, düşen sıva parçalarının " +
+      "arasında ayakta duran kişi. Sağda doğru: sağlam masanın altında diz üstü " +
+      "çökmüş, başını koruyup masanın ayağını tutan kişi.",
+  },
+  "Sarsıntı başlar başlamaz binadan dışarı koş.": {
+    dosya: "mit-disari-kos.png",
+    alt:
+      "Solda yanlış: sarsıntı sürerken bina çıkışına koşan kişinin üstüne cephe " +
+      "ve cam parçaları düşüyor. Sağda doğru: aynı kişi bulunduğu odada masanın " +
+      "altında çök-kapan-tutun yapıyor.",
+  },
+  "Yangında hızlıca asansöre binip inmek en hızlı kaçış.": {
+    dosya: "mit-asansor.png",
+    alt:
+      "Solda yanlış: dumanın baca gibi yükseldiği asansör boşluğunda kabine " +
+      "binen kişi. Sağda doğru: ağzını burnunu kapatmış, eğilerek merdivenden " +
+      "inen kişi; duman tavanda kalıyor.",
+  },
+  "Alev büyürse pencereden atlarım.": {
+    dosya: "mit-pencere-atlama.png",
+    alt:
+      "Solda yanlış: üst kattaki pencereden boşluğa atlayan kişi. Sağda doğru: " +
+      "kapı altı bezle tıkanmış odada, pencereden bez sallayarak kendini " +
+      "görünür kılan kişi.",
+  },
+};
+
 export default function MitlerSayfasi() {
   const deprem = afetBul("deprem");
   const hayatUcgeni = deprem?.mitler[0];
@@ -118,19 +159,29 @@ export default function MitlerSayfasi() {
         </p>
       </section>
 
-      {/* ── Diğer mitler: görselli kart ızgarası ── */}
+      {/* ── Diğer mitler: kart ızgarası ── */}
       <h2 className="mt-12 text-2xl font-semibold">Diğer yaygın yanlışlar</h2>
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
         {digerleri.map((mit) => {
           /* ⚠️ Afetin KAPAK görseli burada KULLANILMAZ: aynı afetin iki miti
              aynı görseli tekrar ediyordu ve tembel duruyordu (İlyas).
-             Mit başına kendi görseli üretilene kadar kart görselsiz — aynı
+             Her mitin KENDİ görseli var; olmayan mit görselsiz kalır, aynı
              resmi iki kez göstermektense hiç göstermemek daha dürüst. */
+          const gorsel = MIT_GORSELI[mit.yanlis];
           return (
             <article
               key={mit.yanlis}
               className="flex flex-col overflow-hidden rounded-2xl border border-cizgi bg-zemin-2"
             >
+              {gorsel && (
+                <Gorsel
+                  kaynak={`/cizim/${gorsel.dosya}`}
+                  alt={gorsel.alt}
+                  width={1200}
+                  height={600}
+                  className="w-full"
+                />
+              )}
               <div className="flex flex-1 flex-col p-5">
                 <p
                   className={`flex items-center gap-2 text-sm font-medium ${METIN_SINIFI[mit.afet.renk]}`}

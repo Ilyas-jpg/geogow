@@ -44,8 +44,15 @@ npm run gorsel
 ```
 
 Her PNG'nin yanına `.avif` ve `.webp` koyar; sayfalar `<picture>` ile
-AVIF → WebP → PNG sırasını dener. **Bu adım atlanırsa kırılma olmaz ama
-bütçe tutmaz:** varyant yoksa tarayıcı sessizce PNG'ye iner.
+AVIF → WebP → PNG sırasını sunar.
+
+> 🔴 **BU ADIM ATLANIRSA GÖRSEL KIRILIR.** Burada bir zamanlar "varyant yoksa
+> kırılma olmaz, tarayıcı sessizce PNG'ye iner" yazıyordu — **YANLIŞ**, ve bu
+> yanlış 2026-08-10'da dört mit görselinin kırık çıkmasına yol açtı.
+> `<picture>` kaynağı `type` özniteliğine göre SEÇER; seçtiği dosya 404
+> dönerse bir sonrakine DÜŞMEZ. Sıralı deneme yalnız biçim
+> *desteklenmiyorsa* olur, dosya *eksikse* olmaz.
+> `src/lib/gorselVaryant.test.ts` bunu artık testle tutuyor.
 
 Ölçüm (2026-08-08, 49 görsel): PNG 737 KB · WebP 556 KB (%24) ·
 **AVIF 397 KB (%46)**. Betik AVIF toplamı 900 KB'ı aşarsa hata verip durur.
