@@ -381,6 +381,26 @@ export function AfetDiyagrami({ slug }: { slug: string }) {
      gibi"). Yerine üretilen görsel; 15/30 cm ölçüsü artık altyazıda yazıyor
      çünkü görselin içine yazı koymuyoruz. */
 
+  /* Şeridi olan afet şeridi gösterir; tek sahne yalnız şerit yoksa. */
+  const serit = SERITLER[slug];
+  if (serit) {
+    return (
+      <figure className="rounded-xl border border-cizgi bg-zemin-2 p-3">
+        <Gorsel
+          kaynak={`/cizim/${serit.dosya}`}
+          alt={serit.alt}
+          width={1440}
+          height={480}
+          loading="eager"
+          className="w-full rounded-lg"
+        />
+        <figcaption className="mt-3 text-xs text-metin-3">
+          {serit.aciklama}
+        </figcaption>
+      </figure>
+    );
+  }
+
   const gorsel = GORSELLER[slug];
   if (gorsel) {
     return (
@@ -432,6 +452,44 @@ export const KAPAK_GORSELI: Record<string, string> = {
  * seçilebilir, aranabilir ve çevrilebilir olmalı.
  * Üretim notları: `public/cizim/NASIL.md`.
  */
+/**
+ * ADIM ŞERİTLERİ — üç panelde sıra: ne önce, ne sonra.
+ *
+ * Tek sahne "durum"u gösterir, şerit "sıra"yı. Depremde ÇÖK–KAPAN–TUTUN
+ * şeridi bu yüzden tek kareden çok daha öğretici; aynısı diğer afetler için
+ * de geçerli.
+ *
+ * ⚠️ Şerit, o afetin TEK SAHNE görselinin YERİNE geçer (ikisi birden
+ * gösterilmez — aynı bilgiyi iki kez çizmek olurdu). Tek sahne kart
+ * kapağı olarak `KAPAK_GORSELI`'nde yaşamaya devam eder: kapak küçük ve
+ * kırpılmış, şerit ise 3:1 ve okunacak bir dizi.
+ */
+const SERITLER: Record<string, { dosya: string; alt: string; aciklama: string }> = {
+  "bina-yangini": {
+    dosya: "serit-bina-yangini.png",
+    alt:
+      "Üç adımda bina yangınından çıkış: kapıyı elinin üstüyle yoklayan kişi; " +
+      "tavanda toplanmış dumanın altında emekleyerek ilerleyen kişi; binadan " +
+      "çıkıp güvenli mesafede duran kişi, kapı arkasından kapanmış.",
+    aciklama:
+      "Sırayla: kapıyı elinin ÜSTÜYLE yokla (avuç içi yanarsa tutamazsın), " +
+      "dumanın altında sürünerek ilerle, çıkınca kapıyı arkandan kapat ve " +
+      "geri dönme.",
+  },
+  sel: {
+    dosya: "serit-sel.png",
+    alt:
+      "Üç adımda sel: ev kesitinde alt katta su yükselirken elektrik " +
+      "panosunun şalterini indiren kişi; elinde çantayla merdivenden üst kata " +
+      "çıkan kişi; üst kat penceresinden bez sallayarak kendini görünür kılan " +
+      "kişi, üst kat güvenli.",
+    aciklama:
+      "Sırayla: su yükselmeye başlarken elektriği kes, yukarı çık, yukarıdan " +
+      "görünür ol. Çatıya değil üst kata çıkılır ve su çekilene kadar " +
+      "beklenir — akan suya girilmez.",
+  },
+};
+
 const GORSELLER: Record<string, { dosya: string; alt: string; aciklama: string }> = {
   "bina-yangini": {
     dosya: "duman-altinda.png",
