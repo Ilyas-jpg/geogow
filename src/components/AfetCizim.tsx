@@ -488,6 +488,18 @@ const SERITLER: Record<string, { dosya: string; alt: string; aciklama: string }>
       "görünür ol. Çatıya değil üst kata çıkılır ve su çekilene kadar " +
       "beklenir — akan suya girilmez.",
   },
+  "orman-yangini": {
+    dosya: "serit-orman-yangini.png",
+    alt:
+      "Üç adımda orman yangınından tahliye: uzaktaki duman sütununu görüp " +
+      "çantasını alarak evden çıkan kişi; alevin yokuş yukarı ilerlediği " +
+      "yamaçta, ilerleme hattına dik olarak yana uzaklaşan kişi; ağaçsız " +
+      "açık alanda, yangınla arasında boş arazi olan kişi.",
+    aciklama:
+      "Sırayla: alevi görmeden, dumanı görünce çık. Alevin ÖNÜNDEN yukarı " +
+      "değil, ilerleme hattına DİK yönde uzaklaş — yangın yokuş yukarı " +
+      "hızlanır. Ağaçsız, yanacak örtüsü olmayan açık alana ulaş.",
+  },
 };
 
 const GORSELLER: Record<string, { dosya: string; alt: string; aciklama: string }> = {
