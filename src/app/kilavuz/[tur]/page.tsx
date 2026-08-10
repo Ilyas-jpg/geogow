@@ -37,7 +37,9 @@ export default async function KilavuzKarti({ params }: Param) {
   if (!afet) notFound();
 
   return (
-    <main id="icerik" className="mx-auto max-w-2xl px-5 py-8">
+    /* `kart-a4`: baskıda sıkıştırma kuralları buna bağlı (globals.css).
+       Ölçüldü — en uzun kart (bina yangını) onsuz A4'ü 22 px aşıyordu. */
+    <main id="icerik" className="kart-a4 mx-auto max-w-2xl px-5 py-8">
       <div className="yazdirma-gizle mb-6 rounded-xl border border-cizgi bg-zemin-2 p-4 text-sm text-metin-2">
         Tek A4 sayfaya sığar. Yazdırın ya da{" "}
         <strong className="text-metin">“PDF olarak kaydet”</strong> ile

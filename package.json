@@ -17,7 +17,9 @@
     "start": "next start",
     "lint": "eslint",
     "derle": "node scripts/toplanma-derle.mjs",
-    "gorsel": "node scripts/gorsel-varyant.mjs"
+    "gorsel": "node scripts/gorsel-varyant.mjs",
+    "dil": "node scripts/dil-denetim.mjs",
+    "gorselal": "node scripts/gorsel-al.mjs"
   },
   "dependencies": {
     "maplibre-gl": "^5.24.0",

@@ -158,6 +158,33 @@ body {
   .yazdirma-yeni-sayfa {
     break-before: page;
   }
+
+  /*
+   * TEK A4 KARTI (/kilavuz/<tür>) — baskıda sıkıştırılır.
+   *
+   * Ölçüldü: ekran ölçeğiyle bina yangını kartı A4'ün kullanılabilir
+   * yüksekliğini 22 px aşıyordu ve tek satır için ikinci sayfa açıyordu —
+   * buzdolabı kartının bütün anlamı tek yaprak olması. Aşağıdaki daraltma
+   * en uzun kartta bile pay bırakıyor.
+   */
+  .kart-a4 {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  .kart-a4 ol,
+  .kart-a4 ul {
+    font-size: 10.5pt;
+  }
+  .kart-a4 li + li {
+    margin-top: 6pt !important;
+  }
+  .kart-a4 h1 {
+    font-size: 20pt;
+  }
+  .kart-a4 h2 {
+    font-size: 13pt;
+    margin-top: 10pt !important;
+  }
   /* Başlık sayfanın en dibinde yalnız kalmasın, içeriğiyle gitsin. */
   h1,
   h2,
