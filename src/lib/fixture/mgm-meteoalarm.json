@@ -1,0 +1,155 @@
+[
+  {
+    "text": {
+      "yellow": "Gök gürültülü sağanak yağışların yerel kuvvetli olması beklendiğinden sel, su baskını, yıldırım ve ulaşımda aksamalar gibi olumsuzluklara karşı dikkatli ve tedbirli olunması gerekmektedir."
+    },
+    "weather": {
+      "yellow": [
+        "thunderstorm"
+      ],
+      "orange": [],
+      "red": []
+    },
+    "towns": {
+      "red": [],
+      "orange": [],
+      "yellow": [
+        95201,
+        95202,
+        95203,
+        95204,
+        95205,
+        95206
+      ]
+    },
+    "alertNo": 2026081002,
+    "begin": "2026-08-11T02:00:00.000Z",
+    "end": "2026-08-11T12:00:00.000Z"
+  },
+  {
+    "text": {
+      "yellow": "Yağışların kuvvetli (21-50 kg/m2) olması beklendiğinden yaşanabilecek olumsuzluklara (sel, su baskını, heyelan,  yerel dolu yağışı, yıldırım, ulaşımda aksamalar, yağış anında kuvvetli rüzgar ve fırtına vb.) karşı dikkatli ve tedbirli olunmalıdır.",
+      "orange": "Yağışların çok kuvvetli ve şiddetli (51-100 kg/m2) olması beklendiğinden yaşanabilecek olumsuzluklara (sel, su baskını, heyelan,  yerel dolu yağışı, yıldırım, ulaşımda aksamalar, yağış anında kuvvetli rüzgar ve fırtına vb.) karşı dikkatli ve tedbirli olunmalıdır."
+    },
+    "weather": {
+      "yellow": [
+        "thunderstorm"
+      ],
+      "orange": [
+        "thunderstorm"
+      ],
+      "red": []
+    },
+    "towns": {
+      "red": [],
+      "orange": [
+        90501,
+        90502,
+        90503,
+        90504,
+        90505,
+        90506
+      ],
+      "yellow": [
+        93701,
+        93704,
+        93705,
+        93713
+      ]
+    },
+    "alertNo": 2026072402,
+    "begin": "2026-07-24T20:30:00.000Z",
+    "end": "2026-07-25T20:59:00.000Z"
+  },
+  {
+    "text": {
+      "orange": "Çok şiddetli yağış beklendiğinden meydana gelebilecek ani sel, su baskını, heyelan, yağış anında kuvvetli rüzgar ve ulaşımda aksamalar gibi olumsuzluklara karşı tedbirli olunmalıdır.",
+      "red": "Aşırı yağış beklendiğinden meydana gelebilecek ani sel, su baskını, heyelan, yağış anında kuvvetli rüzgar ve ulaşımda aksamalar gibi olumsuzluklara karşı tedbirli olunmalıdır."
+    },
+    "weather": {
+      "yellow": [],
+      "orange": [
+        "rain"
+      ],
+      "red": [
+        "rain"
+      ]
+    },
+    "towns": {
+      "red": [
+        93702,
+        93706,
+        93707,
+        93708,
+        93709,
+        93710
+      ],
+      "orange": [
+        91401,
+        91402,
+        91403,
+        91404,
+        91405,
+        91406
+      ],
+      "yellow": []
+    },
+    "alertNo": 2022062601,
+    "begin": "2022-06-26T21:00:00.000Z",
+    "end": "2022-06-27T20:59:00.000Z"
+  },
+  {
+    "text": {
+      "yellow": "Hava sıcaklıklarının mevsim normallerinin 4 ila 8 derece üzerinde seyretmesi beklendiğinden güneş ışınlarının dik geldiği 11 ile 16 saatleri arasında başta yaşlılar, çocuklar ve kronik rahatsızlığı olan vatandaşlarımızın dikkatli ve tedbirli olmaları önem arz etmektedir."
+    },
+    "weather": {
+      "yellow": [
+        "hot"
+      ],
+      "orange": [],
+      "red": []
+    },
+    "towns": {
+      "red": [],
+      "orange": [],
+      "yellow": [
+        90501,
+        90502,
+        90503,
+        90504,
+        90505,
+        90506
+      ]
+    },
+    "alertNo": 2020100304,
+    "begin": "2020-10-04T21:00:09.296Z",
+    "end": "2020-10-05T15:00:09.296Z"
+  },
+  {
+    "text": {
+      "yellow": "Yüksek kar örtüsüne sahip eğimli alanlarda çığ tehlikesi bulunduğundan yaşanabilecek olumsuzluklara karşı dikkatli ve tedbirli olunması gerekmektedir."
+    },
+    "weather": {
+      "yellow": [
+        "avalanche"
+      ],
+      "orange": [],
+      "red": []
+    },
+    "towns": {
+      "red": [],
+      "orange": [],
+      "yellow": [
+        90401,
+        90402,
+        90403,
+        90404,
+        90405,
+        90406
+      ]
+    },
+    "alertNo": 2026010601,
+    "begin": "2026-01-06T09:00:00.000Z",
+    "end": "2026-01-11T16:00:00.000Z"
+  }
+]

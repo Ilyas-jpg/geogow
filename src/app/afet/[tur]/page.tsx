@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { AFETLER, afetBul, METIN_SINIFI, RENK_SINIFI } from "@/lib/afet";
 import { AfetDiyagrami, AfetIkonu } from "@/components/AfetCizim";
 import SayfaKabugu from "@/components/SayfaKabugu";
+import UyariSeridi from "@/components/UyariSeridi";
+import { UYARI_KAPSAMI } from "@/lib/mgmUyari";
 
 type Parametre = { params: Promise<{ tur: string }> };
 
@@ -63,6 +65,15 @@ export default async function AfetSayfasi({ params }: Parametre) {
           {afet.ozet}
         </p>
       </header>
+
+      {/*
+        MGM'nin ŞU AN geçerli uyarısı — varsa. Sayfanın geri kalanı "genel
+        olarak ne yapılır"ı anlatıyor; bu şerit "bugün durum ne"yi söylüyor
+        ve o yüzden en üstte. Uyarı yoksa hiçbir şey çizilmez.
+        Dokuz afetin dördünün MGM'de karşılığı var (sel, fırtına, çığ,
+        aşırı sıcak); diğerlerinde uç hiç çağrılmaz.
+      */}
+      {UYARI_KAPSAMI.has(afet.slug) && <UyariSeridi afet={afet.slug} />}
 
       {/* ── İki kolon ── */}
       <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
