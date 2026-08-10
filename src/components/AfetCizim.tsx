@@ -500,6 +500,81 @@ const SERITLER: Record<string, { dosya: string; alt: string; aciklama: string }>
       "değil, ilerleme hattına DİK yönde uzaklaş — yangın yokuş yukarı " +
       "hızlanır. Ağaçsız, yanacak örtüsü olmayan açık alana ulaş.",
   },
+  kbrn: {
+    dosya: "serit-kbrn.png",
+    alt:
+      "Üç adımda kimyasal sızıntı: sokakta alçaktan yayılan kırmızı gaz " +
+      "bulutundan uzaklaşıp binanın açık kapısına koşan kişi; iki katlı ev " +
+      "kesitinde üst kata çıkmış kişi, gaz dışarıda zemin seviyesinde ve " +
+      "bodrum ağzında kalmış, üst kat güvenli; kapalı iç odada oturup radyo " +
+      "dinleyen kişi.",
+    aciklama:
+      "Sırayla: dışarıda kaçmaya çalışma, en yakın sağlam binaya gir. " +
+      "İçeride kal — kapı ve pencereleri kapat, havalandırmayı durdur; " +
+      "kimyasal madde genelde havadan AĞIRDIR, bodruma inme, üst kata çık. " +
+      "Ne olduğunu ve ne kadar süreceğini yalnız resmî kaynak söyler.",
+  },
+  heyelan: {
+    dosya: "serit-heyelan.png",
+    alt:
+      "Üç adımda heyelan: yamacın altında duran ve yukarıdan gelen kırmızı " +
+      "toprak-kaya kütlesini fark eden kişi; akış şeridinin dışına, yamaca " +
+      "dik yönde koşan kişi, kaçış yönü yeşil okla gösterilmiş; iki katlı ev " +
+      "kesitinde üst katta diz çökmüş ve kollarıyla baş ve boynunu örten " +
+      "kişi, alt kata çamur dolmuş.",
+    aciklama:
+      "Sırayla: uğultu, ağaç çatırtısı ve aniden bulanan dere suyu heyelanın " +
+      "habercisidir — bekleme. Akış hattından ÇIK: aşağı koşmak kütlenin " +
+      "önünde kalmak demektir, yamaca DİK yönde birkaç on metre hayat " +
+      "kurtarır. Çıkamıyorsan sağlam yapıda üst kata çık, iç duvar dibinde " +
+      "kıvrıl, baş ve boynunu koru.",
+  },
+  cig: {
+    dosya: "serit-cig.png",
+    alt:
+      "Üç adımda çığ: karlı yamaçta, yukarıdan gelen kırmızı çığ kütlesinin " +
+      "dışına yana doğru koşan kişi, kaçış yönü yeşil okla gösterilmiş; " +
+      "kütlenin içinde kollarıyla yüzme hareketi yaparak yüzeyde kalmaya " +
+      "çalışan kişi; duran kütlenin kesitinde, yüzünün önünde yeşil bir hava " +
+      "boşluğu bırakmış ve bir kolunu yukarı uzatmış kişi.",
+    aciklama:
+      "Sırayla: çığın akış hattından ÇIK — aşağı kaçmak kütleyle yarışmak " +
+      "demektir. Kapıldıysan yüzme hareketiyle üstte kalmaya çalış, ağzını " +
+      "kapat ki kar dolmasın. Kütle durmadan HEMEN ÖNCE bir elini yüzünün " +
+      "önüne getirip hava boşluğu bırak, diğer elini yukarı uzat: kar " +
+      "durunca beton gibi sertleşir, o andan sonra boşluk açamazsın.",
+  },
+  firtina: {
+    dosya: "serit-firtina.png",
+    alt:
+      "Üç adımda fırtına: arkada hortum hunisi varken devrilen prefabrik " +
+      "konteyner ve sundurmadan uzaklaşıp kalın duvarlı sağlam binanın " +
+      "kapısına koşan kişi; ev kesitinde üst kattaki pencereler kırılmış ve " +
+      "kırmızıyken en alt kattaki penceresiz iç koridorda duran kişi; sağlam " +
+      "bir masanın altına girip iki koluyla baş ve boynunu örten kişi.",
+    aciklama:
+      "Sırayla: prefabrik, konteyner, çadır ve sundurma fırtınada güvenli " +
+      "DEĞİLDİR — kalın duvarlı sağlam bir binaya gir. En alt kata, " +
+      "penceresiz bir iç mekâna (koridor, banyo) geç: yaralanmaların çoğu " +
+      "kırılan camdan olur. Çök, mümkünse sağlam bir masanın altına gir, " +
+      "baş ve boynunu koru.",
+  },
+  "asiri-sicak": {
+    dosya: "serit-asiri-sicak.png",
+    alt:
+      "Üç adımda aşırı sıcak: tepede kırmızı güneş ve kızgın açık alan " +
+      "varken binanın gölgesindeki yeşil serin bölgede duran kişi; kapalı " +
+      "serin bir odada bardaktan su içen kişi, masada sürahi; güneş altında " +
+      "park etmiş ve içi kırmızı görünen otomobilin arka kapısını açıp " +
+      "çocuğu kucağına alan kişi, yanında araçtan inen köpek.",
+    aciklama:
+      "Sırayla: öğle ile ikindi arası ağır işi, sporu ve uzun yürüyüşü " +
+      "ertele — gölgede kal. Susamayı BEKLEMEDEN su iç: susama hissi " +
+      "geciktiği için yeterli göstergesi değildir, alkol ve çok şekerli " +
+      "içecek sıvı kaybını artırır. Araçta kimseyi bırakma — kapalı araç " +
+      "içi gölgede bile hızla ölümcül seviyeye çıkar; çocuk ve hayvan " +
+      "“iki dakika” için bile bırakılmaz.",
+  },
 };
 
 const GORSELLER: Record<string, { dosya: string; alt: string; aciklama: string }> = {
