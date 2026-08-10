@@ -6,6 +6,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import type { Alan } from "@/lib/alan";
 import { depremRengi, depremYaricapi, type Deprem } from "@/lib/deprem";
 import { TUR_BILGISI, type Nokta } from "@/lib/altyapi";
+import { isiYaricapi, type Isi } from "@/lib/yangin";
+import { sicaklikRengi, type IlSicakligi } from "@/lib/sicaklik";
 import { NOKTA_YAKINLASMASI, type IlIsareti } from "@/lib/haritaAyar";
 
 /**
@@ -31,6 +33,8 @@ export default function Harita({
   alanlar,
   depremler = [],
   altyapi = [],
+  yanginlar = [],
+  sicakliklar = [],
   ilIsaretleri = [],
   konum,
   secili,
@@ -41,6 +45,10 @@ export default function Harita({
   alanlar: Alan[];
   depremler?: Deprem[];
   altyapi?: Nokta[];
+  /** Uydu ısı noktaları — "yangın var" değil, termal anomali. */
+  yanginlar?: Isi[];
+  /** İl merkezi anlık sıcaklıkları (MGM). */
+  sicakliklar?: IlSicakligi[];
   /** Düşük yakınlaşmada gösterilen il rozetleri. */
   ilIsaretleri?: IlIsareti[];
   konum: { enlem: number; boylam: number } | null;
@@ -204,6 +212,71 @@ export default function Harita({
             "text-halo-color": "#0b0d10",
             "text-halo-width": 1.2,
           },
+        },
+        "alan-nokta"
+      );
+
+      /* ── Uydu ısı noktaları (yangın katmanı) ──
+       * Toplanma alanlarının ALTINDA kalır; bu katman bağlamdır, cevap değil.
+       * ⚠️ Nokta "yangın var" demez, "uydu burada termal anomali gördü" der;
+       * ürün dili ve lejant bunu açıkça yazar. */
+      harita.addSource("yangin", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+      harita.addLayer(
+        {
+          id: "yangin-nokta",
+          type: "circle",
+          source: "yangin",
+          paint: {
+            "circle-radius": ["get", "yaricap"],
+            "circle-color": "#ff6a00",
+            // Güven düşükse nokta daha sönük: veri belirsizliği görünür olsun.
+            "circle-opacity": ["get", "saydamlik"],
+            "circle-blur": 0.35,
+            "circle-stroke-width": 0.8,
+            "circle-stroke-color": "#ffb066",
+          },
+        },
+        "alan-nokta"
+      );
+
+      /* ── Sıcaklık (il merkezi ölçümü) ──
+       * Sayı ASIL bilgidir, renk yalnız hızlı taramaya yardım eder
+       * (marka anayasası §2: renk tek başına bilgi taşımaz). */
+      harita.addSource("sicaklik", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+      harita.addLayer(
+        {
+          id: "sicaklik-nokta",
+          type: "circle",
+          source: "sicaklik",
+          paint: {
+            "circle-radius": ["interpolate", ["linear"], ["zoom"], 4, 11, 8, 16, 12, 20],
+            "circle-color": ["get", "renk"],
+            "circle-opacity": 0.9,
+            "circle-stroke-width": 1,
+            "circle-stroke-color": "#0b0d10",
+          },
+        },
+        "alan-nokta"
+      );
+      harita.addLayer(
+        {
+          id: "sicaklik-yazi",
+          type: "symbol",
+          source: "sicaklik",
+          layout: {
+            "text-field": ["get", "etiket"],
+            "text-size": ["interpolate", ["linear"], ["zoom"], 4, 10, 8, 12, 12, 14],
+            "text-allow-overlap": true,
+            "text-ignore-placement": true,
+          },
+          // Skalanın tamamı açık ton; koyu yazı hepsinde okunur.
+          paint: { "text-color": "#0b0d10" },
         },
         "alan-nokta"
       );
@@ -478,6 +551,57 @@ export default function Harita({
     if (hazirRef.current) uygula();
     else harita.once("load", uygula);
   }, [altyapi]);
+
+  // Uydu ısı noktaları değişince kaynağı güncelle
+  useEffect(() => {
+    const harita = haritaRef.current;
+    if (!harita) return;
+    const uygula = () => {
+      const kaynak = harita.getSource("yangin");
+      if (!kaynak || !("setData" in kaynak)) return;
+      (kaynak as { setData: (v: unknown) => void }).setData({
+        type: "FeatureCollection",
+        features: yanginlar.map((n, sira) => ({
+          type: "Feature",
+          id: sira,
+          geometry: { type: "Point", coordinates: n.k },
+          properties: {
+            yaricap: isiYaricapi(n.guc),
+            // Düşük güvenli algılama daha sönük çizilir: belirsizliği
+            // gizlemek yerine görünür kılıyoruz.
+            saydamlik: n.guven === "l" ? 0.4 : n.guven === "h" ? 0.85 : 0.65,
+          },
+        })),
+      });
+    };
+    if (hazirRef.current) uygula();
+    else harita.once("load", uygula);
+  }, [yanginlar]);
+
+  // İl sıcaklıkları değişince kaynağı güncelle
+  useEffect(() => {
+    const harita = haritaRef.current;
+    if (!harita) return;
+    const uygula = () => {
+      const kaynak = harita.getSource("sicaklik");
+      if (!kaynak || !("setData" in kaynak)) return;
+      (kaynak as { setData: (v: unknown) => void }).setData({
+        type: "FeatureCollection",
+        features: sicakliklar.map((s) => ({
+          type: "Feature",
+          id: s.plaka,
+          geometry: { type: "Point", coordinates: [s.boylam, s.enlem] },
+          properties: {
+            // Sayının kendisi asıl bilgi; renk yalnız hızlı taramaya yardımcı.
+            etiket: `${Math.round(s.sicaklik)}°`,
+            renk: sicaklikRengi(s.sicaklik),
+          },
+        })),
+      });
+    };
+    if (hazirRef.current) uygula();
+    else harita.once("load", uygula);
+  }, [sicakliklar]);
 
   // İl rozetleri değişince kaynağı güncelle
   useEffect(() => {

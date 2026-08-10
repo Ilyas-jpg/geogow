@@ -18,6 +18,8 @@ import ServisCalisani from "./ServisCalisani";
 import UstMenu from "./UstMenu";
 import { zamanYazisi, type Deprem } from "@/lib/deprem";
 import { kompakttanNokta, TUR_BILGISI, type Nokta } from "@/lib/altyapi";
+import type { Isi } from "@/lib/yangin";
+import type { IlSicakligi } from "@/lib/sicaklik";
 // ⚠️ Eşik ve tip `Harita.tsx`ten DEĞİL buradan alınır: oradan statik import
 // etmek maplibre-gl'i ana pakete geri çeker ve kod bölmeyi yok eder.
 import { NOKTA_YAKINLASMASI, type IlIsareti } from "@/lib/haritaAyar";
@@ -128,6 +130,16 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
   const [depremDurumu, setDepremDurumu] = useState<"bos" | "yukleniyor" | "hata" | "tamam">(
     "bos"
   );
+  const [yanginAcik, setYanginAcik] = useState(false);
+  const [yanginlar, setYanginlar] = useState<Isi[]>([]);
+  const [yanginDurumu, setYanginDurumu] = useState<"bos" | "yukleniyor" | "hata" | "tamam">(
+    "bos"
+  );
+  const [sicaklikAcik, setSicaklikAcik] = useState(false);
+  const [sicakliklar, setSicakliklar] = useState<IlSicakligi[]>([]);
+  const [sicaklikDurumu, setSicaklikDurumu] = useState<
+    "bos" | "yukleniyor" | "hata" | "tamam"
+  >("bos");
   const [altyapiAcik, setAltyapiAcik] = useState(false);
   const [altyapi, setAltyapi] = useState<Nokta[]>([]);
   const [altyapiDurumu, setAltyapiDurumu] = useState<
@@ -160,6 +172,62 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
         setDepremDurumu("hata");
       });
   }, [depremAcik]);
+
+  /**
+   * Yangın ve sıcaklık katmanları — deprem katmanıyla aynı kural: YALNIZ
+   * açıkken indirilir, uçuştaki istek ref ile korunur (durumu bağımlılığa
+   * koymak efekti yeniden koşturup ilk isteği iptal ettiriyordu).
+   */
+  const yanginIstendiRef = useRef(false);
+  useEffect(() => {
+    if (!yanginAcik || yanginIstendiRef.current) return;
+    yanginIstendiRef.current = true;
+    setYanginDurumu("yukleniyor");
+    fetch("/api/yangin")
+      .then((y) => (y.ok ? y.json() : Promise.reject(new Error(String(y.status)))))
+      .then((v) => {
+        setYanginlar(v.noktalar ?? []);
+        setYanginDurumu("tamam");
+      })
+      .catch(() => {
+        yanginIstendiRef.current = false;
+        setYanginDurumu("hata");
+      });
+  }, [yanginAcik]);
+
+  /**
+   * Sıcaklık: 81 il = 81 ayrı MGM isteği ve MGM eşzamanlılığı cezalandırıyor,
+   * bu yüzden ilk yanıt EKSİK gelebilir (ölçüldü: 21 → 79 → 81 il, uç kendi
+   * kendini 60 sn'de tamamlıyor). Katmanı ilk açan kişi eksik listede
+   * takılmasın diye, liste tamam değilse BİR KEZ yeniden sorulur.
+   */
+  const sicaklikIstendiRef = useRef(false);
+  useEffect(() => {
+    if (!sicaklikAcik || sicaklikIstendiRef.current) return;
+    sicaklikIstendiRef.current = true;
+    setSicaklikDurumu("yukleniyor");
+    let zamanlayici: ReturnType<typeof setTimeout> | null = null;
+
+    const cek = (tekrarHakki: number) =>
+      fetch("/api/sicaklik")
+        .then((y) => (y.ok ? y.json() : Promise.reject(new Error(String(y.status)))))
+        .then((v) => {
+          setSicakliklar(v.iller ?? []);
+          setSicaklikDurumu("tamam");
+          if (tekrarHakki > 0 && (v.olcumsuzIl ?? 0) > 0) {
+            zamanlayici = setTimeout(() => cek(tekrarHakki - 1), 35_000);
+          }
+        })
+        .catch(() => {
+          sicaklikIstendiRef.current = false;
+          setSicaklikDurumu("hata");
+        });
+
+    cek(1);
+    return () => {
+      if (zamanlayici) clearTimeout(zamanlayici);
+    };
+  }, [sicaklikAcik]);
 
   /**
    * Acil altyapı katmanı: yalnız AÇIKKEN ve il belliyken indirilir.
@@ -442,6 +510,8 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
           alanlar={alanlar}
           depremler={depremAcik ? depremler : []}
           altyapi={altyapiAcik ? altyapi : []}
+          yanginlar={yanginAcik ? yanginlar : []}
+          sicakliklar={sicaklikAcik ? sicakliklar : []}
           ilIsaretleri={ilIsaretleri}
           konum={konum}
           secili={secili}
@@ -473,6 +543,63 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
               <strong className="text-metin-2">*</strong> işaretli olanları yalnız
               Kandilli bildirdi.
             </p>
+          )}
+
+          <KatmanSatiri
+            acik={yanginAcik}
+            onDegis={() => setYanginAcik((a) => !a)}
+            renk="#ff6a00"
+            ad="Uydu ısı noktaları"
+            aciklama="Son 48 saat, NASA FIRMS"
+          />
+          {yanginAcik && (
+            <div
+              role="status"
+              className="border-b border-cizgi bg-zemin px-3 py-2 text-xs text-metin-2"
+            >
+              {yanginDurumu === "yukleniyor" && "Noktalar indiriliyor…"}
+              {yanginDurumu === "hata" && "Isı noktaları indirilemedi."}
+              {yanginDurumu === "tamam" && (
+                <>
+                  {yanginlar.length} nokta.{" "}
+                  <strong className="text-metin">
+                    &ldquo;Yangın var&rdquo; demek değil
+                  </strong>
+                  : uydu ısı görür, anız ve sanayi bacası da ısı üretir.{" "}
+                  <a
+                    href="https://yangin.algow.net"
+                    className="text-vurgu underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Doğrulanmış yangın takibi
+                  </a>
+                </>
+              )}
+            </div>
+          )}
+
+          <KatmanSatiri
+            acik={sicaklikAcik}
+            onDegis={() => setSicaklikAcik((a) => !a)}
+            renk="#f2a33c"
+            ad="Sıcaklık"
+            aciklama="İl merkezi ölçümü, MGM"
+          />
+          {sicaklikAcik && (
+            <div
+              role="status"
+              className="border-b border-cizgi bg-zemin px-3 py-2 text-xs text-metin-2"
+            >
+              {sicaklikDurumu === "yukleniyor" && "Ölçümler alınıyor…"}
+              {sicaklikDurumu === "hata" && "Sıcaklık ölçümleri alınamadı."}
+              {sicaklikDurumu === "tamam" && (
+                <>
+                  {sicakliklar.length} il. Rakam il merkezi istasyonunun
+                  ölçümüdür; bulunduğun yer farklı olabilir.
+                </>
+              )}
+            </div>
           )}
 
           <KatmanSatiri

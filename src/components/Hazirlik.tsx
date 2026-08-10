@@ -296,16 +296,28 @@ export default function Hazirlik() {
           /* Geniş ekranda iki kolon: 1180 px'te tek kolon satırları 100+
              karaktere çıkarıyordu, göz satır başını kaybediyor. */
           const liste = (
-            <ul className="mt-3 grid gap-1 lg:grid-cols-2 lg:gap-x-4">
+            /*
+              KART IZGARASI — iki kural, ikisi de gözle görülen bir sorunu
+              çözüyor:
+
+              1. `items-stretch` + `h-full`: satırdaki kartlar EŞİT YÜKSEKLİKTE.
+                 Önce label hücreyi doldurmuyordu; uzun maddenin yanındaki kısa
+                 madde yukarıda asılı kalıp altında boşluk bırakıyordu ve ızgara
+                 "elle dizilmiş" gibi duruyordu.
+              2. Kenarlık HER ZAMAN var (işaretsizken de). Önce işaretsiz kart
+                 `border-transparent` idi: yarısı işaretli bir bölümde kartların
+                 bir kısmı kutulu, bir kısmı havada görünüyordu.
+            */
+            <ul className="mt-3 grid items-stretch gap-2 lg:grid-cols-2 lg:gap-x-3">
               {bolum.maddeler.map((madde) => {
                 const secili = !!isaretli[madde.id];
                 return (
-                  <li key={madde.id}>
+                  <li key={madde.id} className="h-full">
                     <label
-                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors duration-200 ${
+                      className={`flex h-full cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors duration-200 ${
                         secili
                           ? "border-guvenli/40 bg-guvenli/[0.06]"
-                          : "border-transparent hover:border-cizgi hover:bg-zemin-3/60"
+                          : "border-cizgi/70 bg-zemin-2/50 hover:border-cizgi hover:bg-zemin-3/60"
                       }`}
                     >
                       <input
@@ -331,7 +343,14 @@ export default function Hazirlik() {
                         />
                       )}
 
-                      <span className="min-w-0">
+                      {/*
+                        Tek ritim kuralı: bloklar arası boşluk kabın
+                        `space-y`'sinden gelir. Önce her blok kendi `mt-1`'ini
+                        taşıyordu; blok sayısı maddeden maddeye değiştiği için
+                        (kimi 2, kimi 4 blok) kartlar farklı ritimlerde
+                        okunuyordu.
+                      */}
+                      <span className="block min-w-0 space-y-1.5">
                         <span className="flex flex-wrap items-baseline gap-x-2">
                           <span
                             className={`font-semibold ${secili ? "text-metin-2" : "text-metin"}`}
@@ -346,17 +365,17 @@ export default function Hazirlik() {
                         </span>
 
                         {/* NE KADAR — bilgi taşıyan satır, süs rozeti değil. */}
-                        <span className="mt-1 block text-sm font-medium text-vurgu">
+                        <span className="block text-sm font-medium text-vurgu">
                           {madde.miktar}
                         </span>
 
                         {/* NEDEN */}
-                        <span className="mt-1 block text-sm text-metin-2">
+                        <span className="block text-sm text-metin-2">
                           {madde.neden}
                         </span>
 
                         {madde.ipucu && (
-                          <span className="mt-1 block text-sm text-metin-3">
+                          <span className="block text-sm text-metin-3">
                             {madde.ipucu}
                           </span>
                         )}
