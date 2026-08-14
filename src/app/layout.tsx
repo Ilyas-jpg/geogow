@@ -49,7 +49,23 @@ export default function KokDuzen({ children }: { children: React.ReactNode }) {
         {/* Vercel Web Analytics — çerezsiz sayaç (2026-08-14 trafik taraması
             kararı: geogow'da ölçüm altyapısı sıfırdı). Komut dosyası aynı
             kaynaktan (/_vercel/insights) gelir: CSP `script-src 'self'`
-            kapsamında, ek alan adı gerekmez. SW POST beacon'lara dokunmaz. */}
+            kapsamında, ek alan adı gerekmez. SW POST beacon'lara dokunmaz.
+
+            🔴 Yükleyici etiketi BURADA, SSR HTML'in içinde: bileşenin kendi
+            `inject()`i etiketi hidrasyon sırasında `document.head`e ekliyor
+            ve React 19'un head mutabakatı onu SİLİYORDU (canlıda ölçüldü:
+            `window.va` kurulmuş, kuyrukta 1 sayfa görüntüleme, etiket yok,
+            istek yok; aynı etiket elle eklenince 200 ile yüklendi). React'in
+            kendi render ettiği etiket mutabakattan sağ çıkar; `inject()` de
+            "etiket zaten var" kontrolüne takılıp ikinci kez eklemez.
+            `data-disable-auto-track`: sayfa görüntülemeyi rota kalıbıyla
+            (`/dusuk/[il]` gibi) Analytics bileşeni bildirir, çifte sayım olmaz. */}
+        <script
+          defer
+          src="/_vercel/insights/script.js"
+          data-sdkn="@vercel/analytics/next"
+          data-disable-auto-track="1"
+        />
         <Analytics />
       </body>
     </html>
