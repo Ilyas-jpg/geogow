@@ -284,22 +284,27 @@ body {
   }
 }
 
-/* MapLibre kontrollerini koyu temaya uydur */
-.maplibregl-ctrl-group {
-  background: var(--color-zemin-2) !important;
-  border: 1px solid var(--color-cizgi) !important;
-}
-.maplibregl-ctrl-group button + button {
-  border-top: 1px solid var(--color-cizgi) !important;
-}
-.maplibregl-ctrl-group button .maplibregl-ctrl-icon {
-  filter: invert(1);
-}
+/* ────────────────────────────  HARİTA YÜZÜ  ────────────────────────────
+ * Altlık artık açık (Voyager); harita üstü öğeler Google Haritalar diliyle
+ * beyaz yüzey + gri kenarlıktır. Sitenin geri kalanı koyu temada kalır —
+ * harita bir "tuval", üst menü "çerçeve"dir.
+ */
 .maplibregl-ctrl-attrib {
-  background: rgba(11, 13, 16, 0.8) !important;
-  color: var(--color-metin-3) !important;
+  background: rgba(255, 255, 255, 0.85) !important;
+  color: #5f6368 !important;
   font-size: 11px !important;
 }
 .maplibregl-ctrl-attrib a {
-  color: var(--color-metin-2) !important;
+  color: #3c4043 !important;
+}
+.maplibregl-ctrl-attrib-button {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Katman çipi şeridi: kaydırılabilir ama çubuk çizilmez (Google davranışı). */
+.cip-seridi {
+  scrollbar-width: none;
+}
+.cip-seridi::-webkit-scrollbar {
+  display: none;
 }
