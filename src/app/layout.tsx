@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -45,6 +46,11 @@ export default function KokDuzen({ children }: { children: React.ReactNode }) {
           İçeriğe geç
         </a>
         {children}
+        {/* Vercel Web Analytics — çerezsiz sayaç (2026-08-14 trafik taraması
+            kararı: geogow'da ölçüm altyapısı sıfırdı). Komut dosyası aynı
+            kaynaktan (/_vercel/insights) gelir: CSP `script-src 'self'`
+            kapsamında, ek alan adı gerekmez. SW POST beacon'lara dokunmaz. */}
+        <Analytics />
       </body>
     </html>
   );
