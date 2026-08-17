@@ -27,3 +27,9 @@ data/gunluk/
 
 .vercel
 .env*
+
+# yapay zeka calisma dosyalari — depoya girmez
+CLAUDE.md
+AGENTS.md
+.claude/
+scratchpad/
