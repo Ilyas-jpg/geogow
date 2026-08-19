@@ -24,6 +24,16 @@ export const metadata: Metadata = {
     type: "website",
     locale: "tr_TR",
     siteName: "GeoGow",
+    /* `url` olmadan bazı istemciler (Slack, Telegram) önizlemeyi paylaşılan
+       ham bağlantıya değil kendi çözümlediği adrese bağlıyor. Görselin
+       kendisi `opengraph-image.tsx`ten gelir — burada tekrar yazılmaz. */
+    url: "/",
+  },
+  /* 🔴 Bu satır olmadan X kartı `summary` kalıyordu: minik kare küçük resim,
+     yanında iki satır metin. `summary_large_image` 2:1 tam genişlik kart
+     çizer — paylaşım kartının 1200×630 olmasının tek sebebi bu. */
+  twitter: {
+    card: "summary_large_image",
   },
 };
 
