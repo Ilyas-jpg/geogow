@@ -1,5 +1,7 @@
 # GeoGow
 
+Geliştiren: [İlyas Saltay](https://ilyassaltay.com) · Diğer işler: [ilyassaltay.com/isler](https://ilyassaltay.com/isler/)
+
 **Afette en yakın toplanma alanını gösteren, çevrimdışı da çalışan açık kaynak harita.**
 🌐 [geogow.net](https://geogow.net)
 
