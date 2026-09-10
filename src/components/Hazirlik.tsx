@@ -453,7 +453,7 @@ export default function Hazirlik() {
                 </span>
               </summary>
               {bolum.aciklama && (
-                <p className="mt-1 text-sm text-metin-3">{bolum.aciklama}</p>
+                <p className="mt-1 max-w-[62ch] text-sm text-metin-3">{bolum.aciklama}</p>
               )}
               {liste}
             </details>
@@ -461,7 +461,7 @@ export default function Hazirlik() {
         })}
       </div>
 
-      <p className="mt-4 rounded-xl border border-uyari/40 bg-uyari/10 p-4 text-sm text-metin-2">
+      <p className="mt-4 max-w-[62ch] rounded-xl border border-uyari/40 bg-uyari/10 p-4 text-sm text-metin-2">
         <strong className="text-metin">Su hakkında.</strong> {SU_NOTU}
       </p>
 
@@ -473,7 +473,7 @@ export default function Hazirlik() {
         <strong className="text-metin">ailedeki herkesin bilmesi</strong>. Doldur,
         yazdır, bir kopyasını çantaya koy.
       </p>
-      <p className="mt-2 text-sm text-metin-3">
+      <p className="mt-2 max-w-[62ch] text-sm text-metin-3">
         Yazdıkların <strong className="text-metin-2">yalnız bu cihazda</strong>{" "}
         saklanır — sunucuya gönderilmez, hesap istemez.
         {yuklendi ? "" : " (kayıtlı bilgiler yükleniyor…)"}

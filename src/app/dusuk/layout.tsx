@@ -24,7 +24,9 @@ export default function SadeDuzen({ children }: { children: React.ReactNode }) {
             href="/dusuk"
             className="inline-flex min-h-[44px] items-center font-semibold text-metin"
           >
-            GeoGow · sade sürüm
+            {/* Kısa: mobil gövde 17 px, "sade sürüm" ile satır 390 px'i aşıp
+                ikinci satıra sarıyordu (ölçüldü: 88 px başlık). */}
+            GeoGow · sade
           </Link>
           <Link href="/dusuk/afet" className="baglanti inline-flex min-h-[44px] items-center">
             Afet anı
