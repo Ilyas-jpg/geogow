@@ -37,12 +37,12 @@ export default function PrintablesSayfasi() {
         <h1 className="text-3xl font-semibold sm:text-4xl">
           Basılabilir malzemeler
         </h1>
-        <p className="mt-3 max-w-[68ch] text-metin-2">
+        <p className="mt-3 max-w-[62ch] text-metin-2">
           Kâğıt, şarjı biten telefondan uzun dayanır ve şebeke çöktüğünde
           çalışmaya devam eder. Aşağıdakileri yazdırıp çantanıza koyabilir,
           buzdolabına asabilir, okulda ve iş yerinde dağıtabilirsiniz.
         </p>
-        <p className="mt-3 max-w-[68ch] text-sm text-metin-3">
+        <p className="mt-3 max-w-[62ch] text-sm text-metin-3">
           Hepsi ücretsiz ve kaydolmadan. Ayrı bir dosya indirmenize gerek yok:
           sayfayı açıp tarayıcının yazdırma penceresinden{" "}
           <strong className="text-metin-2">“PDF olarak kaydet”</strong>{" "}
@@ -65,13 +65,14 @@ export default function PrintablesSayfasi() {
               <p className="mt-2 text-sm text-metin-2">{b.ne}</p>
               <p className="mt-2 text-sm text-metin-3">{b.nerede}</p>
               {b.doldurulur && (
-                <p className="mt-2 text-xs text-vurgu">
+                <p className="mt-2 text-xs text-metin-2">
                   Kalemle doldurulur — boş alanlarla basılır.
                 </p>
               )}
               <Link
                 href={b.yol}
-                className="mt-5 inline-flex min-h-[44px] items-center justify-center rounded-lg border border-vurgu/50 bg-vurgu/10 px-4 py-2 text-sm font-medium text-vurgu hover:bg-vurgu/20"
+                /* Sitedeki tek CTA dili: dolu turkuaz hap (harita ve yol tarifiyle aynı). */
+                className="mt-5 inline-flex min-h-[46px] items-center justify-center rounded-full bg-marka px-4 py-2 text-sm font-semibold text-marka-uzeri transition-transform duration-150 active:scale-[0.98]"
               >
                 Aç ve yazdır →
               </Link>
@@ -83,7 +84,7 @@ export default function PrintablesSayfasi() {
         <h2 className="mt-12 text-2xl font-semibold">
           Tek sayfalık afet kartları
         </h2>
-        <p className="mt-2 max-w-[68ch] text-metin-2">
+        <p className="mt-2 max-w-[62ch] text-metin-2">
           Her afet için bir A4. Yalnız o anda ne yapılacağı ve nerede olursan
           ne değiştiği yazıyor — buzdolabına, panoya, dolap kapağına asılacak
           ölçekte. Dokuzu da {KART_SAYFA} sayfa.
@@ -151,7 +152,7 @@ export default function PrintablesSayfasi() {
           </p>
         </section>
 
-        <p className="mt-8 max-w-[68ch] text-sm text-metin-3">
+        <p className="mt-8 max-w-[62ch] text-sm text-metin-3">
           Bu belgeler resmî uyarı değildir. İçerik AFAD, USGS, FEMA, OGM, DSİ,
           MGM, EAWS ve WHO kaynaklarına dayanır; kaynak künyesi her belgenin
           altında yazılıdır. Acil durumda{" "}

@@ -228,7 +228,7 @@ export default function Hazirlik() {
       {/* ── Çanta + ilerleme ── */}
       {/* Üst menünün ALTINA yapışır. `top-0` verilirse menü (z-30) bunun
           üstünü örtüyor ve kaydırırken çanta yarım kalıyor. */}
-      <div className="yazdirma-gizle sticky top-[var(--ust-menu-yuksekligi)] z-20 -mx-4 mb-6 border-b border-cizgi bg-zemin/95 px-4 py-3 backdrop-blur">
+      <div className="yazdirma-gizle sticky top-[var(--ust-menu-yuksekligi)] z-20 -mx-4 mb-6 border-b border-cizgi bg-zemin px-4 py-3">
         <div className="flex items-center gap-4">
           <div ref={cantaRef} className="shrink-0">
             <CantaGorseli oran={oran} boyut={64} vurgula={dustu} />
@@ -253,11 +253,13 @@ export default function Hazirlik() {
               aria-valuemax={100}
               aria-label="Temel çanta hazırlık oranı"
             >
+              {/* Dolum `transform` ile: `width` geçişi her karede layout
+                  hesaplatıyordu (dedektör: layout-transition). */}
               <div
-                className="h-full rounded-full bg-guvenli"
+                className="h-full w-full origin-left rounded-full bg-guvenli"
                 style={{
-                  width: `${oran * 100}%`,
-                  transition: "width 520ms cubic-bezier(0.16, 1, 0.3, 1)",
+                  transform: `scaleX(${oran})`,
+                  transition: "transform 520ms cubic-bezier(0.16, 1, 0.3, 1)",
                 }}
               />
             </div>
@@ -284,7 +286,7 @@ export default function Hazirlik() {
 
       {/* ── Çanta listesi ── */}
       <h2 className="text-xl font-semibold">Afet çantası</h2>
-      <p className="mt-2 text-metin-2">
+      <p className="mt-2 max-w-[62ch] text-metin-2">
         Her maddede <strong className="text-metin">ne kadar</strong> ve{" "}
         <strong className="text-metin">neden</strong> yazıyor: gerekçesini bilen
         kişi eksiğini kendi başına tamamlar. Çanta karanlıkta bulunabilecek,
@@ -364,8 +366,10 @@ export default function Hazirlik() {
                           )}
                         </span>
 
-                        {/* NE KADAR — bilgi taşıyan satır, süs rozeti değil. */}
-                        <span className="block text-sm font-medium text-vurgu">
+                        {/* NE KADAR — bilgi taşıyan satır, süs rozeti değil.
+                            Açık metin: turkuaz 17 kartta tekrarlanınca hiyerarşi
+                            düzleşiyordu (2026-09-10). */}
+                        <span className="block text-sm font-medium text-metin">
                           {madde.miktar}
                         </span>
 
@@ -395,7 +399,7 @@ export default function Hazirlik() {
               >
                 <h3 className="text-lg font-semibold text-metin">{bolum.baslik}</h3>
                 {bolum.aciklama && (
-                  <p className="mt-1 text-sm text-metin-3">{bolum.aciklama}</p>
+                  <p className="mt-1 max-w-[62ch] text-sm text-metin-3">{bolum.aciklama}</p>
                 )}
                 {liste}
               </section>
@@ -463,7 +467,7 @@ export default function Hazirlik() {
 
       {/* ── Aile planı ── */}
       <h2 className="mt-10 text-xl font-semibold">Aile buluşma planı</h2>
-      <p className="mt-2 text-metin-2">
+      <p className="mt-2 max-w-[62ch] text-metin-2">
         Afet anında telefonlar çalışmaz ve herkes farklı yerde olur. Bu planın
         işe yaraması için tek şart var:{" "}
         <strong className="text-metin">ailedeki herkesin bilmesi</strong>. Doldur,

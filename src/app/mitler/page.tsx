@@ -112,7 +112,7 @@ export default function MitlerSayfasi() {
         <h1 className="text-3xl font-semibold sm:text-4xl">
           Doğru bilinen yanlışlar
         </h1>
-        <p className="mt-3 max-w-[68ch] text-lg text-metin-2">
+        <p className="mt-3 max-w-[62ch] text-lg text-metin-2">
           Afet bilgisinde yanlış bir alışkanlık, bilgisizlikten daha
           tehlikelidir: kişi doğru olduğuna inandığı şeyi tereddütsüz yapar.
           Aşağıdaki maddelerin her biri kaynağıyla birlikte veriliyor.
@@ -147,14 +147,14 @@ export default function MitlerSayfasi() {
                 </div>
               </div>
 
-              <p className="mt-5 max-w-[68ch] text-metin-2">{hayatUcgeni.neden}</p>
+              <p className="mt-5 max-w-[62ch] text-metin-2">{hayatUcgeni.neden}</p>
 
               <p className="mt-5 text-sm">
-                <Link href="/afet/deprem" className="text-vurgu underline">
+                <Link href="/afet/deprem" className="baglanti">
                   Depremde adım adım ne yapılır →
                 </Link>
               </p>
-              <p className="mt-3 text-xs text-metin-3">
+              <p className="mt-3 max-w-[62ch] text-xs text-metin-3">
                 Kaynaklar:{" "}
                 {hayatUcgeni.kaynaklar.map((k) => `${k.kurum} (${k.ad})`).join(" · ")}
               </p>
@@ -179,7 +179,7 @@ export default function MitlerSayfasi() {
         <h2 className="text-lg font-semibold text-metin">
           Neden kafa karışıklığı var?
         </h2>
-        <p className="mt-2 max-w-[80ch] text-metin-2">
+        <p className="mt-2 max-w-[62ch] text-metin-2">
           Çünkü resmî kaynakların kendi içinde tam bir tutarlılık yok.
           AFAD&apos;ın 81 ilde yaptığı deprem tatbikatı{" "}
           <strong className="text-metin">Çök–Kapan–Tutun</strong> hareketi
@@ -206,7 +206,7 @@ export default function MitlerSayfasi() {
           return (
             <article
               key={mit.yanlis}
-              className="flex flex-col overflow-hidden rounded-2xl border border-cizgi bg-zemin-2"
+              className="flex flex-col overflow-hidden rounded-2xl bg-zemin-2"
             >
               {gorsel && (
                 <Gorsel
@@ -239,7 +239,7 @@ export default function MitlerSayfasi() {
                   <span>Kaynak: {mit.kaynaklar.map((k) => k.kurum).join(" · ")}</span>
                   <Link
                     href={`/afet/${mit.afet.slug}`}
-                    className="text-vurgu underline"
+                    className="baglanti"
                   >
                     {mit.afet.ad} sayfası
                   </Link>
@@ -255,13 +255,13 @@ export default function MitlerSayfasi() {
           Bir bilgiyi paylaşmadan önce
         </h2>
         <ul className="mt-3 grid gap-3 text-metin-2 sm:grid-cols-3">
-          <li className="rounded-xl bg-zemin p-4 text-sm">
+          <li className="border-t border-cizgi pt-3 text-sm">
             Kaynağı bir kurum mu, yoksa &ldquo;bir uzman&rdquo; mı?
           </li>
-          <li className="rounded-xl bg-zemin p-4 text-sm">
+          <li className="border-t border-cizgi pt-3 text-sm">
             Tarihi var mı? Eski bir afetin görüntüsü yeni gibi dolaşıyor olabilir.
           </li>
-          <li className="rounded-xl bg-zemin p-4 text-sm">
+          <li className="border-t border-cizgi pt-3 text-sm">
             AFAD, valilik veya 112 doğruluyor mu? Doğrulamıyorsa paylaşma — afet
             anında yanlış bilgi ekipleri yanlış yere gönderir.
           </li>

@@ -49,7 +49,7 @@ export default async function IlceSayfasi({ params }: Param) {
     <main id="icerik" className="mx-auto max-w-2xl px-4 py-8">
       <nav aria-label="Yol izi" className="text-sm text-metin-3">
         <Link href="/dusuk" className="underline">
-          Metin sürümü
+          Sade sürüm
         </Link>{" "}
         /{" "}
         <Link href={`/dusuk/${il.slug}`} className="underline">

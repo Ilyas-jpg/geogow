@@ -99,7 +99,7 @@ export default function AfetAniSayfasi() {
 
         {/* ── Afet ızgarası: kapak görselli kartlar ── */}
         <h2 className="mt-12 text-2xl font-semibold">Afetini seç</h2>
-        <p className="mt-2 text-metin-2">
+        <p className="mt-2 max-w-[62ch] text-metin-2">
           Her kart o afetin ilk hareketini söylüyor; tıklayınca adımlara,
           öncesine ve sonrasına gidersin.
         </p>
@@ -156,29 +156,29 @@ export default function AfetAniSayfasi() {
 
         {/* ── Sonrası ── */}
         <section className="mt-12 grid gap-5 sm:grid-cols-2">
-          <div className="rounded-2xl border border-cizgi bg-zemin-2 p-6">
+          <div className="border-t border-cizgi pt-5">
             <h2 className="text-lg font-semibold">Afet geçtikten sonra</h2>
             <p className="mt-2 text-sm text-metin-2">
               En yakın toplanma alanını{" "}
-              <Link href="/" className="text-vurgu underline">
+              <Link href="/" className="baglanti">
                 haritadan
               </Link>{" "}
               bulabilirsin; internet yoksa{" "}
-              <Link href="/dusuk" className="text-vurgu underline">
-                metin sürümü
+              <Link href="/dusuk" className="baglanti">
+                sade sürüm
               </Link>{" "}
               haritasız çalışır.
             </p>
           </div>
-          <div className="rounded-2xl border border-cizgi bg-zemin-2 p-6">
+          <div className="border-t border-cizgi pt-5">
             <h2 className="text-lg font-semibold">Bu iş bitmeden önce</h2>
             <p className="mt-2 text-sm text-metin-2">
               Hazırlık afet anında düşünmek zorunda kalmamaktır:{" "}
-              <Link href="/hazirlik" className="text-vurgu underline">
+              <Link href="/hazirlik" className="baglanti">
                 afet çantası ve aile buluşma planı
               </Link>
               . Yaygın yanlışlar için{" "}
-              <Link href="/mitler" className="text-vurgu underline">
+              <Link href="/mitler" className="baglanti">
                 doğru bilinen yanlışlar
               </Link>
               .

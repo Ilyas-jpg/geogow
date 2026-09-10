@@ -3,7 +3,7 @@ import Link from "next/link";
 import { AFETLER } from "@/lib/afet";
 
 export const metadata: Metadata = {
-  title: "Afetler — metin sürümü",
+  title: "Afetler — sade sürüm",
   description:
     "Dokuz afet için o anda ne yapılacağı, öncesi ve sonrası. Görselsiz, " +
     "JavaScript gerektirmeyen sade sürüm; kötü bağlantıda ve eski " +
@@ -20,12 +20,12 @@ export default function SadeAfetDizini() {
     <main id="icerik" className="mx-auto max-w-2xl px-4 py-8">
       <nav aria-label="Yol izi" className="text-sm text-metin-3">
         <Link href="/dusuk" className="underline">
-          Metin sürümü
+          Sade sürüm
         </Link>{" "}
         / Afetler
       </nav>
 
-      <h1 className="mt-2 text-2xl font-semibold">Afetler — metin sürümü</h1>
+      <h1 className="mt-2 text-2xl font-semibold">Afetler — sade sürüm</h1>
       <p className="mt-3 text-metin-2">
         Görsel ve JavaScript gerektirmez. Afeti seçin: o anda ne yapılacağı,
         öncesinde ne hazırlanacağı ve sonrasında ne bekleneceği yazıyor.
@@ -54,12 +54,12 @@ export default function SadeAfetDizini() {
       </ul>
 
       <p className="mt-8 text-sm">
-        <Link href="/dusuk/hazirlik" className="text-vurgu underline">
+        <Link href="/dusuk/hazirlik" className="baglanti">
           Hazırlık: çanta ve aile planı →
         </Link>
       </p>
       <p className="mt-2 text-sm">
-        <Link href="/afet-ani" className="text-vurgu underline">
+        <Link href="/afet-ani" className="baglanti">
           Görselli sürüme geç →
         </Link>
       </p>

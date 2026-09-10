@@ -19,7 +19,13 @@ const BAGLANTILAR = [
   { yol: "/afet-ani", ad: "Afet anı" },
   { yol: "/hazirlik", ad: "Hazırlık" },
   { yol: "/mitler", ad: "Yanlışlar" },
-  { yol: "/dusuk", ad: "Metin" },
+  /* Aynı yüzeyin üç adı vardı (Metin · Sade sürüm · metin sürümü);
+     2026-09-10'dan beri her yerde "Sade sürüm", menüde kısaca "Sade". */
+  { yol: "/dusuk", ad: "Sade" },
+  /* Hakkında yalnız footer'daydı — keşfedilmiyordu. 390 px'te altıncı
+     öğe satıra sığmıyor (ölçüldü: ~379 px gerekli, 350 px var), o yüzden
+     telefonda gizli; orada footer bağlantısı yeter. */
+  { yol: "/hakkinda", ad: "Hakkında", darEkrandaGizli: true },
 ] as const;
 
 export default function UstMenu({ aktif }: { aktif?: string }) {
@@ -63,7 +69,10 @@ export default function UstMenu({ aktif }: { aktif?: string }) {
             {BAGLANTILAR.map((b) => {
               const secili = b.yol === aktif;
               return (
-                <li key={b.yol}>
+                <li
+                  key={b.yol}
+                  className={"darEkrandaGizli" in b ? "hidden sm:block" : undefined}
+                >
                   <Link
                     href={b.yol}
                     aria-current={secili ? "page" : undefined}

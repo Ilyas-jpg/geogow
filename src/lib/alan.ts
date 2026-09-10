@@ -139,7 +139,10 @@ export function kompakttanAlan(satir: KompaktAlan): Alan {
 
 export type YakinAlan = Alan & {
   mesafeM: number;
+  /** 16 yönlü kısaltma ("KKD") — veri/test uyumu. Ekranda `yonDerece` + `yonAdi()` kullanılır. */
   yon: string;
+  /** Konumdan alana yön, derece (0 = kuzey, saat yönü). Ok bununla döndürülür. */
+  yonDerece: number;
   yurumeDk: number;
 };
 
@@ -155,10 +158,12 @@ export function enYakinlar(
   return alanlar
     .map((alan) => {
       const m = mesafeM(konum.enlem, konum.boylam, alan.enlem, alan.boylam);
+      const derece = yonAcisi(konum.enlem, konum.boylam, alan.enlem, alan.boylam);
       return {
         ...alan,
         mesafeM: m,
-        yon: pusulaYonu(yonAcisi(konum.enlem, konum.boylam, alan.enlem, alan.boylam)),
+        yon: pusulaYonu(derece),
+        yonDerece: derece,
         yurumeDk: yurumeDakika(m),
       };
     })

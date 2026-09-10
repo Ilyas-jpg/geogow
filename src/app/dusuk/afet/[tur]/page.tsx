@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Param): Promise<Metadata> {
   const afet = afetBul(tur);
   if (!afet) return { title: "Bulunamadı" };
   return {
-    title: `${afet.ad} — metin sürümü`,
+    title: `${afet.ad} — sade sürüm`,
     description: `${afet.ad}: o anda ne yapılır, öncesinde ne hazırlanır, sonrasında ne beklenir. Görselsiz, JavaScript gerektirmeyen sade sürüm.`,
   };
 }
@@ -46,7 +46,7 @@ export default async function SadeAfetSayfasi({ params }: Param) {
     <main id="icerik" className="mx-auto max-w-2xl px-4 py-8">
       <nav aria-label="Yol izi" className="text-sm text-metin-3">
         <Link href="/dusuk" className="underline">
-          Metin sürümü
+          Sade sürüm
         </Link>{" "}
         /{" "}
         <Link href="/dusuk/afet" className="underline">
@@ -148,7 +148,7 @@ export default async function SadeAfetSayfasi({ params }: Param) {
       </ul>
 
       <p className="mt-8 text-sm">
-        <Link href={`/afet/${afet.slug}`} className="text-vurgu underline">
+        <Link href={`/afet/${afet.slug}`} className="baglanti">
           Görselli sürüme geç →
         </Link>
       </p>

@@ -30,7 +30,7 @@ yayınlayın.
 |---|---|---|
 | Toplanma alanları | **AFAD** — e-Devlet "Afet ve Acil Durum Toplanma Alanı Sorgulama" hizmeti | Kamuya açık, girişsiz sorgulanabilir hizmetten toplanmıştır |
 | Depremler | **AFAD** Deprem ve Risk Azaltma Genel Müdürlüğü | Canlı servis; büyüklük ve konum kurumun kendi ölçümüdür |
-| Harita altlığı | © **OpenStreetMap** katkıcıları · © **CARTO** | ODbL / CARTO kullanım koşulları |
+| Harita altlığı | © **OpenStreetMap** katkıcıları · © **OpenMapTiles** · **OpenFreeMap** | ODbL / BSD (OpenMapTiles) |
 
 **Veri lisansı hakkında dürüst not:** AFAD verisi kamuya açık *sorgulanabilir*
 bir hizmetten gelir. Bu depoda yer alan işlenmiş veri dosyaları

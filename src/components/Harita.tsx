@@ -24,17 +24,30 @@ import { NOKTA_YAKINLASMASI, type IlIsareti } from "@/lib/haritaAyar";
  */
 
 /**
- * Altlık: CARTO Voyager — Google Haritalar diline en yakın ücretsiz karo seti
- * (açık zemin, sarı yollar, mavi su, yeşil park). Koyu `dark_all` "izleme
- * paneli" gibi duruyordu ve sivil kullanıcıya yabancıydı (İlyas, 2026-08-14:
- * "şık, kullanışlı ve anlaşılır değil").
+ * Altlık: OpenFreeMap "bright" (OSM Bright) — vektör karo, anahtarsız,
+ * limitsiz, ticari kullanım serbest. Google Haritalar diline en yakın açık
+ * stil: sarı ana yollar, beyaz sokaklar, mavi su, yeşil park (2026-09-10'da
+ * liberty / bright / positron yan yana render edilip seçildi; liberty ülke
+ * görünümünde rölyefle karanlık, positron gri).
  *
- * Aynı host olduğu için CSP ve servis çalışanı karo önbelleği değişmedi.
+ * 🔴 2026-09-10: CARTO Voyager'dan geçildi — CARTO'nun ücretsiz raster
+ * karoları anahtar istemeye başlamış ve her karonun İÇİNE "API KEY REQUIRED"
+ * filigranı basıyordu (z6 ve z14 karoları indirilip görüldü). Ürünün kapısı
+ * üçüncü tarafın hata mesajını gösteriyordu.
  *
- * 🐛 URL'de `{r}` KULLANILMAZ (Leaflet yer tutucusu) — MapLibre çözmez, her
- * karo 404 döner ve harita bomboş kalır. Gerçek pikselde görülmüştü.
+ * Host değişince üç yer birlikte değişir: burası · next.config.ts CSP
+ * (img-src + connect-src) · public/sw.js karo önbelleği (ALTLIK_HOST).
+ * Vektör karo ek gereksinim getirmez (MapLibre zaten WebGL istiyordu); tek
+ * karo dört yakınlaşma seviyesine hizmet eder (z14 → z18 üst örnekleme), yani
+ * çevrimdışı önbellek aynı sayıda dosyayla daha geniş alan tutar.
+ *
+ * Yazı tipi: stil Noto Sans (Regular/Bold) gliflerini sunuyor; bizim symbol
+ * katmanları da onu ister. MapLibre'nin varsayılanı "Open Sans" bu hostta
+ * yok — istenirse etiketler sessizce boş kalırdı.
  */
-const ALTLIK = "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png";
+const ALTLIK_STILI = "https://tiles.openfreemap.org/styles/bright";
+const YAZI = ["Noto Sans Regular"];
+const YAZI_KALIN = ["Noto Sans Bold"];
 
 /** Açık zeminde okunan koyu yeşil — beyaz sayı/desen bunun üstünde 4,7:1 verir.
  *  (#35c48a marka yeşili açık karoda soluk kalıyor ve beyaz yazıyı taşımıyor.) */
@@ -171,21 +184,7 @@ export default function Harita({
     if (!kapRef.current || haritaRef.current) return;
     const harita = new MapGL({
       container: kapRef.current,
-      style: {
-        version: 8,
-        sources: {
-          altlik: {
-            type: "raster",
-            tiles: [ALTLIK],
-            tileSize: 256,
-          },
-        },
-        layers: [
-          // Voyager'ın deniz tonu — karo gelmeden görünen zemin de açık olsun.
-          { id: "zemin", type: "background", paint: { "background-color": "#d4e6f4" } },
-          { id: "altlik", type: "raster", source: "altlik" },
-        ],
-      },
+      style: ALTLIK_STILI,
       center: [35.2, 39.0],
       zoom: 5.2,
       minZoom: 4,
@@ -272,6 +271,7 @@ export default function Harita({
         minzoom: 4,
         layout: {
           "text-field": ["get", "etiket"],
+          "text-font": YAZI,
           "text-size": 11,
           "text-allow-overlap": false,
         },
@@ -325,6 +325,7 @@ export default function Harita({
         source: "sicaklik",
         layout: {
           "text-field": ["get", "etiket"],
+          "text-font": YAZI_KALIN,
           "text-size": ["interpolate", ["linear"], ["zoom"], 4, 10, 8, 12, 12, 14],
           "text-allow-overlap": true,
           "text-ignore-placement": true,
@@ -359,6 +360,7 @@ export default function Harita({
           // Marka anayasası §2: renk tek başına bilgi taşımaz. Her nokta
           // türünü harfle de söyler (H hastane · İ itfaiye · S sağlık).
           "text-field": ["get", "harf"],
+          "text-font": YAZI_KALIN,
           "text-size": ["interpolate", ["linear"], ["zoom"], 10, 9, 16, 13],
           "text-allow-overlap": true,
           "text-ignore-placement": true,
@@ -373,6 +375,7 @@ export default function Harita({
         minzoom: 14,
         layout: {
           "text-field": ["get", "ad"],
+          "text-font": YAZI,
           "text-size": 11,
           "text-offset": [0, 1.2],
           "text-anchor": "top",
@@ -428,6 +431,7 @@ export default function Harita({
         filter: ["has", "point_count"],
         layout: {
           "text-field": ["get", "point_count_abbreviated"],
+          "text-font": YAZI_KALIN,
           "text-size": 13,
           "text-allow-overlap": true,
         },
@@ -454,6 +458,7 @@ export default function Harita({
         minzoom: 13,
         layout: {
           "text-field": ["get", "ad"],
+          "text-font": YAZI,
           "text-size": 12,
           "text-offset": [0, 0.4],
           "text-anchor": "top",
@@ -482,6 +487,7 @@ export default function Harita({
           "icon-anchor": "bottom",
           "icon-allow-overlap": true,
           "text-field": ["get", "ad"],
+          "text-font": YAZI_KALIN,
           "text-size": 13,
           "text-offset": [0, 0.5],
           "text-anchor": "top",
@@ -532,6 +538,7 @@ export default function Harita({
         maxzoom: NOKTA_YAKINLASMASI,
         layout: {
           "text-field": ["get", "il"],
+          "text-font": YAZI,
           "text-size": 11,
           "text-offset": [0, 0.7],
           "text-anchor": "top",

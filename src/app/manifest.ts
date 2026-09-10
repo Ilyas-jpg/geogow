@@ -19,7 +19,7 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     // Telefondan doğrudan "en yakın alan"a gitmek için kısayol.
     shortcuts: [
-      { name: "Metin sürümü", url: "/dusuk" },
+      { name: "Sade sürüm", url: "/dusuk" },
       { name: "Veri kapsamı", url: "/kapsam" },
     ],
   };

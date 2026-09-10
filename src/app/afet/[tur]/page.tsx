@@ -45,7 +45,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
   return (
     <SayfaKabugu aktif="/afet-ani" sadeYol={`/dusuk/afet/${afet.slug}`}>
       <nav className="pt-6 text-sm text-metin-3">
-        <Link href="/afet-ani" className="text-vurgu hover:underline">
+        <Link href="/afet-ani" className="baglanti">
           Afet anı
         </Link>{" "}
         / {afet.ad}
@@ -88,11 +88,11 @@ export default async function AfetSayfasi({ params }: Parametre) {
             göstermez — orada okunacak tek şey adımlardır.
           */}
           <section className="mt-10 grid gap-4 md:grid-cols-2">
-            <article className="rounded-xl border border-cizgi bg-zemin-2 p-5">
+            <article className="border-t border-cizgi pt-5">
               <h2 className="text-xl font-semibold text-metin">Neden olur</h2>
               <p className="mt-3 text-metin-2">{afet.nedenOlur}</p>
             </article>
-            <article className="rounded-xl border border-cizgi bg-zemin-2 p-5">
+            <article className="border-t border-cizgi pt-5">
               <h2 className={`text-xl font-semibold ${METIN_SINIFI[afet.renk]}`}>
                 Nasıl anlaşılır
               </h2>
@@ -123,10 +123,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
               <h2 className="mt-12 text-2xl font-semibold">Ya o an…</h2>
               <dl className="mt-4 grid gap-3 sm:grid-cols-2">
                 {afet.varyantlar.map((v) => (
-                  <div
-                    key={v.yer}
-                    className="rounded-xl border border-cizgi bg-zemin-2 p-4"
-                  >
+                  <div key={v.yer} className="border-t border-cizgi pt-3">
                     <dt className="font-semibold text-metin">{v.yer}</dt>
                     <dd className="mt-1 text-sm text-metin-2">{v.ne}</dd>
                   </div>
@@ -140,7 +137,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
             {afet.oncesi.map((madde) => (
               <li
                 key={madde}
-                className="flex gap-3 rounded-xl border border-cizgi bg-zemin-2 p-4 text-sm text-metin-2"
+                className="flex gap-3 border-t border-cizgi pt-3 text-sm text-metin-2"
               >
                 <span aria-hidden className="mt-0.5 shrink-0 text-guvenli">
                   ✓
@@ -150,7 +147,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
             ))}
           </ul>
           <p className="mt-4 text-sm">
-            <Link href="/hazirlik" className="text-vurgu underline">
+            <Link href="/hazirlik" className="baglanti">
               Afet çantası ve aile buluşma planı →
             </Link>
           </p>
@@ -176,7 +173,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
                 {afet.mitler.map((mit) => (
                   <article
                     key={mit.yanlis}
-                    className="overflow-hidden rounded-xl border border-cizgi bg-zemin-2"
+                    className="border-t border-cizgi pt-4"
                   >
                     <div className="grid sm:grid-cols-2">
                       <p className="border-b border-cizgi bg-kritik/10 p-4 text-sm sm:border-b-0 sm:border-r">
@@ -193,7 +190,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
                       </p>
                     </div>
                     <div className="p-4">
-                      <p className="max-w-[68ch] text-sm text-metin-2">{mit.neden}</p>
+                      <p className="max-w-[62ch] text-sm text-metin-2">{mit.neden}</p>
                       <p className="mt-2 text-xs text-metin-3">
                         Kaynak: {mit.kaynaklar.map((k) => k.kurum).join(" · ")}
                       </p>
@@ -202,7 +199,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
                 ))}
               </div>
               <p className="mt-4 text-sm">
-                <Link href="/mitler" className="text-vurgu underline">
+                <Link href="/mitler" className="baglanti">
                   Tüm afetlerdeki doğru bilinen yanlışlar →
                 </Link>
               </p>
@@ -212,9 +209,11 @@ export default async function AfetSayfasi({ params }: Parametre) {
 
         {/* ══ YAPIŞKAN BAĞLAM SÜTUNU ══ */}
         <aside className="lg:sticky lg:top-[calc(var(--ust-menu-yuksekligi)+1.5rem)] lg:self-start">
-          <div className="space-y-4">
+          {/* Tek kutu, ayraç çizgili bölümler: üç ayrı kart kutu-içinde-kutu
+              okunuyordu (critique 2026-09-10). */}
+          <div className="space-y-5 rounded-xl border border-cizgi bg-zemin-2 p-5">
             {afet.turkiye && (
-              <section className="rounded-xl border border-cizgi bg-zemin-2 p-5">
+              <section className="border-t border-cizgi pt-5 first:border-t-0 first:pt-0">
                 <h2 className="font-semibold text-metin">Türkiye&apos;de durum</h2>
                 <p className="mt-2 text-sm text-metin-2">{afet.turkiye}</p>
               </section>
@@ -231,7 +230,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
                         {" · "}
                         <a
                           href={k.url}
-                          className="text-vurgu underline"
+                          className="baglanti"
                           rel="noopener noreferrer"
                           target="_blank"
                         >

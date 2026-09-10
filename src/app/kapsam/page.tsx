@@ -30,7 +30,7 @@ export default async function KapsamSayfasi() {
   return (
     <SayfaKabugu>
       <h1 className="pt-8 text-3xl font-semibold sm:text-4xl">Veri kapsamı</h1>
-      <p className="mt-3 text-metin-2">
+      <p className="mt-3 max-w-[62ch] text-metin-2">
         Toplanma alanı verisi AFAD&apos;ın e-Devlet üzerindeki resmî sorgulama
         hizmetinden il il toplanıyor. Aşağıdaki tablo o toplamanın bugünkü
         durumudur — tamamlanmamış iller dahil.
@@ -77,7 +77,7 @@ export default async function KapsamSayfasi() {
             {yayinda.map((il) => (
               <tr key={il.plaka} className="border-b border-cizgi/60">
                 <td className="py-2 pr-3">
-                  <Link href={`/dusuk/${il.slug}`} className="text-vurgu underline">
+                  <Link href={`/dusuk/${il.slug}`} className="baglanti">
                     {il.il}
                   </Link>
                 </td>
@@ -140,7 +140,7 @@ export default async function KapsamSayfasi() {
         uyarı değildir, acil durumda 112.
       </p>
       <p className="mt-4 text-sm">
-        <Link href="/" className="text-vurgu underline">
+        <Link href="/" className="baglanti">
           Haritaya dön
         </Link>
       </p>

@@ -23,7 +23,7 @@ export default function HazirlikSayfasi() {
     <SayfaKabugu aktif="/hazirlik" sadeYol="/dusuk/hazirlik">
       <header className="yazdirma-gizle pt-8">
         <h1 className="text-3xl font-semibold sm:text-4xl">Hazırlık</h1>
-        <p className="mt-3 max-w-[68ch] text-lg text-metin-2">
+        <p className="mt-3 max-w-[62ch] text-lg text-metin-2">
           Hazırlık afet anında düşünmek zorunda kalmamaktır. Aşağıdaki listeyi
           işaretle, planı doldur ve yazdırıp çantana koy — kâğıt, şarjı biten
           telefondan uzun dayanır.
@@ -43,22 +43,22 @@ export default function HazirlikSayfasi() {
       <section className="yazdirma-gizle mt-12">
         <h2 className="text-2xl font-semibold">Sırada ne var?</h2>
         <ul className="mt-4 grid gap-4 sm:grid-cols-3">
-          <li className="rounded-xl border border-cizgi bg-zemin-2 p-5 text-sm text-metin-2">
+          <li className="border-t border-cizgi pt-4 text-sm text-metin-2">
             Mahallendeki{" "}
-            <Link href="/" className="text-vurgu underline">
+            <Link href="/" className="baglanti">
               toplanma alanını haritadan bul
             </Link>{" "}
             ve plana yaz — afet anında aramak için geç olur.
           </li>
-          <li className="rounded-xl border border-cizgi bg-zemin-2 p-5 text-sm text-metin-2">
+          <li className="border-t border-cizgi pt-4 text-sm text-metin-2">
             İlini{" "}
-            <Link href="/" className="text-vurgu underline">
+            <Link href="/" className="baglanti">
               çevrimdışı kaydet
             </Link>{" "}
             ki şebeke çöktüğünde de açılsın.
           </li>
-          <li className="rounded-xl border border-cizgi bg-zemin-2 p-5 text-sm text-metin-2">
-            <Link href="/afet-ani" className="text-vurgu underline">
+          <li className="border-t border-cizgi pt-4 text-sm text-metin-2">
+            <Link href="/afet-ani" className="baglanti">
               Afet anı ekranını
             </Link>{" "}
             bir kez sakinken oku; o an okumak için vakit olmaz.

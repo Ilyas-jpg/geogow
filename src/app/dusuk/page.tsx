@@ -3,7 +3,7 @@ import Link from "next/link";
 import { yayindakiIller, ozetOku } from "@/lib/veri";
 
 export const metadata: Metadata = {
-  title: "Metin sürümü — toplanma alanları",
+  title: "Sade sürüm — toplanma alanları",
   description:
     "Haritasız, JavaScript gerektirmeyen liste. Kötü bağlantıda ve eski " +
     "telefonlarda açılır: il → ilçe → mahalle seçin, toplanma alanlarını görün.",
@@ -39,8 +39,8 @@ export default async function MetinAnasayfa() {
 
   return (
     <main id="icerik" className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-semibold">GeoGow — metin sürümü</h1>
-      <p className="mt-3 text-metin-2">
+      <h1 className="text-2xl font-semibold">GeoGow — sade sürüm</h1>
+      <p className="mt-3 max-w-[62ch] text-metin-2">
         Harita, görsel ve JavaScript gerektirmez. Kötü bağlantıda ve eski
         telefonlarda açılır; sitenin tüm içeriğinin sade karşılığı buradadır.
       </p>
@@ -109,7 +109,7 @@ export default async function MetinAnasayfa() {
       </p>
 
       <p className="mt-4 text-sm">
-        <Link href="/" className="text-vurgu underline">
+        <Link href="/" className="baglanti">
           Haritalı sürüme geç →
         </Link>
       </p>

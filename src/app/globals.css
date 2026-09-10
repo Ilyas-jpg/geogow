@@ -80,6 +80,30 @@ body {
   border-radius: 4px;
 }
 
+/* ─────────────────────────────  BAĞLANTI  ─────────────────────────────
+ * Metin içi bağlantı: açık metin + turkuaz altçizgi.
+ *
+ * Turkuaz YAZI rengi ekran başına tek birincil eyleme ayrıldı (İlyas,
+ * 2026-09-10): neon cyan her linkte ve her "ne kadar" satırında kullanılınca
+ * hiyerarşi düzleşiyor ve dedektör 186 bulgunun 118'ini buna veriyordu.
+ * `color-mix` desteklemeyen eski Safari'de altçizgi yazı rengini alır —
+ * okunurluk bozulmaz.
+ */
+@layer components {
+  .baglanti {
+    color: var(--color-metin);
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(in oklab, var(--color-vurgu) 60%, transparent);
+    text-decoration-thickness: 1.5px;
+    text-underline-offset: 0.2em;
+    transition: color 150ms, text-decoration-color 150ms;
+  }
+  .baglanti:hover {
+    color: var(--color-vurgu);
+    text-decoration-color: var(--color-vurgu);
+  }
+}
+
 /* Hareket azaltma tercihi mutlak: afet uygulamasında animasyon lüks. */
 @media (prefers-reduced-motion: reduce) {
   *,

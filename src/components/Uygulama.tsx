@@ -13,7 +13,7 @@ import {
   type IlVerisi,
   type YakinAlan,
 } from "@/lib/alan";
-import { mesafeM, pusulaYonu, yonAcisi } from "@/lib/geo";
+import { mesafeM, pusulaYonu, yonAcisi, yonAdi } from "@/lib/geo";
 import { ilAdaylari, type IlAdayi } from "@/lib/ilSecimi";
 import { ILLER, katla } from "@/lib/iller";
 import CevrimdisiKayit from "./CevrimdisiKayit";
@@ -32,7 +32,8 @@ import type { Ozet } from "@/lib/veri";
 // Harita motoru ayrı parça: arayüz MapLibre'yi BEKLEMEZ.
 const Harita = dynamic(() => import("./Harita"), {
   ssr: false,
-  loading: () => <div className="h-full w-full bg-[#d4e6f4]" aria-hidden />,
+  // OSM Bright'ın kara tonu — stil gelmeden görünen zemin de aynı olsun.
+  loading: () => <div className="h-full w-full bg-[#f8f4f0]" aria-hidden />,
 });
 
 /** Haritadaki pinlerle aynı yeşil (Harita.tsx `ALAN_YESILI`). Statik import
@@ -89,6 +90,29 @@ function KatmanCipi({
         <span className="whitespace-nowrap font-semibold tabular-nums">· {sayi}</span>
       )}
     </button>
+  );
+}
+
+/**
+ * Yön: konuma göre döndürülmüş ok + tam sözcük ("güneydoğu").
+ * "GD · K · D" kısaltmaları ezber istiyordu; ok bakışta, sözcük okuyunca
+ * anlaşılır (critique 2026-09-10). 0° kuzey, saat yönü.
+ */
+function YonOku({ derece }: { derece: number }) {
+  return (
+    <span className="inline-flex items-center gap-1 whitespace-nowrap">
+      <svg
+        viewBox="0 0 12 12"
+        width="11"
+        height="11"
+        aria-hidden
+        className="shrink-0"
+        style={{ transform: `rotate(${Math.round(derece)}deg)` }}
+      >
+        <path d="M6 1.2L9.6 8.4H6.9V10.8H5.1V8.4H2.4z" fill="currentColor" />
+      </svg>
+      {yonAdi(derece)}
+    </span>
   );
 }
 
@@ -158,6 +182,58 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
   /** Alt kartın yüksekliği — konum düğmesi kartın hemen üstünde durur. */
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const [sheetYuksekligi, setSheetYuksekligi] = useState(180);
+
+  /**
+   * TELEFONDA PANEL KONUMU — kapalı (tutamaç + tek satır) · açık (içerik,
+   * en çok 46dvh: harita en az yarım ekran kalır) · tam (85dvh).
+   * Önceki sürümde tutamaç süs bir çizgiydi, panel hiç kapanmıyordu ve
+   * "en yakın" durumunda ekranın %56'sını alıyordu (critique 2026-09-10).
+   * Masaüstünde panel ortada yüzer, konumlar uygulanmaz (`sm:` ezer).
+   */
+  const [sheetKonum, setSheetKonum] = useState<"kapali" | "acik" | "tam">("acik");
+  /** Katman dürüstlük notları: telefonda katlı, masaüstünde açık başlar. */
+  const [katmanDetayAcik, setKatmanDetayAcik] = useState(false);
+  const sheetSurukleRef = useRef<{ y: number } | null>(null);
+  const sheetIslendiRef = useRef(0);
+  const sheetKaydir = useCallback((yon: "yukari" | "asagi") => {
+    setSheetKonum((k) =>
+      yon === "yukari" ? (k === "kapali" ? "acik" : "tam") : k === "tam" ? "acik" : "kapali"
+    );
+  }, []);
+  const sheetSurukleBasla = useCallback((o: React.PointerEvent<HTMLButtonElement>) => {
+    sheetSurukleRef.current = { y: o.clientY };
+    o.currentTarget.setPointerCapture?.(o.pointerId);
+  }, []);
+  const sheetSurukleBitir = useCallback(
+    (o: React.PointerEvent<HTMLButtonElement>) => {
+      const bas = sheetSurukleRef.current;
+      sheetSurukleRef.current = null;
+      if (!bas) return;
+      const fark = o.clientY - bas.y;
+      sheetIslendiRef.current = Date.now();
+      if (fark < -40) sheetKaydir("yukari");
+      else if (fark > 40) sheetKaydir("asagi");
+      else setSheetKonum((k) => (k === "kapali" ? "acik" : "kapali"));
+    },
+    [sheetKaydir]
+  );
+  const sheetSurukleIptal = useCallback(() => {
+    sheetSurukleRef.current = null;
+  }, []);
+  /* Dokunma ve fare pointerup'ta işlendi; click yalnız klavye (Enter/Boşluk) için. */
+  const sheetDokun = useCallback(() => {
+    if (Date.now() - sheetIslendiRef.current < 400) return;
+    setSheetKonum((k) => (k === "kapali" ? "acik" : "kapali"));
+  }, []);
+  useEffect(() => {
+    if (secili != null) setSheetKonum((k) => (k === "kapali" ? "acik" : k));
+  }, [secili]);
+  useEffect(() => {
+    if (durum.tip === "bulundu") setSheetKonum((k) => (k === "kapali" ? "acik" : k));
+  }, [durum.tip]);
+  useEffect(() => {
+    if (window.matchMedia("(min-width: 640px)").matches) setKatmanDetayAcik(true);
+  }, []);
 
   useEffect(() => {
     setPaylasilabilir(typeof navigator !== "undefined" && "share" in navigator);
@@ -462,15 +538,16 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
     if (secili == null) return null;
     const alan = alanlar.find((a) => a.id === secili);
     if (!alan) return null;
-    if (!konum) return { alan, mesafe: null as null | { m: number; yon: string; dk: number } };
+    if (!konum)
+      return {
+        alan,
+        mesafe: null as null | { m: number; yon: string; derece: number; dk: number },
+      };
     const m = mesafeM(konum.enlem, konum.boylam, alan.enlem, alan.boylam);
+    const derece = yonAcisi(konum.enlem, konum.boylam, alan.enlem, alan.boylam);
     return {
       alan,
-      mesafe: {
-        m,
-        yon: pusulaYonu(yonAcisi(konum.enlem, konum.boylam, alan.enlem, alan.boylam)),
-        dk: yurumeDakika(m),
-      },
+      mesafe: { m, yon: pusulaYonu(derece), derece, dk: yurumeDakika(m) },
     };
   }, [secili, alanlar, konum]);
 
@@ -491,7 +568,14 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
     if (!q) return { iller: [] as { plaka: number; ad: string; yayinda: IlAdayi | null }[], alanlar: [] as Alan[] };
     const ilSonuc = ILLER.filter((il) => katla(il.ad).includes(q))
       .map((il) => ({ plaka: il.plaka, ad: il.ad, yayinda: ozetPlakalari.get(il.plaka) ?? null }))
-      .sort((a, b) => Number(Boolean(b.yayinda)) - Number(Boolean(a.yayinda)))
+      .sort((a, b) => {
+        // Başlangıç eşleşmesi önce: "kır" yazana Kırıkkale/Kırklareli/Kırşehir
+        // gelir, Diyarbakır listenin başına oturmaz (critique 2026-09-10).
+        const aBas = katla(a.ad).startsWith(q) ? 1 : 0;
+        const bBas = katla(b.ad).startsWith(q) ? 1 : 0;
+        if (aBas !== bBas) return bBas - aBas;
+        return Number(Boolean(b.yayinda)) - Number(Boolean(a.yayinda));
+      })
       .slice(0, 6);
     const alanSonuc =
       q.length >= 2
@@ -518,6 +602,46 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
       : "bos";
 
   const katmanAktif = depremAcik || yanginAcik || sicaklikAcik || altyapiAcik;
+
+  /** Panel kapalıyken tutamacın altındaki tek satır. */
+  const sheetOzeti =
+    sheetIcerigi === "alan" && seciliAlan
+      ? seciliAlan.alan.ad
+      : sheetIcerigi === "liste"
+        ? `En yakın ${yakinlar.length} toplanma alanı${secIl ? ` · ${secIl.il}` : ""}`
+        : `Toplanma alanları · ${(ozet?.iller.length ?? 0).toLocaleString("tr-TR")} il`;
+
+  /** Katlı katman satırının özeti — sayılar her zaman görünür, notlar bir dokunuş uzakta. */
+  const katmanOzeti = [
+    depremAcik &&
+      (depremDurumu === "tamam"
+        ? `${depremler.length} deprem`
+        : depremDurumu === "hata"
+          ? "deprem: ulaşılamadı"
+          : "deprem…"),
+    yanginAcik &&
+      (yanginDurumu === "tamam"
+        ? `${yanginlar.length} ısı noktası`
+        : yanginDurumu === "hata"
+          ? "ısı: ulaşılamadı"
+          : "ısı…"),
+    sicaklikAcik &&
+      (sicaklikDurumu === "tamam"
+        ? `${sicakliklar.length} il sıcaklık`
+        : sicaklikDurumu === "hata"
+          ? "sıcaklık: ulaşılamadı"
+          : "sıcaklık…"),
+    altyapiAcik &&
+      (altyapiDurumu === "tamam"
+        ? `${altyapi.length} sağlık/itfaiye`
+        : altyapiDurumu === "hata"
+          ? "altyapı: ulaşılamadı"
+          : altyapiDurumu === "bos"
+            ? "altyapı: yakınlaş"
+            : "altyapı…"),
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
   /** Yalnız Kandilli'nin bildirdiği depremler — haritada "*" ile işaretli. */
   const koeriSayisi = depremler.filter((d) => d.kaynak === "KOERI").length;
@@ -613,7 +737,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                   type="button"
                   onClick={() => setArama("")}
                   aria-label="Aramayı temizle"
-                  className="shrink-0 cursor-pointer rounded-full p-1 text-[#5f6368] hover:bg-[#f1f3f4]"
+                  className="-mr-2 flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4]"
                 >
                   <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden>
                     <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -703,7 +827,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
               acik={yanginAcik}
               onDegis={() => setYanginAcik((a) => !a)}
               renk="#e8710a"
-              ad="Isı noktaları"
+              ad="Uydu ısı noktaları"
               sayi={yanginDurumu === "tamam" ? yanginlar.length : null}
             />
             <KatmanCipi
@@ -787,21 +911,51 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
           </button>
         </div>
 
-        {/* ── ALT KART (Google'ın alt sayfası) ── */}
+        {/* ── ALT KART (Google'ın alt sayfası) ──
+            Telefonda üç konum (kapalı · açık · tam); tutamaç GERÇEK düğme:
+            dokununca açılır/kapanır, 40 px'ten fazla sürüklenince konum
+            değişir, klavyede Enter/Boşluk çalışır. Atıf satırı panel
+            kapalıyken de görünür — ODbL gizlenemez. */}
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 sm:bottom-4 sm:flex sm:justify-center">
           <div
             ref={sheetRef}
-            className="pointer-events-auto max-h-[62dvh] w-full overflow-y-auto rounded-t-2xl border border-[#dadce0] bg-white text-[#202124] shadow-[0_-6px_24px_rgba(32,33,36,0.18)] sm:w-[27rem] sm:rounded-2xl sm:shadow-xl"
+            className={`pointer-events-auto flex w-full flex-col rounded-t-2xl border border-[#dadce0] bg-white text-[#202124] shadow-[0_-6px_24px_rgba(32,33,36,0.18)] sm:max-h-[62dvh] sm:w-[27rem] sm:rounded-2xl sm:shadow-xl ${
+              sheetKonum === "tam"
+                ? "max-h-[85dvh]"
+                : sheetKonum === "acik"
+                  ? "max-h-[46dvh]"
+                  : "max-h-none"
+            }`}
           >
-            <div aria-hidden className="flex justify-center pt-2 sm:hidden">
-              <span className="h-1 w-9 rounded-full bg-[#dadce0]" />
-            </div>
+            <button
+              type="button"
+              onClick={sheetDokun}
+              onPointerDown={sheetSurukleBasla}
+              onPointerUp={sheetSurukleBitir}
+              onPointerCancel={sheetSurukleIptal}
+              aria-label={sheetKonum === "kapali" ? "Paneli aç" : "Paneli küçült"}
+              aria-expanded={sheetKonum !== "kapali"}
+              className="flex min-h-[44px] w-full shrink-0 cursor-pointer touch-none flex-col items-center justify-center gap-1.5 sm:hidden"
+            >
+              <span aria-hidden className="h-1 w-9 rounded-full bg-[#dadce0]" />
+              {sheetKonum === "kapali" && (
+                <span className="max-w-full truncate px-4 text-sm font-medium text-[#202124]">
+                  {sheetOzeti}
+                </span>
+              )}
+            </button>
+
+            <div
+              className={`min-h-0 flex-1 overflow-y-auto ${
+                sheetKonum === "kapali" ? "hidden sm:block" : ""
+              }`}
+            >
 
             {sheetIcerigi === "alan" && seciliAlan && (
               <div className="px-4 pb-4 pt-2 sm:pt-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h2 className="text-[17px] font-semibold leading-snug">
+                    <h2 className="text-[19px] font-semibold leading-snug">
                       {seciliAlan.alan.ad}
                     </h2>
                     <p className="mt-1 text-sm text-[#5f6368]">
@@ -811,8 +965,9 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                           {" · "}
                           <strong className="font-semibold text-[#202124]">
                             {mesafeYazisi(seciliAlan.mesafe.m)}
-                          </strong>
-                          {` ${seciliAlan.mesafe.yon} · yürüyerek ~${seciliAlan.mesafe.dk} dk`}
+                          </strong>{" "}
+                          <YonOku derece={seciliAlan.mesafe.derece} />
+                          {` · yürüyerek ~${seciliAlan.mesafe.dk} dk`}
                         </>
                       )}
                     </p>
@@ -830,7 +985,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                     type="button"
                     onClick={() => setSecili(null)}
                     aria-label="Kartı kapat"
-                    className="shrink-0 cursor-pointer rounded-full p-2 text-[#5f6368] hover:bg-[#f1f3f4]"
+                    className="-mr-2 -mt-1 flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#5f6368] hover:bg-[#f1f3f4]"
                   >
                     <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden>
                       <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -869,7 +1024,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                     </button>
                   )}
                 </div>
-                <p className="mt-2 text-[11px] leading-relaxed text-[#80868b]">
+                <p className="mt-2 text-xs leading-relaxed text-[#5f6368]">
                   Yol tarifi Google Haritalar&apos;da açılır. Mesafe kuş uçuşudur; yürüme
                   yolu daha uzun olabilir.
                 </p>
@@ -904,7 +1059,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
 
                 {yakinlar.length > 0 && (
                   <>
-                    <h2 className="text-[15px] font-semibold">
+                    <h2 className="text-[19px] font-semibold leading-snug">
                       Sana en yakın {yakinlar.length} toplanma alanı
                       {secIl ? ` · ${secIl.il}` : ""}
                     </h2>
@@ -927,9 +1082,10 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                               <span className="block truncate text-[15px] font-medium text-[#202124]">
                                 {alan.ad}
                               </span>
-                              <span className="block text-xs text-[#5f6368]">
-                                yürüyerek ~{alan.yurumeDk} dk · {alan.yon}
-                                {alan.alanM2 ? ` · ${alanYazisi(alan.alanM2)}` : ""}
+                              <span className="flex flex-wrap items-center gap-x-1 text-xs text-[#5f6368]">
+                                <span>yürüyerek ~{alan.yurumeDk} dk ·</span>
+                                <YonOku derece={alan.yonDerece} />
+                                {alan.alanM2 ? <span>· {alanYazisi(alan.alanM2)}</span> : null}
                               </span>
                             </span>
                             <span className="shrink-0 text-sm font-semibold tabular-nums text-[#202124]">
@@ -939,7 +1095,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                         </li>
                       ))}
                     </ol>
-                    <p className="mt-2 text-[11px] leading-relaxed text-[#80868b]">
+                    <p className="mt-2 text-xs leading-relaxed text-[#5f6368]">
                       Mesafeler kuş uçuşudur; yürüme yolu daha uzun olabilir. Resmî
                       uyarı değildir — acil durumda 112.
                     </p>
@@ -979,7 +1135,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                     {durum.mesaj}
                   </p>
                 )}
-                <p className="mt-2 text-[11px] leading-relaxed text-[#80868b]">
+                <p className="mt-2 text-xs leading-relaxed text-[#5f6368]">
                   Konumun cihazından çıkmaz — sunucuya gönderilmez, saklanmaz. Konum
                   kullanmadan aramak için yukarıdan ilini yaz ya da{" "}
                   <Link href="/dusuk" className="text-[#00758c] underline">
@@ -991,7 +1147,38 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
             )}
 
             {katmanAktif && (
-              <div className="space-y-2 border-t border-[#e8eaed] px-4 py-3">
+              /* Katlanır: telefonda dört durum satırı paneli ekranın yarısına
+                 çıkarıyordu. Sayılar özet satırında hep görünür, dürüstlük
+                 notları bir dokunuş uzakta; masaüstünde açık başlar.
+                 ⚠️ `currentTarget.open` SENKRON okunur (Hazirlik.tsx dersi). */
+              <details
+                open={katmanDetayAcik}
+                onToggle={(o) => {
+                  const acikMi = o.currentTarget.open;
+                  setKatmanDetayAcik(acikMi);
+                }}
+                className="group border-t border-[#e8eaed] px-4 py-1"
+              >
+                <summary className="flex min-h-[40px] cursor-pointer list-none items-center justify-between gap-3 text-sm font-medium text-[#3c4043] [&::-webkit-details-marker]:hidden">
+                  <span className="min-w-0 truncate">Katmanlar: {katmanOzeti}</span>
+                  <svg
+                    viewBox="0 0 16 16"
+                    width="14"
+                    height="14"
+                    aria-hidden
+                    className="shrink-0 text-[#5f6368] transition-transform duration-200 group-open:rotate-180"
+                  >
+                    <path
+                      d="M4 6l4 4 4-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </summary>
+                <div className="space-y-2 pb-2 pt-1">
                 {depremAcik && (
                   <KatmanDurumu renk="#d93025">
                     {depremDurumu === "yukleniyor" && "AFAD'dan son 24 saat çekiliyor…"}
@@ -1068,12 +1255,17 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                     )}
                   </KatmanDurumu>
                 )}
-              </div>
+                </div>
+              </details>
             )}
+            </div>
 
             {/* Harita atfı — MapLibre'nin köşe kutusu telefonda kartın
                 arkasında kalıyordu; ODbL atfı burada KALICI görünür. */}
-            <p className="border-t border-[#f1f3f4] px-4 py-1.5 text-[10px] text-[#9aa0a6]">
+            {/* 11 px ve 5,9:1 — atıf ve gizlilik satırları sayfanın en az
+                okunur metniydi (10 px, 2,6:1); etik olarak en önemli
+                satırlar en azından AA'yı geçmeli (2026-09-10). */}
+            <p className="border-t border-[#f1f3f4] px-4 py-1.5 text-[11px] leading-relaxed text-[#5f6368]">
               Harita: ©{" "}
               <a
                 href="https://www.openstreetmap.org/copyright"
@@ -1085,12 +1277,21 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
               </a>{" "}
               katkıcıları · ©{" "}
               <a
-                href="https://carto.com/attributions"
+                href="https://www.openmaptiles.org/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"
               >
-                CARTO
+                OpenMapTiles
+              </a>{" "}
+              ·{" "}
+              <a
+                href="https://openfreemap.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                OpenFreeMap
               </a>{" "}
               · Toplanma alanı verisi: AFAD (e-Devlet)
             </p>

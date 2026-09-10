@@ -23,7 +23,7 @@ export default async function HakkindaSayfasi() {
   return (
     <SayfaKabugu>
       <h1 className="pt-8 text-3xl font-semibold sm:text-4xl">GeoGow hakkında</h1>
-      <p className="mt-3 max-w-[68ch] text-lg text-metin-2">
+      <p className="mt-3 max-w-[62ch] text-lg text-metin-2">
         GeoGow, deprem · yangın · sel gibi afetlerde{" "}
         <strong className="text-metin">
           &ldquo;ben nereye gideceğim&rdquo;
@@ -40,14 +40,14 @@ export default async function HakkindaSayfasi() {
             AFAD&apos;ın e-Devlet üzerindeki{" "}
             <a
               href="https://www.turkiye.gov.tr/afet-ve-acil-durum-yonetimi-acil-toplanma-alani-sorgulama"
-              className="text-vurgu underline"
+              className="baglanti"
               rel="noopener noreferrer"
               target="_blank"
             >
               Afet ve Acil Durum Toplanma Alanı Sorgulama
             </a>{" "}
             hizmetinden il il toplanır. Şu an{" "}
-            <Link href="/kapsam" className="text-vurgu underline">
+            <Link href="/kapsam" className="baglanti">
               {ozet?.ilSayisi ?? 0} il ve{" "}
               {(ozet?.toplamAlan ?? 0).toLocaleString("tr-TR")} alan
             </Link>{" "}
@@ -68,7 +68,7 @@ export default async function HakkindaSayfasi() {
           <dd className="text-metin-2">
             <a
               href="https://www.openstreetmap.org/copyright"
-              className="text-vurgu underline"
+              className="baglanti"
               rel="noopener noreferrer"
               target="_blank"
             >
@@ -91,16 +91,49 @@ export default async function HakkindaSayfasi() {
             AFAD, MGM, OGM, DSİ ile USGS, FEMA, WHO, INSARAG ve Sphere
             standartları. Kritik davranış iddiaları en az bir Türkiye-resmî ve
             bir uluslararası otorite kaynağıyla teyit edilir; kaynak künyesi her{" "}
-            <Link href="/afet-ani" className="text-vurgu underline">
+            <Link href="/afet-ani" className="baglanti">
               afet sayfasının
             </Link>{" "}
             altında yazılıdır.
           </dd>
         </div>
         <div>
+          <dt className="font-medium text-metin">Sıcaklık ve meteorolojik uyarılar</dt>
+          <dd className="text-metin-2">
+            Meteoroloji Genel Müdürlüğü. Sıcaklık il merkezi ölçümüdür;
+            uyarılar ilçe düzeyindedir ve MGM&apos;nin kendi metniyle gösterilir.
+          </dd>
+        </div>
+        <div>
+          <dt className="font-medium text-metin">Uydu ısı noktaları</dt>
+          <dd className="text-metin-2">
+            NASA FIRMS uydu verisi,{" "}
+            <a
+              href="https://yangin.algow.net"
+              className="baglanti"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              yangin.algow.net
+            </a>{" "}
+            üzerinden. Isı noktası &ldquo;yangın var&rdquo; demek değildir; anız
+            ve sanayi bacası da ısı üretir.
+          </dd>
+        </div>
+        <div>
           <dt className="font-medium text-metin">Harita altlığı</dt>
           <dd className="text-metin-2">
-            © OpenStreetMap katkıcıları · © CARTO
+            © OpenStreetMap katkıcıları · © OpenMapTiles ·{" "}
+            <a
+              href="https://openfreemap.org"
+              className="baglanti"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              OpenFreeMap
+            </a>{" "}
+            (anahtarsız ve limitsiz açık altlık; harita karoları cihazında
+            önbelleklenir)
           </dd>
         </div>
       </dl>
@@ -123,10 +156,11 @@ export default async function HakkindaSayfasi() {
           ne anlama geldiğini okuyamayacağı renkli bir örtü olurdu.
         </li>
         <li>
-          <strong className="text-metin">Meteorolojik uyarı katmanı henüz yok.</strong>{" "}
-          MGM&apos;nin uyarı ucu çalışıyor fakat ölçüm anlarında aktif uyarı
-          bulunmadığı için veri biçimi doğrulanamadı. Tahmin edilen alan
-          adlarıyla kod yazmıyoruz; ilk gerçek uyarıda eklenecek.
+          <strong className="text-metin">Meteoroloji uyarısı mahalle değil ilçe çözünürlüğündedir.</strong>{" "}
+          MGM&apos;nin aktif uyarıları sel, fırtına, çığ ve aşırı sıcak
+          sayfalarında şerit olarak gösterilir ve metni aynen aktarılır; il
+          adı yazılır, &ldquo;mahallende uyarı var&rdquo; denmez, çünkü veri o
+          kadar ince değil.
         </li>
       </ul>
 
@@ -173,8 +207,8 @@ export default async function HakkindaSayfasi() {
       </p>
       <p className="mt-2 text-sm text-metin-2">
         JavaScript veya harita hiç çalışmıyorsa{" "}
-        <Link href="/dusuk" className="text-vurgu underline">
-          metin sürümü
+        <Link href="/dusuk" className="baglanti">
+          sade sürüm
         </Link>{" "}
         her koşulda açılır.
       </p>
@@ -184,8 +218,7 @@ export default async function HakkindaSayfasi() {
         GeoGow <strong className="text-metin">resmî bir uyarı kanalı
         değildir</strong>. Bilgiler değişebilir; sahadaki tabela ve resmî
         duyuru esastır. Acil durumda{" "}
-        <strong className="text-metin">112</strong> ve{" "}
-        112.
+        <strong className="text-metin">112</strong>.
       </p>
 
       <h2 className="mt-8 text-lg font-semibold">Kaynak kodu ve lisans</h2>
@@ -200,31 +233,46 @@ export default async function HakkindaSayfasi() {
       <h2 className="mt-8 text-lg font-semibold">Güncelleme notları</h2>
       <ul className="mt-3 space-y-3 text-sm text-metin-2">
         <li>
+          <strong className="text-metin">10 Eylül 2026 — altlık değişti, panel ve sade sürüm düzeldi.</strong>{" "}
+          Harita altlığı OpenFreeMap&apos;e geçti; önceki sağlayıcının ücretsiz
+          karoları filigranlı hale gelmişti. Telefonda alt panel küçültülüp
+          büyütülebiliyor, katman notları katlanıyor. Sade sürümün üst menüsü
+          geldi; yön artık kısaltma değil, ok ve sözcük. Gizlilik ve atıf
+          satırları büyütüldü.
+        </li>
+        <li>
+          <strong className="text-metin">10–14 Ağustos 2026 — harita Google diline geçti, katmanlar çoğaldı.</strong>{" "}
+          Açık altlık, kümeli pinler, arama ve katman çipleri; uydu ısı
+          noktaları, il sıcaklıkları, MGM uyarı şeridi; basılabilir malzeme
+          kataloğu ve tek sayfalık A4 afet kartları; adım şeritleri dokuz
+          afette tamamlandı.
+        </li>
+        <li>
           <strong className="text-metin">7 Ağustos 2026 — afet bilgisi eklendi.</strong>{" "}
           Dokuz afet türü için{" "}
-          <Link href="/afet-ani" className="text-vurgu underline">
+          <Link href="/afet-ani" className="baglanti">
             afet anı ekranı
           </Link>{" "}
           (JavaScript gerektirmez, çevrimdışı açılır), öncesi–sırası–sonrası
           sayfaları,{" "}
-          <Link href="/hazirlik" className="text-vurgu underline">
+          <Link href="/hazirlik" className="baglanti">
             işaretlenebilir afet çantası ve yazdırılabilir aile buluşma planı
           </Link>
           , &ldquo;hayat üçgeni&rdquo; dahil{" "}
-          <Link href="/mitler" className="text-vurgu underline">
+          <Link href="/mitler" className="baglanti">
             doğru bilinen yanlışlar
           </Link>{" "}
           sayfası. Haritaya hastane, itfaiye ve sağlık merkezi katmanı geldi.
         </li>
         <li>
           <strong className="text-metin">6 Ağustos 2026 — ilk yayın.</strong>{" "}
-          Toplanma alanı haritası, en yakın alan araması, metin sürümü, veri
+          Toplanma alanı haritası, en yakın alan araması, sade sürüm, veri
           kapsamı karnesi, AFAD deprem katmanı ve çevrimdışı çalışma.
         </li>
       </ul>
 
       <p className="mt-8 text-sm">
-        <Link href="/" className="text-vurgu underline">
+        <Link href="/" className="baglanti">
           Haritaya dön
         </Link>
       </p>

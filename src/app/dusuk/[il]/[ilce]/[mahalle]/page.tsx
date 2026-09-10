@@ -119,7 +119,7 @@ export default async function MahalleSayfasi({ params }: Param) {
                 href={`geo:${alan.enlem},${alan.boylam}?q=${alan.enlem},${alan.boylam}(${encodeURIComponent(
                   alan.ad ?? "Toplanma alanı"
                 )})`}
-                className="inline-flex min-h-[44px] items-center text-vurgu underline"
+                className="inline-flex min-h-[44px] items-center baglanti"
               >
                 Telefonun harita uygulamasında aç
               </a>

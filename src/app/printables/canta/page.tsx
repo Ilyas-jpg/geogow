@@ -37,11 +37,11 @@ export default function CantaBasilabilir() {
         Yazdırın ya da{" "}
         <strong className="text-metin">“PDF olarak kaydet”</strong> ile
         indirin.{" "}
-        <Link href="/printables" className="text-vurgu underline">
+        <Link href="/printables" className="baglanti">
           Diğer basılabilir malzemeler
         </Link>{" "}
         ·{" "}
-        <Link href="/hazirlik" className="text-vurgu underline">
+        <Link href="/hazirlik" className="baglanti">
           Ekranda işaretlenebilir sürüm
         </Link>
       </div>

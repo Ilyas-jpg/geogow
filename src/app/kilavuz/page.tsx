@@ -54,14 +54,14 @@ export default function KilavuzSayfasi() {
           {AFETLER.map((a, i) => (
             <span key={a.slug}>
               {i > 0 && " · "}
-              <Link href={`/kilavuz/${a.slug}`} className="text-vurgu underline">
+              <Link href={`/kilavuz/${a.slug}`} className="baglanti">
                 {a.ad}
               </Link>
             </span>
           ))}
         </p>
         <p className="mt-3 text-sm">
-          <Link href="/" className="text-vurgu underline">
+          <Link href="/" className="baglanti">
             ← Siteye dön
           </Link>
         </p>

@@ -5,7 +5,7 @@ import { AFETLER } from "@/lib/afet";
 const TABAN = "https://geogow.net";
 
 /**
- * Site haritası — metin sürümünün il/ilçe/mahalle sayfaları arama motorunun
+ * Site haritası — sade sürümün il/ilçe/mahalle sayfaları arama motorunun
  * asıl işine yarayan yüzey ("X mahallesi toplanma alanı" sorgusu). Sayfalar
  * SSG olduğu için burada üretmek maliyetsiz.
  */

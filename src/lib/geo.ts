@@ -207,3 +207,18 @@ const PUSULA = ["K", "KKD", "KD", "DKD", "D", "DGD", "GD", "GGD",
 export function pusulaYonu(aci: number): string {
   return PUSULA[Math.round((((aci % 360) + 360) % 360) / 22.5) % 16];
 }
+
+const YON_ADLARI = [
+  "kuzey", "kuzeydoğu", "doğu", "güneydoğu",
+  "güney", "güneybatı", "batı", "kuzeybatı",
+] as const;
+
+/**
+ * 8 yönlü TAM ad — ekranda "GD" gibi kısaltma yerine "güneydoğu" yazılır.
+ * Kısaltma hatırlama istiyordu (critique 2026-09-10, Jordan personası);
+ * ok + sözcük ikilisi ilk bakışta okunur. 16 yönlü `pusulaYonu` veri ve
+ * test uyumu için duruyor.
+ */
+export function yonAdi(aci: number): string {
+  return YON_ADLARI[Math.round((((aci % 360) + 360) % 360) / 45) % 8];
+}

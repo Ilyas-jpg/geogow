@@ -33,11 +33,11 @@ export default function PlanBasilabilir() {
       <div className="yazdirma-gizle mb-6 rounded-xl border border-cizgi bg-zemin-2 p-4 text-sm text-metin-2">
         Tek A4. Yazdırıp <strong className="text-metin">kalemle</strong>{" "}
         doldurun, herkesin çantasına bir kopya koyun.{" "}
-        <Link href="/printables" className="text-vurgu underline">
+        <Link href="/printables" className="baglanti">
           Diğer basılabilir malzemeler
         </Link>{" "}
         ·{" "}
-        <Link href="/hazirlik" className="text-vurgu underline">
+        <Link href="/hazirlik" className="baglanti">
           Ekranda doldurup saklamak için
         </Link>
       </div>

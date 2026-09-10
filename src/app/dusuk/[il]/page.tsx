@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Param): Promise<Metadata> {
   const veri = await ilBul(slug);
   if (!veri) return { title: "Bulunamadı" };
   return {
-    title: `${veri.il.il} toplanma alanları — metin sürümü`,
+    title: `${veri.il.il} toplanma alanları — sade sürüm`,
     description: `${veri.il.il} genelinde AFAD kaydındaki ${veri.il.alan} toplanma alanı. İlçe seçerek mahallenizi bulun.`,
   };
 }
@@ -38,7 +38,7 @@ export default async function IlSayfasi({ params }: Param) {
     <main id="icerik" className="mx-auto max-w-2xl px-4 py-8">
       <nav aria-label="Yol izi" className="text-sm text-metin-3">
         <Link href="/dusuk" className="underline">
-          Metin sürümü
+          Sade sürüm
         </Link>{" "}
         / {il.il}
       </nav>

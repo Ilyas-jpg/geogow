@@ -14,7 +14,7 @@ import UstMenu from "./UstMenu";
  */
 
 /** Okuma kolonu — uzun düz metin için. 75 karakteri geçmez (anayasa md.3). */
-export const OKUMA_GENISLIGI = "max-w-[68ch]";
+export const OKUMA_GENISLIGI = "max-w-[62ch]";
 
 export default function SayfaKabugu({
   aktif,
@@ -49,7 +49,7 @@ export default function SayfaKabugu({
         {sadeYol && (
           <p className="yazdirma-gizle pt-3 text-sm text-metin-3">
             Yavaş bağlantı mı?{" "}
-            <Link href={sadeYol} className="text-vurgu underline">
+            <Link href={sadeYol} className="baglanti">
               Sade sürüme geç
             </Link>{" "}
             — görselsiz, JavaScript gerektirmez.

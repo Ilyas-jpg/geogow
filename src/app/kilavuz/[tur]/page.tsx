@@ -44,7 +44,7 @@ export default async function KilavuzKarti({ params }: Param) {
         Tek A4 sayfaya sığar. Yazdırın ya da{" "}
         <strong className="text-metin">“PDF olarak kaydet”</strong> ile
         indirin.{" "}
-        <Link href="/kilavuz" className="text-vurgu underline">
+        <Link href="/kilavuz" className="baglanti">
           Tüm afetleri içeren kılavuz
         </Link>
         .

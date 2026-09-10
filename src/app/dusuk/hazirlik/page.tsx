@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CANTA, PLAN_ALANLARI, SU_NOTU } from "@/lib/hazirlik";
 
 export const metadata: Metadata = {
-  title: "Hazırlık — metin sürümü",
+  title: "Hazırlık — sade sürüm",
   description:
     "Afet çantası ve aile buluşma planı; düz liste hâlinde. Görselsiz, " +
     "JavaScript gerektirmez, yazdırılabilir.",
@@ -31,12 +31,12 @@ export default function SadeHazirlik() {
     <main id="icerik" className="mx-auto max-w-2xl px-4 py-8">
       <nav aria-label="Yol izi" className="text-sm text-metin-3">
         <Link href="/dusuk" className="underline">
-          Metin sürümü
+          Sade sürüm
         </Link>{" "}
         / Hazırlık
       </nav>
 
-      <h1 className="mt-2 text-2xl font-semibold">Hazırlık — metin sürümü</h1>
+      <h1 className="mt-2 text-2xl font-semibold">Hazırlık — sade sürüm</h1>
       <p className="mt-3 text-metin-2">
         Afet çantası ve aile buluşma planı. Bu sayfa yazdırılabilir: kâğıt,
         şarjı biten telefondan uzun dayanır.
@@ -117,7 +117,7 @@ export default function SadeHazirlik() {
       </section>
 
       <p className="mt-8 text-sm">
-        <Link href="/hazirlik" className="text-vurgu underline">
+        <Link href="/hazirlik" className="baglanti">
           İşaretlenebilir sürüme geç →
         </Link>
       </p>

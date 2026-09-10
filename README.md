@@ -97,4 +97,4 @@ Hata bildirimi ve düzeltme memnuniyetle. İki şart:
 GeoGow/Algow adları ve logoları lisans kapsamı dışındadır: [NOTICE.md](NOTICE.md).
 
 Kaynaklar: AFAD (toplanma alanları, depremler) · © OpenStreetMap katkıcıları ·
-© CARTO. **Resmî uyarı kanalı değildir — acil durumda 112 · AFAD 122.**
+© OpenMapTiles · OpenFreeMap. **Resmî uyarı kanalı değildir — acil durumda 112 · AFAD 122.**

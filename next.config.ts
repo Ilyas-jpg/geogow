@@ -15,9 +15,13 @@ const csp = [
   "worker-src 'self' blob:",
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://tucbs-public-api.csb.gov.tr",
+  // Altlık: OpenFreeMap (vektör karo, karo dizini, yazı tipi glifleri, sprite —
+  // tek host). MapLibre bunların tamamını fetch ile alır (connect-src); sprite
+  // ve düşük yakınlaşma raster karoları görsel olarak da çözülür (img-src).
+  // 2026-09-10: CARTO çıkarıldı — ücretsiz karoları filigranlı hale geldi.
+  "img-src 'self' data: blob: https://tiles.openfreemap.org https://tucbs-public-api.csb.gov.tr",
   "font-src 'self'",
-  "connect-src 'self' https://basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://tucbs-public-api.csb.gov.tr",
+  "connect-src 'self' https://tiles.openfreemap.org https://tucbs-public-api.csb.gov.tr",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

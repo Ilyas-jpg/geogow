@@ -12,7 +12,8 @@
  *   KARO  — harita karoları: önce önbellek (değişmezler), sınırlı sayıda
  */
 
-const SURUM = "geogow-v5";
+// v6 (2026-09-10): altlık CARTO → OpenFreeMap; eski karo önbelleği süpürülür.
+const SURUM = "geogow-v6";
 const KABUK = `${SURUM}-kabuk`;
 const KARO = `${SURUM}-karo`;
 
@@ -149,8 +150,25 @@ async function budala(onbellekAdi, sinir) {
   }
 }
 
+/**
+ * Altlık: OpenFreeMap — vektör karo, karo dizini, yazı tipi glifleri ve
+ * sprite tek hosttan gelir. CARTO'nun ücretsiz raster karoları 2026-09'da
+ * anahtar istemeye başladı ve her karonun İÇİNE "API KEY REQUIRED"
+ * filigranı bastı (canlıda ölçüldü); anahtarsız ve limitsiz kaynağa geçildi.
+ */
+const ALTLIK_HOST = "tiles.openfreemap.org";
+
 function karoMu(url) {
-  return url.hostname.endsWith("basemaps.cartocdn.com");
+  return url.hostname === ALTLIK_HOST;
+}
+
+/**
+ * Stil ve karo dizini (tilejson) zamanla değişir — karo yolu tarihli
+ * (`/planet/2026…/{z}/{x}/{y}.pbf`). Bunlar önce ağdan alınır, düşerse
+ * önbellekten; karolar/glifler/sprite ise değişmez, önce önbellek.
+ */
+function altlikTanimiMi(url) {
+  return url.pathname.startsWith("/styles/") || url.pathname === "/planet";
 }
 
 function veriMi(url) {
@@ -194,6 +212,16 @@ self.addEventListener("fetch", (olay) => {
   if (karoMu(url)) {
     olay.respondWith(
       caches.open(KARO).then(async (onbellek) => {
+        if (altlikTanimiMi(url)) {
+          try {
+            const yanit = await fetch(istek);
+            if (yanit.ok) await onbellek.put(istek, yanit.clone());
+            return yanit;
+          } catch {
+            const eski = await onbellek.match(istek);
+            return eski ?? new Response("", { status: 504 });
+          }
+        }
         const kayitli = await onbellek.match(istek);
         if (kayitli) return kayitli;
         try {
