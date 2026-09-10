@@ -219,7 +219,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
               </section>
             )}
 
-            <section className="rounded-xl border border-cizgi bg-zemin-2 p-5">
+            <section className="border-t border-cizgi pt-5 first:border-t-0 first:pt-0">
               <h2 className="font-semibold text-metin">Kaynaklar</h2>
               <ul className="mt-2 space-y-1.5 text-sm text-metin-2">
                 {afet.kaynaklar.map((k) => (
@@ -247,7 +247,7 @@ export default async function AfetSayfasi({ params }: Parametre) {
               </p>
             </section>
 
-            <section className="rounded-xl border border-cizgi bg-zemin-2 p-5">
+            <section className="border-t border-cizgi pt-5 first:border-t-0 first:pt-0">
               <h2 className="font-semibold text-metin">Diğer afetler</h2>
               <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm lg:grid-cols-1">
                 {AFETLER.filter((a) => a.slug !== afet.slug).map((a) => (
