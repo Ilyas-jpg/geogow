@@ -233,6 +233,13 @@ export default async function HakkindaSayfasi() {
       <h2 className="mt-8 text-lg font-semibold">Güncelleme notları</h2>
       <ul className="mt-3 space-y-3 text-sm text-metin-2">
         <li>
+          <strong className="text-metin">11 Eylül 2026 — koyu harita, Türkçe yer adları, yeni çizimler.</strong>{" "}
+          Harita yangin.algow.net ile aynı koyu dile geçti: yer adları Türkçe
+          (Lefkoşa, Midilli, Selanik), Kuzey Kıbrıs ve il sınırları çizildi,
+          komşu ülkelerin bölge etiketleri kapatıldı. Hazırlık sayfasındaki 37
+          çanta çizimi ve çantanın üç hâli tek tek yeniden üretildi.
+        </li>
+        <li>
           <strong className="text-metin">10 Eylül 2026 — altlık değişti, panel ve sade sürüm düzeldi.</strong>{" "}
           Harita altlığı OpenFreeMap&apos;e geçti; önceki sağlayıcının ücretsiz
           karoları filigranlı hale gelmişti. Telefonda alt panel küçültülüp

@@ -338,10 +338,12 @@ export default function Hazirlik() {
                           /* alt="" görseli erişilebilirlik ağacından zaten
                              çıkarır; ayrıca aria-hidden gereksizdi. */
                           alt=""
-                          width={220}
-                          height={220}
+                          width={384}
+                          height={384}
                           loading="lazy"
-                          className="mt-0.5 h-12 w-12 shrink-0 rounded-lg bg-zemin object-contain"
+                          /* 64 px: tek tek üretilen yeni çizimlerin detayı
+                             48 px'te kayboluyordu (2026-09-11). */
+                          className="mt-0.5 h-16 w-16 shrink-0 rounded-lg bg-zemin object-contain"
                         />
                       )}
 

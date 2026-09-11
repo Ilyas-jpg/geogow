@@ -31,9 +31,11 @@ export type CantaMaddesi = {
   /** Bitmeyen madde yoktur: kaç ayda bir kontrol edilir. */
   tazele?: string;
   /**
-   * `public/cizim/ekipman/<ad>.png` — ChatGPT'de ikon sayfası olarak üretilip
-   * `sharp.extract` ile kesildi. Görseli olmayan madde ikonsuz görünür,
-   * boş kutu çizilmez.
+   * `public/cizim/ekipman/<ad>.png` — 2026-09-11'den beri her ikon ChatGPT'de
+   * TEK TEK üretiliyor (1254 px, tek thread'de stil kilidi, 384 px'e
+   * indirilir; `scratchpad/ikon-kur.mjs`). Eski 3×2 ızgara kesimi
+   * (`scripts/ikon-kes.mjs`, 220 px) "ilkokul ödevi" duruyordu ve kalktı.
+   * Görseli olmayan madde ikonsuz görünür, boş kutu çizilmez.
    */
   ikon?: string;
 };

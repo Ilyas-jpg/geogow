@@ -45,19 +45,29 @@ import { NOKTA_YAKINLASMASI, type IlIsareti } from "@/lib/haritaAyar";
  * katmanları da onu ister. MapLibre'nin varsayılanı "Open Sans" bu hostta
  * yok — istenirse etiketler sessizce boş kalırdı.
  */
-const ALTLIK_STILI = "https://tiles.openfreemap.org/styles/bright";
+/**
+ * 2026-09-11: "bright"tan "dark"a. İlyas yangin.algow.net'in haritasını
+ * istedi ("oradaki şık haritayı istiyorum"): o site CARTO Dark Matter GL
+ * kullanıyor; OpenFreeMap'in `dark` stili aynı Dark Matter'ın anahtarsız
+ * portu (zemin rgb 12,12,12 · su rgb 27,27,29). 2026-08-14'teki "koyu
+ * altlık izleme paneli gibi" kararı bununla geri alındı — o zamanki koyu
+ * altlık raster `dark_all`dı ve etiketleri Türkçe değildi; asıl rahatsızlık
+ * oydu. Site zemini (#0b0d10) ile harita artık tek dünya.
+ */
+const ALTLIK_STILI = "https://tiles.openfreemap.org/styles/dark";
 const YAZI = ["Noto Sans Regular"];
 const YAZI_KALIN = ["Noto Sans Bold"];
 
-/** Açık zeminde okunan koyu yeşil — beyaz sayı/desen bunun üstünde 4,7:1 verir.
- *  (#35c48a marka yeşili açık karoda soluk kalıyor ve beyaz yazıyı taşımıyor.) */
-export const ALAN_YESILI = "#0b8457";
-/** Seçili alan pini — marka koyusu, yeşille karışmaz. */
-const SECILI_RENGI = "#00758c";
+/** Koyu zeminde marka yeşili — sayı/desen üstüne KOYU yazılır (9:1). */
+export const ALAN_YESILI = "#35c48a";
+/** Seçili alan pini — marka turkuazı, yeşille karışmaz, koyu zeminde parlar. */
+const SECILI_RENGI = "#05e1f5";
 /** Google'ın konum mavisi: kullanıcı bu noktayı başka haritalardan tanıyor. */
 const KONUM_MAVISI = "#1a73e8";
-/** Açık karo üstünde etiket rengi (Google'ın metin grisi). */
-const ETIKET_RENGI = "#202124";
+/** Koyu karo üstünde etiket rengi (yangın haritasıyla aynı açık gri). */
+const ETIKET_RENGI = "#e7e7ea";
+/** Etiket halosu — zemin rengi, yazı altlıktan ayrılsın. */
+const HALO_RENGI = "#08090b";
 
 /** Nokta üstünde gösterilen tek harf — renk TEK BAŞINA bilgi taşımasın diye. */
 const TUR_HARFI: Record<Nokta["tur"], string> = { h: "H", i: "İ", s: "S" };
@@ -224,8 +234,98 @@ export default function Harita({
     };
     harita.on("moveend", bildir);
 
+    // Yalnız geliştirmede: Playwright ile etiket/katman QA'sı için erişim.
+    if (process.env.NODE_ENV !== "production") {
+      (window as unknown as { __harita?: MapGL }).__harita = harita;
+    }
+
     harita.on("load", () => {
       hazirRef.current = true;
+
+      /* ── ALTLIK ETİKETLERİ TÜRKÇE (yangin.algow.net ile aynı kural) ──
+       * Karo verisinin `name` alanı yerel dili veriyor: Kıbrıs'ta Yunanca
+       * (Λευκωσία), ülke adında İngilizce ("Turkey"), Ege adalarında Yunanca,
+       * Suriye'de Arapça. Her etiket önce `name:tr`, yoksa `name:latin`, en
+       * sonda ham `name` — böylece Lefkoşa, Türkiye, Midilli, Halep yazar.
+       * Dark Matter'ın yer adları koyu zeminde sönük (gri 101); açık metin +
+       * halo ile okunur hale getirilir. Sokak adları dokunulmadan kalır. */
+      const YER_ADI = ["coalesce", ["get", "name:tr"], ["get", "name:latin"], ["get", "name"]];
+      for (const katman of harita.getStyle().layers) {
+        if (katman.type !== "symbol") continue;
+        const alan = harita.getLayoutProperty(katman.id, "text-field");
+        if (!alan || !JSON.stringify(alan).includes("name")) continue;
+        harita.setLayoutProperty(katman.id, "text-field", YER_ADI);
+        if (katman.id.startsWith("place_")) {
+          harita.setPaintProperty(katman.id, "text-color", "#e7e7ea");
+          harita.setPaintProperty(katman.id, "text-halo-color", HALO_RENGI);
+          harita.setPaintProperty(katman.id, "text-halo-width", 1.4);
+          harita.setPaintProperty(katman.id, "text-halo-blur", 0.4);
+        } else if (katman.id === "water_name") {
+          // Deniz adları stilde siyah (%70) — koyu suda görünmüyordu.
+          harita.setPaintProperty(katman.id, "text-color", "#6f7a88");
+          harita.setPaintProperty(katman.id, "text-halo-width", 0);
+        }
+      }
+      // Altlığın il sınırı katmanı eksik ve kopuk; sınırlar aşağıda kendi
+      // verimizden çizilir, altlığınki kapatılır (yangın haritasındaki ders).
+      if (harita.getLayer("boundary_state")) {
+        harita.setLayoutProperty("boundary_state", "visibility", "none");
+      }
+      // Komşu ülkelerin bölge/eyalet etiketleri (Attika, Halep İli, Kürdistan
+      // Bölgesel Yönetimi…) Türkiye haritasında gürültü: ülke görünümünde
+      // il noktalarıyla yarışıyordu. Türkiye'nin illeri bu katmanda zaten
+      // yazmıyor (altlık onları şehir olarak etiketler), kapatmak kayıpsız.
+      if (harita.getLayer("place_state")) {
+        harita.setLayoutProperty("place_state", "visibility", "none");
+      }
+      // Sınır çizgileri yer adlarının ALTINA girer; ilk symbol katmanı sınırdır.
+      const ilkEtiket = harita.getStyle().layers.find((k) => k.type === "symbol")?.id;
+
+      /* ── İL SINIRLARI + KKTC SINIRI (Natural Earth 10m, kamu malı, 121 KB) ──
+       * yangin.algow.net ile aynı dosya. İlk kare için gerekmediğinden harita
+       * oturduktan sonra boşta yüklenir. `?v=` servis çalışanı önbelleği için:
+       * dosya değişirse sürüm artmalı, yoksa kullanıcı eskisini görür. */
+      const sinirlariYukle = () => {
+        if (harita.getSource("sinirlar")) return;
+        harita.addSource("sinirlar", { type: "geojson", data: "/tr-iller.json?v=1" });
+        harita.addLayer(
+          {
+            id: "il-sinir",
+            type: "line",
+            source: "sinirlar",
+            filter: ["!=", ["get", "tur"], "kktc"],
+            paint: {
+              "line-color": "#5b6472",
+              "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.5, 8, 0.9, 11, 1.3],
+              "line-opacity": ["interpolate", ["linear"], ["zoom"], 4.5, 0, 5.5, 0.5, 9, 0.7],
+              "line-dasharray": [3, 2.5],
+            },
+          },
+          ilkEtiket
+        );
+        // KKTC kara sınırı il sınırından farklı bir şeydir: daha belirgin ve
+        // düşük zoom'dan itibaren görünür. Kaynak: Natural Earth
+        // "Northern Cyprus" harita birimi.
+        harita.addLayer(
+          {
+            id: "kktc-sinir",
+            type: "line",
+            source: "sinirlar",
+            filter: ["==", ["get", "tur"], "kktc"],
+            paint: {
+              "line-color": "#8b94a3",
+              "line-width": ["interpolate", ["linear"], ["zoom"], 5, 0.9, 9, 1.6],
+              "line-opacity": 0.85,
+              "line-dasharray": [2.5, 1.8],
+            },
+          },
+          ilkEtiket
+        );
+      };
+      const bosta = (window as unknown as { requestIdleCallback?: (cb: () => void) => void })
+        .requestIdleCallback;
+      if (bosta) bosta(sinirlariYukle);
+      else setTimeout(sinirlariYukle, 1200);
 
       // Pinler eşzamanlı çizilir — katmanlar kurulmadan hazır olurlar.
       harita.addImage("pin-alan", pinCiz(ALAN_YESILI, 30), { pixelRatio: 2 });
@@ -277,7 +377,7 @@ export default function Harita({
         },
         paint: {
           "text-color": ETIKET_RENGI,
-          "text-halo-color": "#ffffff",
+          "text-halo-color": HALO_RENGI,
           "text-halo-width": 1.4,
         },
       });
@@ -382,8 +482,8 @@ export default function Harita({
           "text-max-width": 11,
         },
         paint: {
-          "text-color": "#3c4043",
-          "text-halo-color": "#ffffff",
+          "text-color": "#c9d1db",
+          "text-halo-color": HALO_RENGI,
           "text-halo-width": 1.4,
         },
       });
@@ -435,7 +535,8 @@ export default function Harita({
           "text-size": 13,
           "text-allow-overlap": true,
         },
-        paint: { "text-color": "#ffffff" },
+        // Parlak yeşil üstünde koyu sayı (9:1); beyaz 1,9:1 kalıyordu.
+        paint: { "text-color": "#0b0d10" },
       });
       harita.addLayer({
         id: "alan-pin",
@@ -466,7 +567,7 @@ export default function Harita({
         },
         paint: {
           "text-color": ETIKET_RENGI,
-          "text-halo-color": "#ffffff",
+          "text-halo-color": HALO_RENGI,
           "text-halo-width": 1.6,
         },
       });
@@ -496,7 +597,7 @@ export default function Harita({
         },
         paint: {
           "text-color": SECILI_RENGI,
-          "text-halo-color": "#ffffff",
+          "text-halo-color": HALO_RENGI,
           "text-halo-width": 1.8,
         },
       });
@@ -530,26 +631,10 @@ export default function Harita({
         maxzoom: NOKTA_YAKINLASMASI,
         paint: { "circle-radius": 14, "circle-opacity": 0 },
       });
-      harita.addLayer({
-        id: "il-etiket",
-        type: "symbol",
-        source: "iller",
-        minzoom: 6,
-        maxzoom: NOKTA_YAKINLASMASI,
-        layout: {
-          "text-field": ["get", "il"],
-          "text-font": YAZI,
-          "text-size": 11,
-          "text-offset": [0, 0.7],
-          "text-anchor": "top",
-          "text-allow-overlap": false,
-        },
-        paint: {
-          "text-color": ALAN_YESILI,
-          "text-halo-color": "#ffffff",
-          "text-halo-width": 1.4,
-        },
-      });
+      /* İl adı katmanı ("il-etiket") 2026-09-11'de KALDIRILDI: koyu altlık
+         Türkçe şehir adlarını zaten yazıyor, bizimki aynı adı yeşil ikinci
+         kez basıyordu ("ÇANAKKALE" + "Çanakkale"). Nokta kaldı: yeşil =
+         yayında; ad altlıktan gelir, il kartı tıklayınca açılır. */
 
       /* ── Kullanıcı konumu: tanıdık mavi nokta + yumuşak hale ── */
       harita.addSource("konum", {

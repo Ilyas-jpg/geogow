@@ -32,12 +32,15 @@ import type { Ozet } from "@/lib/veri";
 // Harita motoru ayrı parça: arayüz MapLibre'yi BEKLEMEZ.
 const Harita = dynamic(() => import("./Harita"), {
   ssr: false,
-  // OSM Bright'ın kara tonu — stil gelmeden görünen zemin de aynı olsun.
-  loading: () => <div className="h-full w-full bg-[#f8f4f0]" aria-hidden />,
+  // Dark Matter'ın zemini — stil gelmeden görünen kare de aynı koyulukta olsun.
+  loading: () => <div className="h-full w-full bg-[#0c0c0c]" aria-hidden />,
 });
 
 /** Haritadaki pinlerle aynı yeşil (Harita.tsx `ALAN_YESILI`). Statik import
  *  maplibre'yi ana pakete çekeceği için değer burada tekrarlanır. */
+/* 2026-09-11: harita koyu altlığa geçince pinler marka yeşiline (#35c48a)
+   çıktı; beyaz panelin üstündeki sıra rozetleri ise BEYAZ sayı taşıdığı için
+   koyu yeşilde kalır (4,7:1). İki ton aynı "yeşil = toplanma alanı" ailesi. */
 const ALAN_YESILI = "#0b8457";
 
 /**
