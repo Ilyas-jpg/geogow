@@ -104,6 +104,23 @@ body {
   }
 }
 
+/* ─────────────────────────  KAYDIRMA ÇUBUĞU  ─────────────────────────
+ * Windows'un gri klasik çubuğu koyu sitede ve beyaz panelde "aşırı çirkin"
+ * duruyordu (İlyas, 2026-09-11). Standart özellikler: ince + zemin rengi.
+ * Chrome 121+, Firefox ve Edge uygular; Safari kendi kaplama çubuğunu
+ * kullanır, zaten ince. `::-webkit-scrollbar` bilerek yok: standart özellik
+ * verilince Chrome onu yok sayıyor, iki sistem çakışmasın.
+ */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #2a3038 #0b0d10;
+}
+/* Beyaz panel (harita alt kartı): açık zeminde ince gri, ray görünmez. */
+.ince-kaydirma {
+  scrollbar-width: thin;
+  scrollbar-color: #dadce0 transparent;
+}
+
 /* Hareket azaltma tercihi mutlak: afet uygulamasında animasyon lüks. */
 @media (prefers-reduced-motion: reduce) {
   *,

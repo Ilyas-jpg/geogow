@@ -930,6 +930,9 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                   : "max-h-none"
             }`}
           >
+            {/* Tutamaç her boyutta: telefonda çubuk + sürükleme, masaüstünde
+                ok (İlyas 2026-09-11: "şu da kapanabilsin"). Kapalıyken tek
+                satır özet + atıf kalır; harita önündeki panel yol açar. */}
             <button
               type="button"
               onClick={sheetDokun}
@@ -938,19 +941,37 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
               onPointerCancel={sheetSurukleIptal}
               aria-label={sheetKonum === "kapali" ? "Paneli aç" : "Paneli küçült"}
               aria-expanded={sheetKonum !== "kapali"}
-              className="flex min-h-[44px] w-full shrink-0 cursor-pointer touch-none flex-col items-center justify-center gap-1.5 sm:hidden"
+              className="flex min-h-[44px] w-full shrink-0 cursor-pointer touch-none flex-col items-center justify-center gap-1.5 sm:min-h-[34px] sm:flex-row sm:gap-2 sm:hover:bg-[#f6f7f8]"
             >
-              <span aria-hidden className="h-1 w-9 rounded-full bg-[#dadce0]" />
+              <span aria-hidden className="h-1 w-9 rounded-full bg-[#dadce0] sm:hidden" />
+              <svg
+                viewBox="0 0 16 16"
+                width="14"
+                height="14"
+                aria-hidden
+                className={`hidden text-[#5f6368] transition-transform duration-200 sm:block ${
+                  sheetKonum === "kapali" ? "rotate-180" : ""
+                }`}
+              >
+                <path
+                  d="M4 6l4 4 4-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               {sheetKonum === "kapali" && (
-                <span className="max-w-full truncate px-4 text-sm font-medium text-[#202124]">
+                <span className="max-w-full truncate px-4 text-sm font-medium text-[#202124] sm:px-0">
                   {sheetOzeti}
                 </span>
               )}
             </button>
 
             <div
-              className={`min-h-0 flex-1 overflow-y-auto ${
-                sheetKonum === "kapali" ? "hidden sm:block" : ""
+              className={`ince-kaydirma min-h-0 flex-1 overflow-y-auto ${
+                sheetKonum === "kapali" ? "hidden" : ""
               }`}
             >
 
