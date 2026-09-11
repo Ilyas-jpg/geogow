@@ -151,6 +151,7 @@ export default function Harita({
   onGorunum,
   onIlSec,
   onHazir,
+  onAltlikDurumu,
   olcek = 1,
   dolgu,
 }: {
@@ -176,6 +177,11 @@ export default function Harita({
   onIlSec?: (plaka: number) => void;
   /** Harita kurulunca üst katmana kumanda verir (yakınlaş/uzaklaş/git). */
   onHazir?: (api: HaritaApi) => void;
+  /**
+   * Altlık (stil dosyası) inmediyse `true`, inince `false`. Karo hataları
+   * tek tek bildirilmez; yalnız haritanın hiç kurulamadığı durum.
+   */
+  onAltlikDurumu?: (hata: boolean) => void;
   /** Yayın/projeksiyon modu: yazı ve işaret ölçeği (1 = normal, 1,6 = TV). */
   olcek?: number;
   /**
@@ -198,6 +204,7 @@ export default function Harita({
   const onGorunumRef = useRef(onGorunum);
   const onIlSecRef = useRef(onIlSec);
   const onHazirRef = useRef(onHazir);
+  const onAltlikDurumuRef = useRef(onAltlikDurumu);
   /* Ölçek ve dolgu sayfa ömrü boyunca sabittir; kurulumda bir kez okunur. */
   const olcekRef = useRef(olcek);
   const dolguRef = useRef(dolgu);
@@ -206,6 +213,7 @@ export default function Harita({
     onGorunumRef.current = onGorunum;
     onIlSecRef.current = onIlSec;
     onHazirRef.current = onHazir;
+    onAltlikDurumuRef.current = onAltlikDurumu;
   });
 
   useEffect(() => {
@@ -260,6 +268,29 @@ export default function Harita({
       });
     };
     harita.on("moveend", bildir);
+
+    /**
+     * ALTLIK ARIZASI — stil dosyası inmezse (CDN engelli, çevrimdışı ilk
+     * açılış, sağlayıcı kesintisi) harita boş kalır ve kullanıcı "site bozuk"
+     * okur (2026-09-10 CARTO filigranı dersi). Stil yüklenmeden `/styles/`
+     * hatası gelirse hemen, hiç yüklenmezse 12 sn'de üst katmana bildir:
+     * alan listesi haritasız da çalışır, kullanıcı yolunu bilsin. Tek tek
+     * karo/glif hataları bu sınıfa girmez.
+     */
+    let stilGeldi = false;
+    const arizaZamanlayici = window.setTimeout(() => {
+      if (!stilGeldi) onAltlikDurumuRef.current?.(true);
+    }, 12000);
+    harita.on("error", (e: { error?: Error }) => {
+      if (!stilGeldi && /\/styles\//.test(e.error?.message ?? "")) {
+        onAltlikDurumuRef.current?.(true);
+      }
+    });
+    harita.once("load", () => {
+      stilGeldi = true;
+      window.clearTimeout(arizaZamanlayici);
+      onAltlikDurumuRef.current?.(false);
+    });
 
     // Yalnız geliştirmede: Playwright ile etiket/katman QA'sı için erişim.
     if (process.env.NODE_ENV !== "production") {
@@ -401,6 +432,13 @@ export default function Harita({
           "text-font": YAZI,
           "text-size": 11,
           "text-allow-overlap": false,
+          // Etiket halkanın DIŞINDA durur: yarıçap (px) / yazı boyu = em.
+          // Eskiden merkeze basılıyordu, "M2,0" halkanın çizgisiyle
+          // üst üste biniyordu (yayın modunda 1,6× ile iyice belirgin).
+          // Ölçek büyüyünce halka ve yazı aynı oranda büyür, em değişmez.
+          "text-variable-anchor": ["left", "right", "top", "bottom"],
+          "text-radial-offset": ["+", ["/", ["get", "yaricap"], 11], 0.35],
+          "text-justify": "auto",
         },
         paint: {
           "text-color": ETIKET_RENGI,
@@ -789,6 +827,7 @@ export default function Harita({
     });
 
     return () => {
+      window.clearTimeout(arizaZamanlayici);
       harita.remove();
       haritaRef.current = null;
       hazirRef.current = false;

@@ -22,6 +22,9 @@ export default async function HakkindaSayfasi() {
 
   return (
     <SayfaKabugu>
+      {/* Okuma sayfası: tek kolon, 60ch (16 px gövdede ~74 karakter). 1180 px'te satırlar 159
+          karaktere çıkıyordu (dedektör: 25 line-length). */}
+      <div className="max-w-[60ch]">
       <h1 className="pt-8 text-3xl font-semibold sm:text-4xl">GeoGow hakkında</h1>
       <p className="mt-3 max-w-[62ch] text-lg text-metin-2">
         GeoGow, deprem · yangın · sel gibi afetlerde{" "}
@@ -32,8 +35,8 @@ export default async function HakkindaSayfasi() {
         bir kamu yararı projesidir. Reklam yok, hesap yok, bağış toplama yok.
       </p>
 
-      <h2 className="mt-8 text-lg font-semibold">Veri nereden geliyor?</h2>
-      <dl className="mt-3 space-y-3 text-sm">
+      <h2 className="mt-10 text-xl font-semibold">Veri nereden geliyor?</h2>
+      <dl className="mt-3 space-y-3 text-base">
         <div>
           <dt className="font-medium text-metin">Toplanma alanları</dt>
           <dd className="text-metin-2">
@@ -138,12 +141,12 @@ export default async function HakkindaSayfasi() {
         </div>
       </dl>
 
-      <h2 className="mt-8 text-lg font-semibold">Ölçüldü ama yayınlanmadı</h2>
-      <p className="mt-3 text-sm text-metin-2">
+      <h2 className="mt-10 text-xl font-semibold">Ölçüldü ama yayınlanmadı</h2>
+      <p className="mt-3 text-base text-metin-2">
         Bazı kaynakları denedik ve yayınlamamaya karar verdik. Bunu saklamak
         yerine yazıyoruz ki neyin neden eksik olduğu belli olsun:
       </p>
-      <ul className="mt-3 space-y-2 text-sm text-metin-2">
+      <ul className="mt-3 space-y-2 text-base text-metin-2">
         <li>
           <strong className="text-metin">Diri fay hattı katmanı yok.</strong>{" "}
           MTA&apos;nın harita servislerine beş ayrı adresten ulaşılamadı. Uydurma
@@ -164,8 +167,8 @@ export default async function HakkindaSayfasi() {
         </li>
       </ul>
 
-      <h2 className="mt-8 text-lg font-semibold">Konum bilgin ne oluyor?</h2>
-      <p className="mt-3 text-sm text-metin-2">
+      <h2 className="mt-10 text-xl font-semibold">Konum bilgin ne oluyor?</h2>
+      <p className="mt-3 text-base text-metin-2">
         <strong className="text-metin">Cihazından çıkmıyor.</strong> &ldquo;En
         yakın toplanma alanı&rdquo; hesabı tamamen telefonun içinde yapılır:
         ilinin alan listesi indirilir, mesafe tarayıcında hesaplanır. Konumun
@@ -173,8 +176,8 @@ export default async function HakkindaSayfasi() {
         Hesap yok, çerezle izleme yok.
       </p>
 
-      <h2 className="mt-8 text-lg font-semibold">Neyi göstermiyoruz?</h2>
-      <ul className="mt-3 space-y-2 text-sm text-metin-2">
+      <h2 className="mt-10 text-xl font-semibold">Neyi göstermiyoruz?</h2>
+      <ul className="mt-3 space-y-2 text-base text-metin-2">
         <li>
           <strong className="text-metin">Kapasite yok.</strong> Bir alanın kaç
           kişi alacağını hesaplamıyoruz — dayanağımız yok ve afet anında
@@ -197,15 +200,15 @@ export default async function HakkindaSayfasi() {
         </li>
       </ul>
 
-      <h2 className="mt-8 text-lg font-semibold">Çevrimdışı çalışır</h2>
-      <p className="mt-3 text-sm text-metin-2">
+      <h2 className="mt-10 text-xl font-semibold">Çevrimdışı çalışır</h2>
+      <p className="mt-3 text-base text-metin-2">
         Şebeke afet anında ilk çöken şeydir. GeoGow bir kez açıldıktan sonra
         uygulama kabuğunu, gezdiğin harita karolarını ve indirdiğin ilin
         alanlarını cihazında saklar; ağ olmadan da açılır. Sonuç panelindeki
         &ldquo;ilini çevrimdışı kaydet&rdquo; düğmesi bunu kalıcı yapar ve
         gerçekten kaç MB yer kapladığını söyler.
       </p>
-      <p className="mt-2 text-sm text-metin-2">
+      <p className="mt-2 text-base text-metin-2">
         JavaScript veya harita hiç çalışmıyorsa{" "}
         <Link href="/dusuk" className="baglanti">
           sade sürüm
@@ -213,16 +216,16 @@ export default async function HakkindaSayfasi() {
         her koşulda açılır.
       </p>
 
-      <h2 className="mt-8 text-lg font-semibold">Sınırlar ve sorumluluk</h2>
-      <p className="mt-3 text-sm text-metin-2">
+      <h2 className="mt-10 text-xl font-semibold">Sınırlar ve sorumluluk</h2>
+      <p className="mt-3 text-base text-metin-2">
         GeoGow <strong className="text-metin">resmî bir uyarı kanalı
         değildir</strong>. Bilgiler değişebilir; sahadaki tabela ve resmî
         duyuru esastır. Acil durumda{" "}
         <strong className="text-metin">112</strong>.
       </p>
 
-      <h2 className="mt-8 text-lg font-semibold">Kaynak kodu ve lisans</h2>
-      <p className="mt-3 text-sm text-metin-2">
+      <h2 className="mt-10 text-xl font-semibold">Kaynak kodu ve lisans</h2>
+      <p className="mt-3 text-base text-metin-2">
         GeoGow açık kaynaktır ve <strong className="text-metin">AGPL-3.0</strong>{" "}
         ile yayınlanır: kodu alıp geliştirebilir, kendi sunucunda
         çalıştırabilirsin — değiştirip ağ üzerinden hizmet verirsen kaynağını da
@@ -230,8 +233,8 @@ export default async function HakkindaSayfasi() {
         kapsamı dışındadır.
       </p>
 
-      <h2 className="mt-8 text-lg font-semibold">Güncelleme notları</h2>
-      <ul className="mt-3 space-y-3 text-sm text-metin-2">
+      <h2 className="mt-10 text-xl font-semibold">Güncelleme notları</h2>
+      <ul className="mt-3 space-y-3 text-base text-metin-2">
         <li>
           <strong className="text-metin">11 Eylül 2026 — paylaşılabilir bağlantı, konumsuz arama, yayın modu, aile planı bağlantısı.</strong>{" "}
           Seçili alan ve açık katmanlar adres çubuğuna yazılıyor; &ldquo;Paylaş&rdquo;
@@ -242,7 +245,11 @@ export default async function HakkindaSayfasi() {
           geldi (büyük yazı, canlı deprem listesi, saat). Hazırlık sayfasındaki
           aile buluşma planı bir bağlantıyla telefondan telefona taşınıyor,
           sunucuya gitmiyor. Masaüstünde panel sola yaslandı; harita seçili
-          pini ve ölçüm noktasını her zaman görünür alanda tutuyor.
+          pini ve ölçüm noktasını her zaman görünür alanda tutuyor. Aynı gün
+          cila: harita altlığı inmezse ürün içi uyarı, katman çipinde yükleniyor
+          işareti, son bakılan il önerisi, ekran okuyucuya sonuç duyurusu, deprem
+          etiketleri halkanın dışında, bu sayfa ve hazırlık metinleri okuma
+          genişliğinde.
         </li>
         <li>
           <strong className="text-metin">11 Eylül 2026 — koyu harita, Türkçe yer adları, yeni çizimler.</strong>{" "}
@@ -290,11 +297,12 @@ export default async function HakkindaSayfasi() {
         </li>
       </ul>
 
-      <p className="mt-8 text-sm">
+      <p className="mt-8 text-base">
         <Link href="/" className="baglanti">
           Haritaya dön
         </Link>
       </p>
+      </div>
     </SayfaKabugu>
   );
 }

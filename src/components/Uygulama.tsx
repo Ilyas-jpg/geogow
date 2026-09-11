@@ -55,18 +55,22 @@ function KatmanCipi({
   renk,
   ad,
   sayi,
+  yukleniyor = false,
 }: {
   acik: boolean;
   onDegis: () => void;
   renk: string;
   ad: string;
   sayi?: number | null;
+  /** Katman açıldı, veri henüz inmedi: sayaç yerine "…" (sistem durumu). */
+  yukleniyor?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onDegis}
       aria-pressed={acik}
+      aria-busy={acik && yukleniyor ? true : undefined}
       className={`flex min-h-[38px] shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-[13px] leading-none shadow-sm transition-[background-color,border-color,transform] duration-150 active:scale-[0.97] ${
         acik
           ? "border-transparent text-white"
@@ -91,6 +95,11 @@ function KatmanCipi({
       <span className="whitespace-nowrap">{ad}</span>
       {acik && sayi != null && (
         <span className="whitespace-nowrap font-semibold tabular-nums">· {sayi}</span>
+      )}
+      {acik && sayi == null && yukleniyor && (
+        <span className="whitespace-nowrap font-semibold" aria-label="yükleniyor">
+          · …
+        </span>
       )}
     </button>
   );
@@ -192,6 +201,8 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
   const [paylasilabilir, setPaylasilabilir] = useState(false);
   /** Paylaşım desteklenmeyen tarayıcıda bağlantı panoya kopyalanır; kısa geri bildirim. */
   const [kopyalandi, setKopyalandi] = useState(false);
+  /** Altlık stil dosyası inmedi: harita boş, ama alan listesi çalışır. */
+  const [altlikHatasi, setAltlikHatasi] = useState(false);
   /** Görünüm il düzeyine yakınsa "haritanın ortasına göre bul" teklif edilir. */
   const [yakinGorunum, setYakinGorunum] = useState(false);
   /** URL'den gelen `?alan=` — o ilin verisi inince seçilir. */
@@ -205,6 +216,8 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
   const bekleyenGitRef = useRef<{ enlem: number; boylam: number; zoom?: number } | null>(null);
   /** Aramadan/URL'den seçilen ilin slug'ı — adres çubuğuna yazılır. */
   const [urlIl, setUrlIl] = useState<string | null>(null);
+  /** En son seçilen il (cihazda): dönen kullanıcı ilini yeniden yazmasın. */
+  const [sonIl, setSonIl] = useState<IlAdayi | null>(null);
   /** Yayın modundaki saat (15 sn'de bir tazelenir). */
   const [saat, setSaat] = useState("");
   const haritaApiRef = useRef<HaritaApi | null>(null);
@@ -722,6 +735,11 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
       setArama("");
       setAramaAcik(false);
       setUrlIl(il.slug);
+      try {
+        localStorage.setItem("geogow-son-il", il.slug);
+      } catch {
+        /* gizli sekme vb. — hatırlamadan devam */
+      }
       void ilYukle(il.plaka);
       if (il.merkez) haritayaGit(il.merkez[0], il.merkez[1], NOKTA_YAKINLASMASI + 0.6);
     },
@@ -740,6 +758,19 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
     },
     [ilVerileri, iller]
   );
+
+  // Son seçilen ili cihazdan oku (yalnız öneri; otomatik yakınlaşma yok —
+  // açılış ülke görünümü kalır, kullanıcı tek dokunuşla döner).
+  useEffect(() => {
+    if (!iller.length) return;
+    try {
+      const slug = localStorage.getItem("geogow-son-il");
+      const il = slug ? iller.find((i) => i.slug === slug) : undefined;
+      if (il) setSonIl(il);
+    } catch {
+      /* okunamadı — öneri yok */
+    }
+  }, [iller]);
 
   /* ── URL DURUMU: ?il=<slug>&alan=<id>&k=deprem,isi,sicaklik,altyapi ──
      Paylaşılan bağlantı aynı görünümü açar; yayın modu bir şehre kilitlenir;
@@ -903,6 +934,23 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
         </div>
       )}
 
+      {/* Altlık inmedi: harita boş kalır ama ürün çalışır; yolu göster.
+          (2026-09-10'da CARTO filigranı "site bozuk" okunmuştu; sessiz boş
+          harita aynı şeydir.) */}
+      {altlikHatasi && (
+        <div
+          role="status"
+          className="border-b border-uyari/40 bg-uyari/10 px-4 py-2 text-xs text-metin-2"
+        >
+          <strong className="text-metin">Harita altlığı yüklenemedi.</strong> Toplanma
+          alanları yine listelenir: ilini yaz, konumunu bul ya da{" "}
+          <Link href="/dusuk" className="baglanti">
+            sade sürüme geç
+          </Link>
+          .
+        </div>
+      )}
+
       <div className="relative flex-1 overflow-hidden">
         <Harita
           alanlar={alanlar}
@@ -926,6 +974,7 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
           }}
           olcek={yayin ? 1.6 : 1}
           dolgu={dolgu}
+          onAltlikDurumu={setAltlikHatasi}
         />
 
         {/* Harita merkezi modu: mesafeler bu artıdan ölçülür. Artı, MapLibre'nin
@@ -1119,6 +1168,7 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
               renk="#d93025"
               ad="Depremler"
               sayi={depremDurumu === "tamam" ? depremler.length : null}
+              yukleniyor={depremDurumu === "yukleniyor"}
             />
             <KatmanCipi
               acik={yanginAcik}
@@ -1126,6 +1176,7 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
               renk="#e8710a"
               ad="Uydu ısı noktaları"
               sayi={yanginDurumu === "tamam" ? yanginlar.length : null}
+              yukleniyor={yanginDurumu === "yukleniyor"}
             />
             <KatmanCipi
               acik={sicaklikAcik}
@@ -1133,6 +1184,7 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
               renk="#b26a00"
               ad="Sıcaklık"
               sayi={sicaklikDurumu === "tamam" ? sicakliklar.length : null}
+              yukleniyor={sicaklikDurumu === "yukleniyor"}
             />
             <KatmanCipi
               acik={altyapiAcik}
@@ -1140,6 +1192,7 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
               renk="#00758c"
               ad="Sağlık · itfaiye"
               sayi={altyapiDurumu === "tamam" ? altyapi.length : null}
+              yukleniyor={altyapiDurumu === "yukleniyor"}
             />
           </div>
 
@@ -1381,6 +1434,12 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
 
                 {yakinlar.length > 0 && (
                   <>
+                    {/* Ekran okuyucuya sonuç geldiğini söyle; liste görsel
+                        olarak belirir ama odak haritada kalır. */}
+                    <p role="status" className="sr-only">
+                      {yakinlar.length} toplanma alanı bulundu; en yakını{" "}
+                      {mesafeYazisi(yakinlar[0].mesafeM)}.
+                    </p>
                     <h2 className="text-[19px] font-semibold leading-snug">
                       {merkezModu ? "Haritanın ortasına" : "Sana"} en yakın {yakinlar.length} toplanma alanı
                       {secIl ? ` · ${secIl.il}` : ""}
@@ -1462,6 +1521,18 @@ export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; y
                   >
                     Konum vermeden: haritanın ortasına en yakın alanlar
                   </button>
+                )}
+                {!urlIl && sonIl && (
+                  <p className="mt-2 text-sm text-[#5f6368]">
+                    Son baktığın il:{" "}
+                    <button
+                      type="button"
+                      onClick={() => ilSec(sonIl)}
+                      className="cursor-pointer font-medium text-[#00758c] underline underline-offset-2"
+                    >
+                      {sonIl.il}
+                    </button>
+                  </p>
                 )}
                 {durum.tip === "hata" && (
                   <p role="alert" className="mt-2 text-sm text-[#c5221f]">

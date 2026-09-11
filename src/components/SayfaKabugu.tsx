@@ -136,11 +136,13 @@ function SayfaAltligi() {
       </div>
 
       <div className="border-t border-cizgi">
-        <p className="mx-auto max-w-[1180px] px-5 py-4 text-xs text-metin-3 sm:px-6 lg:px-8">
-          Bilgilendirme amaçlıdır,{" "}
-          <strong className="text-metin-2">resmî uyarının yerine geçmez</strong>.
-          Acil durumda <strong className="text-metin-2">112</strong>.
-        </p>
+        <div className="mx-auto max-w-[1180px] px-5 py-4 sm:px-6 lg:px-8">
+          <p className="text-xs text-metin-3">
+            Bilgilendirme amaçlıdır,{" "}
+            <strong className="text-metin-2">resmî uyarının yerine geçmez</strong>.
+            Acil durumda <strong className="text-metin-2">112</strong>.
+          </p>
+        </div>
       </div>
     </footer>
   );

@@ -331,7 +331,7 @@ export default function Hazirlik() {
             <p className="text-lg font-semibold tabular-nums text-metin">
               {ilerleme.tamam}/{ilerleme.toplam} hazır
             </p>
-            <p className="mt-0.5 truncate text-sm text-metin-2">
+            <p className="mt-0.5 line-clamp-2 text-sm text-metin-2">
               {ilerleme.tamam === 0
                 ? "Bir madde işaretleyerek başla."
                 : ilerleme.eksikler.length === 0
@@ -526,7 +526,7 @@ export default function Hazirlik() {
                       : `${bolum.maddeler.length} madde`}
                   </span>
                 </span>
-                <span className="yazdirma-gizle flex shrink-0 items-center gap-1.5 text-sm text-vurgu">
+                <span className="yazdirma-gizle flex shrink-0 items-center gap-1.5 text-sm text-metin-2">
                   <span className="group-open:hidden">Göster</span>
                   <span className="hidden group-open:inline">Gizle</span>
                   <svg
@@ -578,7 +578,7 @@ export default function Hazirlik() {
           type="button"
           onClick={planPaylas}
           disabled={!planDolu}
-          className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full bg-marka px-4 text-sm font-semibold text-marka-uzeri transition-transform duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full bg-marka px-4 text-sm font-semibold text-marka-uzeri transition-transform duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-zemin-3 disabled:text-metin-3"
         >
           {planPaylasildi ? "Bağlantı kopyalandı" : "Planı aileyle paylaş"}
         </button>
@@ -597,7 +597,7 @@ export default function Hazirlik() {
             >
               {alan.etiket}
             </label>
-            <p className="mt-0.5 text-sm text-metin-3">{alan.ipucu}</p>
+            <p className="mt-0.5 max-w-[62ch] text-sm text-metin-3">{alan.ipucu}</p>
             {alan.cokSatir ? (
               <textarea
                 id={`plan-${alan.id}`}

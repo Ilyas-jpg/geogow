@@ -66,7 +66,7 @@ export default function HazirlikSayfasi() {
         </ul>
       </section>
 
-      <p className="mt-8 text-xs text-metin-3">
+      <p className="mt-8 max-w-[62ch] text-xs text-metin-3">
         Miktar veren maddelerin standardı yanında yazılıdır (AFAD · Sphere ·
         WHO). Bu sayfa bilgilendirme amaçlıdır ve resmî uyarının yerine geçmez —
         acil durumda 112.
