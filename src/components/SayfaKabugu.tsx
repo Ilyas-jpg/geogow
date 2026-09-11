@@ -97,6 +97,7 @@ function SayfaAltligi() {
                  götürür, kullanıcı ne olduğunu görüp seçsin. */
               ["/printables", "Basılabilir malzemeler"],
               ["/dusuk", "Sade sürüm"],
+              ["/yayin", "Yayın modu (TV, projeksiyon)"],
             ].map(([yol, ad]) => (
               <li key={yol}>
                 <a href={yol} className="hover:text-metin">

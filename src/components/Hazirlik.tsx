@@ -10,6 +10,41 @@ const CANTA_ANAHTARI = "geogow-canta";
 const PLAN_ANAHTARI = "geogow-plan";
 
 /**
+ * AİLE PLANI BAĞLANTIDA TAŞINIR — sunucu yok, hesap yok. Plan JSON → UTF-8 →
+ * base64url olarak `?plan=` parametresine gömülür; açan telefon kendi
+ * localStorage'ına yazar. Aile üyeleri aynı planı böyle paylaşır
+ * (İlyas, 2026-09-11: "cihazlar arası paylaşma"). Boş alanlar taşınmaz.
+ */
+function planKodla(plan: Record<string, string>): string {
+  const dolu = Object.fromEntries(
+    Object.entries(plan).filter(([, deger]) => deger && deger.trim())
+  );
+  const bayt = new TextEncoder().encode(JSON.stringify(dolu));
+  let ikili = "";
+  for (const b of bayt) ikili += String.fromCharCode(b);
+  return btoa(ikili).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function planCoz(kod: string): Record<string, string> | null {
+  try {
+    const b64 = kod.replace(/-/g, "+").replace(/_/g, "/");
+    const bayt = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    const deger: unknown = JSON.parse(new TextDecoder().decode(bayt));
+    if (!deger || typeof deger !== "object" || Array.isArray(deger)) return null;
+    // Yalnız tanıdığımız alanlar, yalnız metin, makul uzunlukta: yabancı bir
+    // bağlantı bu cihazdaki planı çöp anahtarlarla ezemez.
+    const bilinen = new Set(PLAN_ALANLARI.map((a) => a.id));
+    const temiz = Object.fromEntries(
+      Object.entries(deger as Record<string, unknown>).filter(
+        ([k, d]) => bilinen.has(k) && typeof d === "string" && d.trim() && d.length <= 2000
+      )
+    ) as Record<string, string>;
+    return Object.keys(temiz).length ? temiz : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * HAZIRLIK — işaretlenebilir afet çantası + doldurulabilir aile planı.
  *
  * ── GİZLİLİK (pazarlık konusu değil) ──
@@ -44,6 +79,35 @@ export default function Hazirlik() {
       if (p) setPlan(JSON.parse(p));
     } catch {
       /* Bozuk/erişilemez depo kullanıcıyı engellemez; liste yine çalışır. */
+    }
+    /* Bağlantıyla gelen plan (?plan=…): cihazda plan yoksa doğrudan, varsa
+       sorarak yazılır; parametre adres çubuğundan silinir ki yenileme
+       tekrar sormasın ve bağlantı kazara paylaşılmasın. */
+    try {
+      const kod = new URLSearchParams(window.location.search).get("plan");
+      if (kod) {
+        const gelen = planCoz(kod);
+        let mevcut: Record<string, string> = {};
+        try {
+          const p = localStorage.getItem(PLAN_ANAHTARI);
+          if (p) mevcut = JSON.parse(p) as Record<string, string>;
+        } catch {
+          /* yok sayılır */
+        }
+        const mevcutDolu = Object.values(mevcut).some((v) => v && v.trim());
+        if (
+          gelen &&
+          Object.keys(gelen).length &&
+          (!mevcutDolu ||
+            confirm("Bağlantıyla gelen aile planı bu cihazdaki planın üstüne yazılsın mı?"))
+        ) {
+          setPlan(gelen);
+          localStorage.setItem(PLAN_ANAHTARI, JSON.stringify(gelen));
+        }
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+    } catch {
+      /* bozuk bağlantı mevcut planı bozmaz */
     }
     setYuklendi(true);
   }, []);
@@ -198,6 +262,35 @@ export default function Hazirlik() {
     },
     [kaydet]
   );
+
+  /** Plan bağlantısı: paylaşım API'si varsa onunla, yoksa panoya. */
+  const [planPaylasildi, setPlanPaylasildi] = useState(false);
+  const planDolu = useMemo(() => Object.values(plan).some((v) => v && v.trim()), [plan]);
+  const planPaylas = useCallback(() => {
+    const url = `https://geogow.net/hazirlik?plan=${planKodla(plan)}`;
+    const satirlar = PLAN_ALANLARI.filter((a) => plan[a.id]?.trim()).map(
+      (a) => `${a.etiket}: ${plan[a.id].trim()}`
+    );
+    const metin = `Ailemizin afet buluşma planı (GeoGow)\n${satirlar.join("\n")}`;
+    const panoya = () =>
+      navigator.clipboard?.writeText(`${metin}\n${url}`).then(() => {
+        setPlanPaylasildi(true);
+        setTimeout(() => setPlanPaylasildi(false), 2500);
+      });
+    const veri = { title: "Aile buluşma planı", text: metin, url };
+    // Paylaşım penceresi açılamazsa panoya düşer; vazgeçme (AbortError) sessiz.
+    if (
+      typeof navigator !== "undefined" &&
+      typeof navigator.share === "function" &&
+      (typeof navigator.canShare !== "function" || navigator.canShare(veri))
+    ) {
+      void navigator.share(veri).catch((e: unknown) => {
+        if (!(e instanceof DOMException && e.name === "AbortError")) void panoya();
+      });
+      return;
+    }
+    void panoya();
+  }, [plan]);
 
   const temizle = useCallback(() => {
     if (!confirm("İşaretlerin ve yazdığın plan bu cihazdan silinecek. Emin misin?")) {
@@ -480,6 +573,20 @@ export default function Hazirlik() {
         saklanır — sunucuya gönderilmez, hesap istemez.
         {yuklendi ? "" : " (kayıtlı bilgiler yükleniyor…)"}
       </p>
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={planPaylas}
+          disabled={!planDolu}
+          className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-full bg-marka px-4 text-sm font-semibold text-marka-uzeri transition-transform duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {planPaylasildi ? "Bağlantı kopyalandı" : "Planı aileyle paylaş"}
+        </button>
+        <span className="max-w-[48ch] text-xs text-metin-3">
+          Plan bağlantının içinde taşınır: açan kişinin telefonuna iner, hiçbir
+          sunucuya gitmez.
+        </span>
+      </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-2">
         {PLAN_ALANLARI.map((alan) => (

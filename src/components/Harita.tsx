@@ -134,6 +134,8 @@ export type HaritaApi = {
   yaklas: () => void;
   uzaklas: () => void;
   git: (enlem: number, boylam: number, zoom?: number) => void;
+  /** Görünümün ortası — "konum vermeden, haritanın ortasına göre" modu için. */
+  merkez: () => { enlem: number; boylam: number; zoom: number };
 };
 
 export default function Harita({
@@ -149,6 +151,8 @@ export default function Harita({
   onGorunum,
   onIlSec,
   onHazir,
+  olcek = 1,
+  dolgu,
 }: {
   alanlar: Alan[];
   depremler?: Deprem[];
@@ -166,11 +170,22 @@ export default function Harita({
   onGorunum?: (bilgi: {
     zoom: number;
     kutu: [number, number, number, number];
+    merkez: { enlem: number; boylam: number };
   }) => void;
   /** İl noktasına tıklanınca o ilin verisi insin. */
   onIlSec?: (plaka: number) => void;
   /** Harita kurulunca üst katmana kumanda verir (yakınlaş/uzaklaş/git). */
   onHazir?: (api: HaritaApi) => void;
+  /** Yayın/projeksiyon modu: yazı ve işaret ölçeği (1 = normal, 1,6 = TV). */
+  olcek?: number;
+  /**
+   * ARAYÜZÜN ÖRTTÜĞÜ KENARLAR (px) — MapLibre padding'i olarak uygulanır ve
+   * haritanın "görünür merkezi"ni tanımlar: `getCenter()`, `easeTo`,
+   * `fitBounds` hepsi bu pencereye göre çalışır. Böylece seçili pin, artı
+   * işareti ve "haritanın ortası" ölçümü panelin altında kalmaz. Değişince
+   * harita 300 ms'de yeni pencereye kayar.
+   */
+  dolgu?: { top: number; right: number; bottom: number; left: number };
 }) {
   const kapRef = useRef<HTMLDivElement>(null);
   const haritaRef = useRef<HaritaTipi | null>(null);
@@ -183,6 +198,9 @@ export default function Harita({
   const onGorunumRef = useRef(onGorunum);
   const onIlSecRef = useRef(onIlSec);
   const onHazirRef = useRef(onHazir);
+  /* Ölçek ve dolgu sayfa ömrü boyunca sabittir; kurulumda bir kez okunur. */
+  const olcekRef = useRef(olcek);
+  const dolguRef = useRef(dolgu);
   useEffect(() => {
     onSecRef.current = onSec;
     onGorunumRef.current = onGorunum;
@@ -197,7 +215,9 @@ export default function Harita({
       style: ALTLIK_STILI,
       center: [35.2, 39.0],
       zoom: 5.2,
-      minZoom: 4,
+      // 3,5: 390 px telefonda ülke 24 px payla ancak 3,6'da sığıyor; 4'te
+      // Edirne ekranın 3 px dışında kalıyordu (ölçüldü).
+      minZoom: 3.5,
       // ⚠️ maxBounds KOYULMAZ: dikey telefonda görünen enlem aralığı ~30°
       //   olur; dar bir sınır kutusu MapLibre'yi zorla yakınlaştırır ve
       //   İstanbul yine ekran dışında kalır (ölçüldü, 390 px'te z 4,8→5,9).
@@ -212,24 +232,31 @@ export default function Harita({
     /**
      * Açılışta ülkeyi EKRANA SIĞDIR — sabit zoom kullanma.
      * Ölçüldü (420 px genişlik, zoom 5.2): İstanbul ekranın dışında kalıyordu.
+     *
+     * Önce arayüzün örttüğü kenarlar padding olarak verilir (görünür pencere),
+     * sonra o pencereye 24 px payla sığdırılır. MapLibre `fitBounds` zoom'u
+     * iki payı da düşerek hesaplar, merkezi görünür pencereye koyar; seçenek
+     * padding'ini uygulamadan önce siler, kenar padding'i kalıcıdır (kaynak
+     * kodu okundu, `_fitInternal`).
      */
+    harita.setPadding(dolguRef.current ?? { top: 0, right: 0, bottom: 0, left: 0 });
     harita.fitBounds(
       [
         [25.6, 35.8],
         [44.9, 42.2],
       ],
-      // Üstte arama+çipler, altta kart var: ülke ARADAKİ pencerede ortalanır.
-      // Simetrik 24 px kullanılınca Türkiye kartın arkasına sarkıyordu.
-      { padding: { top: 130, right: 24, bottom: 250, left: 24 }, duration: 0 }
+      { padding: 24, duration: 0 }
     );
     haritaRef.current = harita;
 
     /** Görünen alanı üst bileşene bildirir: hangi ilin verisi inecek. */
     const bildir = () => {
       const k = harita.getBounds();
+      const m = harita.getCenter();
       onGorunumRef.current?.({
         zoom: harita.getZoom(),
         kutu: [k.getWest(), k.getSouth(), k.getEast(), k.getNorth()],
+        merkez: { enlem: m.lat, boylam: m.lng },
       });
     };
     harita.on("moveend", bildir);
@@ -712,15 +739,48 @@ export default function Harita({
         });
       }
 
+      /* ── YAYIN ÖLÇEĞİ: TV/projeksiyonda 3 metreden okunsun ──
+         Kendi katmanlarımızın yazı ve işaret boyutları çarpılır; altlığın
+         sayısal yazı boyutları da (ifade olanlar dokunulmaz). */
+      const o = olcekRef.current;
+      if (o !== 1) {
+        const yazi = (id: string, taban: number) => {
+          if (harita.getLayer(id)) harita.setLayoutProperty(id, "text-size", taban * o);
+        };
+        yazi("deprem-etiket", 11);
+        yazi("altyapi-etiket", 11);
+        yazi("alan-etiket", 12);
+        yazi("secili-pin", 13);
+        yazi("alan-kume-sayi", 13);
+        harita.setPaintProperty("il-nokta", "circle-radius", [
+          "interpolate", ["linear"], ["zoom"], 4, 3.5 * o, 8, 6 * o,
+        ]);
+        harita.setPaintProperty("alan-kume", "circle-radius", [
+          "step", ["get", "point_count"], 15 * o, 25, 18 * o, 100, 22 * o, 500, 27 * o,
+        ]);
+        harita.setPaintProperty("deprem-halka", "circle-radius", ["*", ["get", "yaricap"], o]);
+        harita.setLayoutProperty("alan-pin", "icon-size", o);
+        harita.setLayoutProperty("secili-pin", "icon-size", o);
+        for (const katman of harita.getStyle().layers) {
+          if (katman.type !== "symbol" || !katman.id.startsWith("place_")) continue;
+          const boy = harita.getLayoutProperty(katman.id, "text-size");
+          if (typeof boy === "number") harita.setLayoutProperty(katman.id, "text-size", boy * o);
+        }
+      }
+
       onHazirRef.current?.({
         yaklas: () => harita.zoomIn({ duration: 250 }),
         uzaklas: () => harita.zoomOut({ duration: 250 }),
+        merkez: () => {
+          const c = harita.getCenter();
+          return { enlem: c.lat, boylam: c.lng, zoom: harita.getZoom() };
+        },
         git: (enlem, boylam, zoom) =>
           harita.easeTo({
             center: [boylam, enlem],
             zoom: zoom ?? Math.max(harita.getZoom(), NOKTA_YAKINLASMASI + 0.6),
-            // Alt kart haritanın dibini örtüyor; hedef görünür pencerede kalsın.
-            offset: [0, -60],
+            // Hedef görünür pencerenin ortasına gelir: kenar padding'i
+            // (`dolgu`) paneli zaten düşüyor, ayrıca offset gerekmez.
             duration: 650,
           }),
       });
@@ -734,6 +794,26 @@ export default function Harita({
       hazirRef.current = false;
     };
   }, []);
+
+  /* Panel konumu değişince görünür pencere değişir: harita 300 ms'de yeni
+     merkeze kayar (Google Haritalar davranışı). Aynı değer tekrar gelirse
+     dokunulmaz — moveend → liste → yeniden render döngüsü kurulmaz. */
+  useEffect(() => {
+    const harita = haritaRef.current;
+    if (!harita || !dolgu) return;
+    const o = dolguRef.current;
+    if (
+      o &&
+      o.top === dolgu.top &&
+      o.right === dolgu.right &&
+      o.bottom === dolgu.bottom &&
+      o.left === dolgu.left
+    ) {
+      return;
+    }
+    dolguRef.current = dolgu;
+    harita.easeTo({ padding: dolgu, duration: 300 });
+  }, [dolgu]);
 
   // Alanlar değişince kaynağı güncelle
   useEffect(() => {

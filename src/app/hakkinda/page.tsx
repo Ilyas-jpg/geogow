@@ -233,6 +233,18 @@ export default async function HakkindaSayfasi() {
       <h2 className="mt-8 text-lg font-semibold">Güncelleme notları</h2>
       <ul className="mt-3 space-y-3 text-sm text-metin-2">
         <li>
+          <strong className="text-metin">11 Eylül 2026 — paylaşılabilir bağlantı, konumsuz arama, yayın modu, aile planı bağlantısı.</strong>{" "}
+          Seçili alan ve açık katmanlar adres çubuğuna yazılıyor; &ldquo;Paylaş&rdquo;
+          artık Google bağlantısı değil, aynı alanı açan GeoGow bağlantısı
+          veriyor. Konum izni vermeden haritanın ortasına en yakın alanlar
+          listelenebiliyor; harita kaydıkça liste izliyor. Haber kanalı ve
+          projeksiyon için tam ekran <Link href="/yayin" className="baglanti">yayın modu</Link>{" "}
+          geldi (büyük yazı, canlı deprem listesi, saat). Hazırlık sayfasındaki
+          aile buluşma planı bir bağlantıyla telefondan telefona taşınıyor,
+          sunucuya gitmiyor. Masaüstünde panel sola yaslandı; harita seçili
+          pini ve ölçüm noktasını her zaman görünür alanda tutuyor.
+        </li>
+        <li>
           <strong className="text-metin">11 Eylül 2026 — koyu harita, Türkçe yer adları, yeni çizimler.</strong>{" "}
           Harita yangin.algow.net ile aynı koyu dile geçti: yer adları Türkçe
           (Lefkoşa, Midilli, Selanik), Kuzey Kıbrıs ve il sınırları çizildi,

@@ -136,11 +136,21 @@ function KatmanDurumu({ renk, children }: { renk: string; children: React.ReactN
 type Durum =
   | { tip: "hazir" }
   | { tip: "araniyor" }
-  | { tip: "bulundu"; enlem: number; boylam: number; dogruluk: number }
+  /** `kaynak: "harita"` = konum izni yok, mesafeler haritanın ortasından ölçülür. */
+  | { tip: "bulundu"; enlem: number; boylam: number; dogruluk: number; kaynak?: "harita" }
   | { tip: "hata"; mesaj: string };
 
-export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
+/**
+ * `yayin`: TV / projeksiyon modu (`/yayin`). Menü, arama, çipler ve panel
+ * yok; koyu harita + büyük yazı + sağda canlı deprem listesi + saat. Haber
+ * kanalı ekrana verdiğinde 3 metreden okunmalı (İlyas, 2026-08-06 hedefi).
+ */
+export default function Uygulama({ ozet, yayin = false }: { ozet: Ozet | null; yayin?: boolean }) {
   const [durum, setDurum] = useState<Durum>({ tip: "hazir" });
+  const durumRef = useRef<Durum>({ tip: "hazir" });
+  useEffect(() => {
+    durumRef.current = durum;
+  }, [durum]);
   /**
    * İNDİRİLMİŞ İLLER — plaka → alanlar. Haritada gezinirken de veri iner:
    * kullanıcı konum izni vermeden, sadece bakarak toplanma alanlarını görür.
@@ -180,6 +190,23 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
   const [arama, setArama] = useState("");
   const [aramaAcik, setAramaAcik] = useState(false);
   const [paylasilabilir, setPaylasilabilir] = useState(false);
+  /** Paylaşım desteklenmeyen tarayıcıda bağlantı panoya kopyalanır; kısa geri bildirim. */
+  const [kopyalandi, setKopyalandi] = useState(false);
+  /** Görünüm il düzeyine yakınsa "haritanın ortasına göre bul" teklif edilir. */
+  const [yakinGorunum, setYakinGorunum] = useState(false);
+  /** URL'den gelen `?alan=` — o ilin verisi inince seçilir. */
+  const bekleyenAlanRef = useRef<number | null>(null);
+  const urlOkunduRef = useRef(false);
+  /**
+   * Harita hazır olmadan gelen `git` çağrısı burada bekler. URL ile açılışta
+   * ilin verisi, haritanın stil dosyasından ÖNCE iniyordu ve çağrı boşa
+   * düşüyordu: kart açılıyor, harita ülke görünümünde kalıyordu (ölçüldü).
+   */
+  const bekleyenGitRef = useRef<{ enlem: number; boylam: number; zoom?: number } | null>(null);
+  /** Aramadan/URL'den seçilen ilin slug'ı — adres çubuğuna yazılır. */
+  const [urlIl, setUrlIl] = useState<string | null>(null);
+  /** Yayın modundaki saat (15 sn'de bir tazelenir). */
+  const [saat, setSaat] = useState("");
   const haritaApiRef = useRef<HaritaApi | null>(null);
   const izlemeRef = useRef<number | null>(null);
   /** Alt kartın yüksekliği — konum düğmesi kartın hemen üstünde durur. */
@@ -194,6 +221,17 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
    * Masaüstünde panel ortada yüzer, konumlar uygulanmaz (`sm:` ezer).
    */
   const [sheetKonum, setSheetKonum] = useState<"kapali" | "acik" | "tam">("acik");
+  /** `sm` kesme noktası (640 px, Tailwind ile aynı): panel solda mı altta mı? */
+  const [genis, setGenis] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 640px)").matches
+  );
+  useEffect(() => {
+    const sorgu = window.matchMedia("(min-width: 640px)");
+    const guncelle = () => setGenis(sorgu.matches);
+    guncelle();
+    sorgu.addEventListener("change", guncelle);
+    return () => sorgu.removeEventListener("change", guncelle);
+  }, []);
   /** Katman dürüstlük notları: telefonda katlı, masaüstünde açık başlar. */
   const [katmanDetayAcik, setKatmanDetayAcik] = useState(false);
   const sheetSurukleRef = useRef<{ y: number } | null>(null);
@@ -239,7 +277,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
   }, []);
 
   useEffect(() => {
-    setPaylasilabilir(typeof navigator !== "undefined" && "share" in navigator);
+    setPaylasilabilir(typeof navigator !== "undefined" && typeof navigator.share === "function");
   }, []);
 
   useEffect(() => {
@@ -255,13 +293,10 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
    * yapmak kötü bağlantı bütçesini boşa harcar (yangın projesinin dersi).
    */
   const depremIstendiRef = useRef(false);
-  useEffect(() => {
-    if (!depremAcik || depremIstendiRef.current) return;
-    // 🐛 Uçuştaki istek ref ile korunur; durum bağımlılığa konursa efekt
-    // yeniden koşup ilk isteği iptal ediyordu ("çekiliyor…"da kalıyordu).
-    depremIstendiRef.current = true;
-    setDepremDurumu("yukleniyor");
-    fetch("/api/deprem?saat=24&minmag=2")
+  const depremYukle = useCallback(() => {
+    // Tazelemede eldeki liste durur; "yükleniyor" yalnız ilk çekimde görünür.
+    setDepremDurumu((d) => (d === "tamam" ? d : "yukleniyor"));
+    return fetch("/api/deprem?saat=24&minmag=2")
       .then((y) => (y.ok ? y.json() : Promise.reject(new Error(String(y.status)))))
       .then((v) => {
         setDepremler(v.depremler ?? []);
@@ -269,9 +304,31 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
       })
       .catch(() => {
         depremIstendiRef.current = false; // tekrar denenebilsin
-        setDepremDurumu("hata");
+        setDepremDurumu((d) => (d === "tamam" ? d : "hata"));
       });
-  }, [depremAcik]);
+  }, []);
+  useEffect(() => {
+    if (!depremAcik || depremIstendiRef.current) return;
+    // 🐛 Uçuştaki istek ref ile korunur; durum bağımlılığa konursa efekt
+    // yeniden koşup ilk isteği iptal ediyordu ("çekiliyor…"da kalıyordu).
+    depremIstendiRef.current = true;
+    void depremYukle();
+  }, [depremAcik, depremYukle]);
+  /* Yayın modu: deprem katmanı açık başlar ve 2 dakikada bir tazelenir —
+     ekranda saatlerce kalan kare bayat veri göstermesin. Saat 15 sn'de bir. */
+  useEffect(() => {
+    if (!yayin) return;
+    setDepremAcik(true);
+    const saatYaz = () =>
+      setSaat(new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" }));
+    saatYaz();
+    const t = setInterval(() => void depremYukle(), 120_000);
+    const s = setInterval(saatYaz, 15_000);
+    return () => {
+      clearInterval(t);
+      clearInterval(s);
+    };
+  }, [yayin, depremYukle]);
 
   const yanginIstendiRef = useRef(false);
   useEffect(() => {
@@ -463,6 +520,22 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
   );
 
   /**
+   * HARİTANIN ORTASINA GÖRE — konum izni vermeden. Görünen ilin verisi zaten
+   * iniyor; kullanıcı haritayı istediği yere getirir, listede o noktaya en
+   * yakın 3 alan çıkar ve harita kaydıkça liste onu izler (critique
+   * 2026-09-10 sorusu: "sheet boş durumunda konum sormadan…").
+   */
+  const merkezdenBul = useCallback(() => {
+    const m = haritaApiRef.current?.merkez();
+    if (!m) return;
+    if (izlemeRef.current != null) {
+      navigator.geolocation.clearWatch(izlemeRef.current);
+      izlemeRef.current = null;
+    }
+    setDurum({ tip: "bulundu", enlem: m.enlem, boylam: m.boylam, dogruluk: 0, kaynak: "harita" });
+  }, []);
+
+  /**
    * Çevrimdışı durumu iki kaynaktan gelir: SW başlığı + navigator.onLine.
    * İkincisi gerekli çünkü tarayıcının HTTP önbelleği isteği karşılayınca SW
    * ağ hatası görmüyor ve başlık hiç eklenmiyor (ölçüldü).
@@ -484,6 +557,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
     const adaylar = ilAdaylari(iller, durum.enlem, durum.boylam);
     if (!adaylar.length) return;
     setSecIl(adaylar[0]);
+    setUrlIl(adaylar[0].slug);
     void ilYukle(adaylar[0].plaka);
   }, [durum, iller, secIl, ilYukle]);
 
@@ -493,7 +567,21 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
    * indirtebilir (~200 KB) ve "kötü bağlantıda çalışır" iddiasını çürütür.
    */
   const gorunumDegisti = useCallback(
-    ({ zoom, kutu }: { zoom: number; kutu: [number, number, number, number] }) => {
+    ({
+      zoom,
+      kutu,
+      merkez,
+    }: {
+      zoom: number;
+      kutu: [number, number, number, number];
+      merkez: { enlem: number; boylam: number };
+    }) => {
+      setYakinGorunum(zoom >= NOKTA_YAKINLASMASI);
+      // Harita merkezi modunda liste haritayı izler: her durmada yeni merkez.
+      const d = durumRef.current;
+      if (d.tip === "bulundu" && d.kaynak === "harita") {
+        setDurum({ tip: "bulundu", enlem: merkez.enlem, boylam: merkez.boylam, dogruluk: 0, kaynak: "harita" });
+      }
       if (zoom < NOKTA_YAKINLASMASI) {
         setGorunenPlakalar((o) => (o.length ? [] : o));
         return;
@@ -534,25 +622,60 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
     return enYakinlar({ enlem: durum.enlem, boylam: durum.boylam }, alanlar, 3);
   }, [durum, alanlar]);
 
-  const konum = durum.tip === "bulundu" ? { enlem: durum.enlem, boylam: durum.boylam } : null;
+  /** Mesafelerin ölçüldüğü nokta: cihaz konumu ya da haritanın ortası. */
+  const referans = useMemo(
+    () => (durum.tip === "bulundu" ? { enlem: durum.enlem, boylam: durum.boylam } : null),
+    [durum]
+  );
+  const merkezModu = durum.tip === "bulundu" && durum.kaynak === "harita";
+  /** Mavi nokta yalnız gerçek cihaz konumu için; harita merkezi artı ile gösterilir. */
+  const konum = merkezModu ? null : referans;
+
+  /**
+   * ARAYÜZÜN ÖRTTÜĞÜ KENARLAR (px, harita kabına göre) → haritanın görünür
+   * merkezi (MapLibre padding'i). Seçili pin, artı işareti ve "haritanın
+   * ortası" ölçümü hep görünür alanda kalır.
+   *
+   * Telefonda alt kenar = ölçülen panel yüksekliği, panel konumunun tavanıyla
+   * sınırlı. Harita merkezi modunda ÖLÇÜM KULLANILMAZ, yalnız tavan: liste
+   * içeriği → panel yüksekliği → padding → harita kayması → yeni liste
+   * döngüsü kurulmasın (bir satır sarması sonsuz titremeye dönerdi). Tavanın
+   * fazlası zararsızdır: artı yalnız biraz yukarıda durur, asla panelin
+   * altına girmez. Yayında sağdaki deprem listesi düşülür.
+   */
+  const dolgu = useMemo(() => {
+    if (yayin) return { top: 80, right: 384, bottom: 24, left: 24 };
+    if (genis) return { top: 0, right: 0, bottom: 0, left: 464 };
+    const ekran = typeof window !== "undefined" ? window.innerHeight : 800;
+    const ust = 120; // arama + çipler, kabın üstünden
+    const tavan =
+      sheetKonum === "kapali"
+        ? 140
+        : sheetKonum === "acik"
+          ? Math.round(ekran * 0.46)
+          : // tam: 85dvh ama üstte en az 60 px harita şeridi kalsın (kap = ekran − 52 px menü)
+            Math.min(Math.round(ekran * 0.85), ekran - 52 - ust - 60);
+    const alt = merkezModu ? tavan : Math.min(tavan, sheetYuksekligi);
+    return { top: ust, right: 0, bottom: Math.max(0, alt), left: 0 };
+  }, [yayin, genis, sheetKonum, merkezModu, sheetYuksekligi]);
 
   /** Seçili alan + (konum varsa) mesafe bilgisi. */
   const seciliAlan = useMemo(() => {
     if (secili == null) return null;
     const alan = alanlar.find((a) => a.id === secili);
     if (!alan) return null;
-    if (!konum)
+    if (!referans)
       return {
         alan,
         mesafe: null as null | { m: number; yon: string; derece: number; dk: number },
       };
-    const m = mesafeM(konum.enlem, konum.boylam, alan.enlem, alan.boylam);
-    const derece = yonAcisi(konum.enlem, konum.boylam, alan.enlem, alan.boylam);
+    const m = mesafeM(referans.enlem, referans.boylam, alan.enlem, alan.boylam);
+    const derece = yonAcisi(referans.enlem, referans.boylam, alan.enlem, alan.boylam);
     return {
       alan,
       mesafe: { m, yon: pusulaYonu(derece), derece, dk: yurumeDakika(m) },
     };
-  }, [secili, alanlar, konum]);
+  }, [secili, alanlar, referans]);
 
   /**
    * ARAMA — 81 ilin tamamı listede; yayında olmayan il "hazırlanıyor" diye
@@ -587,15 +710,85 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
     return { iller: ilSonuc, alanlar: alanSonuc };
   }, [arama, ozetPlakalari, alanlar]);
 
+  /** Harita hazırsa hemen gider; değilse hedefi saklar, `onHazir` uygular. */
+  const haritayaGit = useCallback((enlem: number, boylam: number, zoom?: number) => {
+    const api = haritaApiRef.current;
+    if (api) api.git(enlem, boylam, zoom);
+    else bekleyenGitRef.current = { enlem, boylam, zoom };
+  }, []);
+
   const ilSec = useCallback(
     (il: IlAdayi) => {
       setArama("");
       setAramaAcik(false);
+      setUrlIl(il.slug);
       void ilYukle(il.plaka);
-      if (il.merkez) haritaApiRef.current?.git(il.merkez[0], il.merkez[1], NOKTA_YAKINLASMASI + 0.6);
+      if (il.merkez) haritayaGit(il.merkez[0], il.merkez[1], NOKTA_YAKINLASMASI + 0.6);
     },
-    [ilYukle]
+    [ilYukle, haritayaGit]
   );
+
+  /** Seçili alanın hangi ilde olduğu — indirilen listelerden bulunur. */
+  const alanIlSlug = useCallback(
+    (id: number): string | null => {
+      for (const [plaka, liste] of Object.entries(ilVerileri)) {
+        if (liste.some((a) => a.id === id)) {
+          return iller.find((i) => i.plaka === Number(plaka))?.slug ?? null;
+        }
+      }
+      return null;
+    },
+    [ilVerileri, iller]
+  );
+
+  /* ── URL DURUMU: ?il=<slug>&alan=<id>&k=deprem,isi,sicaklik,altyapi ──
+     Paylaşılan bağlantı aynı görünümü açar; yayın modu bir şehre kilitlenir;
+     yenileme seçimi kaybetmez (critique 2026-09-10: "URL durumu yok"). */
+  useEffect(() => {
+    if (urlOkunduRef.current || !iller.length) return;
+    urlOkunduRef.current = true;
+    const p = new URLSearchParams(window.location.search);
+    const k = (p.get("k") ?? "").split(",");
+    if (k.includes("deprem")) setDepremAcik(true);
+    if (k.includes("isi")) setYanginAcik(true);
+    if (k.includes("sicaklik")) setSicaklikAcik(true);
+    if (k.includes("altyapi")) setAltyapiAcik(true);
+    const alanId = Number(p.get("alan"));
+    if (Number.isFinite(alanId) && alanId > 0) bekleyenAlanRef.current = alanId;
+    const slug = p.get("il");
+    const il = slug ? iller.find((i) => i.slug === slug) : undefined;
+    if (il) ilSec(il);
+  }, [iller, ilSec]);
+  useEffect(() => {
+    const id = bekleyenAlanRef.current;
+    if (id == null) return;
+    const alan = alanlar.find((a) => a.id === id);
+    if (!alan) return;
+    bekleyenAlanRef.current = null;
+    setSecili(id);
+    haritayaGit(alan.enlem, alan.boylam, 16);
+  }, [alanlar, haritayaGit]);
+  useEffect(() => {
+    if (!urlOkunduRef.current) return;
+    const p = new URLSearchParams();
+    const slug = (secili != null ? alanIlSlug(secili) : null) ?? urlIl;
+    if (slug) p.set("il", slug);
+    if (secili != null) p.set("alan", String(secili));
+    const k = [
+      depremAcik && "deprem",
+      yanginAcik && "isi",
+      sicaklikAcik && "sicaklik",
+      altyapiAcik && "altyapi",
+    ]
+      .filter(Boolean)
+      .join(",");
+    if (k) p.set("k", k);
+    const q = p.toString();
+    const yeni = `${window.location.pathname}${q ? `?${q}` : ""}`;
+    if (yeni !== `${window.location.pathname}${window.location.search}`) {
+      window.history.replaceState(null, "", yeni);
+    }
+  }, [secili, urlIl, depremAcik, yanginAcik, sicaklikAcik, altyapiAcik, alanIlSlug]);
 
   /** Sheet'te hangi içerik: seçili alan kartı > en yakın listesi > başlangıç. */
   const sheetIcerigi: "alan" | "liste" | "bos" = seciliAlan
@@ -611,7 +804,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
     sheetIcerigi === "alan" && seciliAlan
       ? seciliAlan.alan.ad
       : sheetIcerigi === "liste"
-        ? `En yakın ${yakinlar.length} toplanma alanı${secIl ? ` · ${secIl.il}` : ""}`
+        ? `${merkezModu ? "Haritanın ortasına en yakın" : "En yakın"} ${yakinlar.length} toplanma alanı${secIl ? ` · ${secIl.il}` : ""}`
         : `Toplanma alanları · ${(ozet?.iller.length ?? 0).toLocaleString("tr-TR")} il`;
 
   /** Katlı katman satırının özeti — sayılar her zaman görünür, notlar bir dokunuş uzakta. */
@@ -659,17 +852,38 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
   const yolTarifi = (alan: Alan) =>
     `https://www.google.com/maps/dir/?api=1&destination=${alan.enlem},${alan.boylam}&travelmode=walking`;
 
-  const paylas = useCallback((alan: Alan) => {
-    void navigator
-      .share({
-        title: alan.ad,
-        text: `${alan.ad} — toplanma alanı`,
-        url: `https://www.google.com/maps/search/?api=1&query=${alan.enlem},${alan.boylam}`,
-      })
-      .catch(() => {
-        /* kullanıcı vazgeçti — hata değil */
-      });
-  }, []);
+  /**
+   * PAYLAŞ = GeoGow bağlantısı (eskiden google.com linki paylaşıyordu ve
+   * ürün kayboluyordu). Alan seçili açılır; paylaşım API'si yoksa panoya.
+   */
+  const paylas = useCallback(
+    (alan: Alan) => {
+      const slug = alanIlSlug(alan.id);
+      const url = `https://geogow.net/?alan=${alan.id}${slug ? `&il=${slug}` : ""}`;
+      const metin = `${alan.ad} — resmî toplanma alanı (AFAD)`;
+      const panoya = () =>
+        navigator.clipboard?.writeText(`${metin}\n${url}`).then(() => {
+          setKopyalandi(true);
+          setTimeout(() => setKopyalandi(false), 2500);
+        });
+      const veri = { title: alan.ad, text: metin, url };
+      // `"share" in navigator` TS'te navigator'ı never'a daraltıyor; typeof ile.
+      // Paylaşım penceresi açılamazsa (izin, masaüstü kısıtı) panoya düşer;
+      // yalnız kullanıcının vazgeçmesi (AbortError) sessiz kalır.
+      if (
+        typeof navigator !== "undefined" &&
+        typeof navigator.share === "function" &&
+        (typeof navigator.canShare !== "function" || navigator.canShare(veri))
+      ) {
+        void navigator.share(veri).catch((e: unknown) => {
+          if (!(e instanceof DOMException && e.name === "AbortError")) void panoya();
+        });
+        return;
+      }
+      void panoya();
+    },
+    [alanIlSlug]
+  );
 
   return (
     <div className="flex h-dvh flex-col">
@@ -677,7 +891,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
       {/* Harita sayfası da içerik sayfalarıyla AYNI menüyü kullanır.
           ⚠️ Burada süslü parantez ŞART: JSX çocuk konumunda düz blok yorumu
           sayfaya metin olarak basılır. */}
-      <UstMenu aktif="/" />
+      {!yayin && <UstMenu aktif="/" />}
 
       {cevrimdisi && (
         <div
@@ -704,11 +918,91 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
           onIlSec={ilYukle}
           onHazir={(api) => {
             haritaApiRef.current = api;
+            const b = bekleyenGitRef.current;
+            if (b) {
+              bekleyenGitRef.current = null;
+              api.git(b.enlem, b.boylam, b.zoom);
+            }
           }}
+          olcek={yayin ? 1.6 : 1}
+          dolgu={dolgu}
         />
 
+        {/* Harita merkezi modu: mesafeler bu artıdan ölçülür. Artı, MapLibre'nin
+            görünür merkeziyle aynı noktada durur: (sol+genişlik−sağ)/2,
+            (üst+yükseklik−alt)/2 — `dolgu` ile birebir. */}
+        {merkezModu && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-1/2"
+            style={{
+              left: `calc(50% + ${(dolgu.left - dolgu.right) / 2}px)`,
+              top: `calc(50% + ${(dolgu.top - dolgu.bottom) / 2}px)`,
+            }}
+          >
+            <svg viewBox="0 0 40 40" width="40" height="40">
+              <circle cx="20" cy="20" r="9" fill="none" stroke="#05e1f5" strokeWidth="2" />
+              <path
+                d="M20 2v10M20 28v10M2 20h10M28 20h10"
+                stroke="#05e1f5"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+        )}
+
+        {yayin && (
+          <>
+            <div className="pointer-events-none absolute left-4 top-4 z-20 flex items-center gap-3 rounded-full bg-[#0b0d10]/85 px-4 py-2 ring-1 ring-white/10 backdrop-blur">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/marka/geogow-wordmark.png" alt="GeoGow" className="h-7 w-auto" />
+              <span className="text-sm text-metin-2">Resmî toplanma alanları · canlı deprem</span>
+              <span className="text-sm tabular-nums text-metin">{saat}</span>
+            </div>
+            <aside className="absolute right-4 top-4 z-20 w-[22rem] max-w-[calc(100%-2rem)] rounded-2xl bg-[#0b0d10]/85 p-4 text-metin ring-1 ring-white/10 backdrop-blur">
+              <h2 className="text-lg font-semibold">
+                Son 24 saatte {depremler.length} deprem
+              </h2>
+              <p className="text-xs text-metin-3">
+                M2,0 ve üstü · AFAD ve Kandilli · 2 dakikada bir yenilenir
+              </p>
+              <ol className="mt-3 space-y-1.5 text-[15px]">
+                {[...depremler]
+                  .sort((a, b) => new Date(b.zaman).getTime() - new Date(a.zaman).getTime())
+                  .slice(0, 8)
+                  .map((d) => (
+                    <li key={d.id} className="flex items-baseline justify-between gap-3">
+                      <span className="min-w-0 truncate">{d.yer}</span>
+                      <span className="shrink-0 tabular-nums text-metin-2">
+                        M
+                        {d.buyukluk.toLocaleString("tr-TR", {
+                          minimumFractionDigits: 1,
+                          maximumFractionDigits: 1,
+                        })}{" "}
+                        · {zamanYazisi(d.zaman)}
+                      </span>
+                    </li>
+                  ))}
+              </ol>
+              <p className="mt-3 border-t border-white/10 pt-2 text-xs text-metin-3">
+                <span
+                  aria-hidden
+                  className="mr-1 inline-block h-2.5 w-2.5 rounded-full align-middle"
+                  style={{ background: ALAN_YESILI }}
+                />
+                toplanma alanı · {(ozet?.iller.length ?? 0).toLocaleString("tr-TR")} il,{" "}
+                {(ozet?.toplamAlan ?? 0).toLocaleString("tr-TR")} alan · geogow.net
+              </p>
+              <p className="mt-1 text-[10px] text-metin-3">
+                © OpenStreetMap katkıcıları · © OpenMapTiles · OpenFreeMap · veri: AFAD (e-Devlet)
+              </p>
+            </aside>
+          </>
+        )}
+
         {/* ── ÜST KATMAN: arama + çipler (Google düzeni) ── */}
-        <div className="pointer-events-none absolute inset-x-0 top-0 z-20 p-3">
+        <div className={`pointer-events-none absolute inset-x-0 top-0 z-20 p-3 ${yayin ? "hidden" : ""}`}>
           <div className="pointer-events-auto relative mx-auto w-full max-w-md sm:mx-0">
             <div className="flex items-center gap-2 rounded-full border border-[#dadce0] bg-white px-4 shadow-md">
               <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden className="shrink-0 text-[#5f6368]">
@@ -863,7 +1157,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
             Telefonda alt kartın hemen üstünde durur (yükseklik ölçülüyor);
             masaüstünde kart ortada yüzdüğü için köşe zaten boş. */}
         <div
-          className="absolute right-3 z-20 flex flex-col items-end gap-2 transition-[bottom] duration-200 sm:!bottom-5"
+          className={`absolute right-3 z-20 flex-col items-end gap-2 transition-[bottom] duration-200 sm:!bottom-5 ${yayin ? "hidden" : "flex"}`}
           style={{ bottom: sheetYuksekligi + 14 }}
         >
           <div className="hidden flex-col overflow-hidden rounded-full border border-[#dadce0] bg-white shadow-md sm:flex">
@@ -919,7 +1213,11 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
             dokununca açılır/kapanır, 40 px'ten fazla sürüklenince konum
             değişir, klavyede Enter/Boşluk çalışır. Atıf satırı panel
             kapalıyken de görünür — ODbL gizlenemez. */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 sm:bottom-4 sm:flex sm:justify-center">
+        {/* Masaüstünde panel SOLA yaslı (Google Haritalar düzeni): haritanın
+            ortası boş kalır — harita merkezi modundaki artı ve seçili pin
+            panelin altında kalmaz (ortalanmış panelde ikisi de kayboluyordu,
+            ölçüldü 1440×900). Telefonda alttan çıkan sheet aynen. */}
+        <div className={`pointer-events-none absolute inset-x-0 bottom-0 z-20 sm:bottom-4 sm:left-4 sm:right-auto ${yayin ? "hidden" : ""}`}>
           <div
             ref={sheetRef}
             className={`pointer-events-auto flex w-full flex-col rounded-t-2xl border border-[#dadce0] bg-white text-[#202124] shadow-[0_-6px_24px_rgba(32,33,36,0.18)] sm:max-h-[62dvh] sm:w-[27rem] sm:rounded-2xl sm:shadow-xl ${
@@ -1032,7 +1330,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                     </svg>
                     Yol tarifi
                   </a>
-                  {paylasilabilir && (
+                  {(
                     <button
                       type="button"
                       onClick={() => paylas(seciliAlan.alan)}
@@ -1044,7 +1342,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                           fill="currentColor"
                         />
                       </svg>
-                      Paylaş
+                      {kopyalandi ? "Kopyalandı" : paylasilabilir ? "Paylaş" : "Bağlantıyı kopyala"}
                     </button>
                   )}
                 </div>
@@ -1084,7 +1382,7 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                 {yakinlar.length > 0 && (
                   <>
                     <h2 className="text-[19px] font-semibold leading-snug">
-                      Sana en yakın {yakinlar.length} toplanma alanı
+                      {merkezModu ? "Haritanın ortasına" : "Sana"} en yakın {yakinlar.length} toplanma alanı
                       {secIl ? ` · ${secIl.il}` : ""}
                     </h2>
                     <ol className="mt-2 space-y-1.5">
@@ -1120,8 +1418,10 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                       ))}
                     </ol>
                     <p className="mt-2 text-xs leading-relaxed text-[#5f6368]">
-                      Mesafeler kuş uçuşudur; yürüme yolu daha uzun olabilir. Resmî
-                      uyarı değildir — acil durumda 112.
+                      {merkezModu
+                        ? "Mesafeler haritanın ortasındaki artıdan ölçülür; haritayı kaydırınca liste yenilenir. "
+                        : "Mesafeler kuş uçuşudur; yürüme yolu daha uzun olabilir. "}
+                      Resmî uyarı değildir — acil durumda 112.
                     </p>
 
                     <CevrimdisiKayit
@@ -1154,6 +1454,15 @@ export default function Uygulama({ ozet }: { ozet: Ozet | null }) {
                     ? "Konum aranıyor…"
                     : "En yakın toplanma alanını bul"}
                 </button>
+                {yakinGorunum && (
+                  <button
+                    type="button"
+                    onClick={merkezdenBul}
+                    className="mt-2 min-h-[44px] w-full cursor-pointer rounded-full border border-[#dadce0] px-4 text-sm font-medium text-[#00758c] transition-colors hover:bg-[#f6f7f8]"
+                  >
+                    Konum vermeden: haritanın ortasına en yakın alanlar
+                  </button>
+                )}
                 {durum.tip === "hata" && (
                   <p role="alert" className="mt-2 text-sm text-[#c5221f]">
                     {durum.mesaj}
